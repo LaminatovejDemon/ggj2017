@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class Oxigen : MonoBehaviour {
 
+
+
 	public float _maxOxigenAmount;
 	public TextMesh _oxigenTemplate;
 	TextMesh _oxigen;
 	float _oxigenAmount;
-	float _secondsByLayerReward = 2f;//0.25f;
-	float _defaultOxigenAmount = 15f;
+	float _baseSecondsReward = 0.25f;
+	float _defaultOxigenAmount = 25f;
 
 	void Start () {
 		
@@ -25,24 +27,42 @@ public class Oxigen : MonoBehaviour {
 		if (_oxigen != null) {
 			return;
 		}
-
+			
 		_maxOxigenAmount = _defaultOxigenAmount;
 		_oxigenAmount = _defaultOxigenAmount;
 		_oxigen = new TextMesh ();
 		_oxigen= GameObject.Instantiate (_oxigenTemplate);
-		Vector3 v3Pos = new Vector3(1.2f, 1.1f, 10.0f);
+		_oxigen.transform.GetChild (0).gameObject.SetActive (false);
+		Vector3 localPos_ = _oxigen.transform.localPosition;
 		_oxigen.transform.parent = Camera.main.transform;
-		_oxigen.transform.position = Camera.main.ViewportToWorldPoint(v3Pos);
-		_oxigen.transform.position += Vector3.forward * 5.0f;
+		_oxigen.transform.localRotation = Quaternion.identity;
+		_oxigen.transform.localPosition = localPos_;
 	}
 
 	void UpdateOxigen () {
+		///TEST
+
+
+//		if (value > 0.0f) {
+
+
+//			transform.GetComponentInChildren<MeshRenderer>().material.SetFloat ("_AlphaCutoff", value);
+//		}
+		/// TEST END
+
 		if (diver.instance._state == diver.state.Diving) {
 			if (_oxigenAmount <= 0.0) {
 				diver.instance.Death ();
 			} else {
 				_oxigenAmount -= 1.0f * Time.deltaTime;
 				_oxigen.text = _oxigenAmount.ToString ("0.0") + " sec";
+
+				_oxigen.transform.GetChild (0).gameObject.SetActive (true);
+				float value = Mathf.Max(0.25f, ((_maxOxigenAmount - _oxigenAmount) / _maxOxigenAmount));
+				Debug.Log ("value: "+value);
+				Debug.Log ("_maxOxigenAmount: "+_maxOxigenAmount);
+				Debug.Log ("_oxigenAmount: "+_oxigenAmount);
+				_oxigen.transform.GetChild (0).GetComponent<MeshRenderer> ().material.SetFloat ("_Cutoff", value);
 			}
 		}
 	}
@@ -51,9 +71,10 @@ public class Oxigen : MonoBehaviour {
 //		Debug.Log ("Oxigen Notified: " + what.ToString () + "with depth: " + maxDepth);
 		switch (what) {
 		case taskManager.action.treasureDiveSuccess:
-//			_oxigenAmount = _oxigenAmount + REWARD
+			//_maxOxigenAmount += REWARD
 		case taskManager.action.diveSuccess:
-			_maxOxigenAmount += Mathf.Floor (maxDepth / 10) * _secondsByLayerReward;
+			_maxOxigenAmount += Mathf.Floor (maxDepth / 10) * _baseSecondsReward;
+			_oxigenAmount = _maxOxigenAmount;
 			_oxigen.text = _maxOxigenAmount + " sec";
 			break;
 		case taskManager.action.death:
@@ -62,5 +83,7 @@ public class Oxigen : MonoBehaviour {
 		default:
 			break;
 		}
+
+		_oxigen.transform.GetChild (0).gameObject.SetActive (false);
 	}
 }
