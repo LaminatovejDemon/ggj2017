@@ -4,6 +4,30 @@ using UnityEngine;
 
 public class diver : MonoBehaviour {
 
+
+	public static diver instance{
+		get {
+			return _instance;
+		}
+		private set {
+			_instance = value;
+		}
+	}
+
+	private static diver _instance;
+
+	public enum state{
+		Diving,
+		Floating,
+	};
+
+	void RegisterSingleton(){
+		if (_instance != null) {
+			Debug.LogWarning ("You PORK");
+		}
+		_instance = this;
+	}
+
 	public surface _surface;
 	float _swimAngle = 0.5f;
 	Vector3 _defaultVector = Vector3.one;
@@ -13,6 +37,11 @@ public class diver : MonoBehaviour {
 	public title _title;
 	public GameObject _accelerometerUIMesh;
 	float _accelThreshold = 0.17f;
+	public state _state = state.Floating;
+
+	public void Death () {
+
+	}
 
 	void UpdateAccelerometer(){
 		Vector3 backup_ = _accelerometerUIMesh.transform.localScale;
@@ -25,7 +54,12 @@ public class diver : MonoBehaviour {
 		_accelerometerUIMesh.transform.localPosition = backup_;
 	}
 
+	void Start(){
+		RegisterSingleton ();
+	}
+
 	void Update () {
+		
 		UpdateAccelerometer ();
 			
 		if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("Idle")) {
@@ -45,6 +79,7 @@ public class diver : MonoBehaviour {
 			GetComponent<Animator> ().SetTrigger ("Surface");
 			_title.SetState (title.state.ToBeDisplayed);
 			NotifyManager (taskManager.action.diveSuccess);
+			_state = state.Floating;
 			_maxDepth = 0;
 			return;
 		}
@@ -100,6 +135,7 @@ public class diver : MonoBehaviour {
 #endif
 			_title.SetState(title.state.ToBeHidden);
 			GetComponent<Animator> ().SetTrigger ("Dive");
+			_state = state.Diving;
 		}
 
 
@@ -124,6 +160,7 @@ public class diver : MonoBehaviour {
 
 	void NotifyManager(taskManager.action action){
 		Camera.main.GetComponent<taskManager>().Notify(action, _maxDepth);
+		Camera.main.GetComponent<Oxigen>().Notify(action, _maxDepth);
 	}
 
 }
