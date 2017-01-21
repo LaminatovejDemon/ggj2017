@@ -50,6 +50,8 @@
      <Compile Include="Assets\script\diver.cs" />
      <Compile Include="Assets\script\edge.cs" />
      <Compile Include="Assets\script\meterManager.cs" />
+     <Compile Include="Assets\script\plankton.cs" />
+     <Compile Include="Assets\script\planktonManager.cs" />
      <Compile Include="Assets\script\surface.cs" />
      <Compile Include="Assets\script\title.cs" />
      <None Include="Assets\texture\License - READ THIS.txt" />

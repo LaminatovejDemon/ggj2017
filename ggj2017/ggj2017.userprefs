@@ -1,0 +1,15 @@
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/script/planktonManager.cs">
+    <Files>
+      <File FileName="Assets/script/title.cs" Line="45" Column="30" />
+      <File FileName="Assets/script/meterManager.cs" Line="38" Column="29" />
+      <File FileName="Assets/script/planktonManager.cs" Line="27" Column="1" />
+      <File FileName="Assets/script/plankton.cs" Line="15" Column="30" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
