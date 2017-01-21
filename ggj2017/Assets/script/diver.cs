@@ -78,7 +78,8 @@ public class diver : MonoBehaviour {
 			GetComponent<Animator> ().ResetTrigger ("Dive");
 			GetComponent<Animator> ().SetTrigger ("Surface");
 			_title.SetState (title.state.ToBeDisplayed);
-			NotifyManager (taskManager.action.diveSuccess);
+			NotifyManager (_treasure ? taskManager.action.treasureDiveSuccess : taskManager.action.diveSuccess);
+			_treasure = false;
 			_state = state.Floating;
 			_maxDepth = 0;
 			return;
@@ -161,6 +162,12 @@ public class diver : MonoBehaviour {
 	void NotifyManager(taskManager.action action){
 		Camera.main.GetComponent<taskManager>().Notify(action, _maxDepth);
 		Camera.main.GetComponent<Oxigen>().Notify(action, _maxDepth);
+	}
+
+	public bool _treasure = false;
+	public void GetTreasure(){
+		NotifyManager (taskManager.action.treasureFound);
+		_treasure = true;
 	}
 
 }
