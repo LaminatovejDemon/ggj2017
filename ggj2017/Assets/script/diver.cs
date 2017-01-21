@@ -10,9 +10,24 @@ public class diver : MonoBehaviour {
 	int SurfaceState;
 	bool _keyUpDown = false;
 	bool _keyDownDown = false;
+	public title _title;
+	public GameObject _accelerometerUIMesh;
+	float _accelThreshold = 0.17f;
 
+	void UpdateAccelerometer(){
+		Vector3 backup_ = _accelerometerUIMesh.transform.localScale;
+		backup_.x += (Mathf.Abs(Input.acceleration.x) - backup_.x) * 3f * Time.deltaTime;
+		backup_.y += ((Mathf.Abs (Input.acceleration.x) > _accelThreshold ? 0.17f : 0.07f) - backup_.y) * 3f * Time.deltaTime;
+
+		_accelerometerUIMesh.transform.localScale = backup_;
+		backup_ = _accelerometerUIMesh.transform.localPosition;
+		backup_.x += (Input.acceleration.x - backup_.x) * 3f * Time.deltaTime;
+		_accelerometerUIMesh.transform.localPosition = backup_;
+	}
 
 	void Update () {
+		UpdateAccelerometer ();
+			
 		if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("Idle")) {
 			HandleIdle ();
 		} else if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("diverSwimTree")) {
@@ -25,9 +40,11 @@ public class diver : MonoBehaviour {
 		if ((_surface.GetActualPosition (transform.position) + Vector3.down * 0.3f).y < transform.position.y) {
 			GetComponent<Animator> ().ResetTrigger ("Dive");
 			GetComponent<Animator> ().SetTrigger ("Surface");
+			_title.SetState (title.state.ToBeDisplayed);
 			return;
 		}
 
+#if UNITY_EDITOR
 		if (Input.GetKeyDown (KeyCode.A)) {
 			_keyUpDown = true;
 		} else if (Input.GetKeyUp (KeyCode.A)) {
@@ -38,6 +55,16 @@ public class diver : MonoBehaviour {
 		} else if (Input.GetKeyUp (KeyCode.D)) {
 			_keyDownDown = false;
 		}
+#else
+		if ( Input.acceleration.x > _accelThreshold ){
+			_keyUpDown = true;
+		} else if (Input.acceleration.x < -_accelThreshold){
+			_keyDownDown = true;
+		} else {
+			_keyUpDown = false;
+			_keyDownDown = false;
+		}
+#endif
 
 
 		if (_keyUpDown) {
@@ -58,9 +85,18 @@ public class diver : MonoBehaviour {
 	}
 
 	void HandleIdle(){
+#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.S)) {
+#else
+		if ( Input.touchCount > 0 ){
+
+#endif
+			_title.SetState(title.state.ToBeHidden);
 			GetComponent<Animator> ().SetTrigger ("Dive");
 		}
+
+
+
 
 		if (_defaultVector == Vector3.one) {
 			_defaultVector = transform.eulerAngles;
