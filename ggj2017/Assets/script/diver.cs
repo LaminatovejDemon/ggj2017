@@ -36,13 +36,20 @@ public class diver : MonoBehaviour {
 	}
 
 
-	void HandleSwim(){
+	void HandleSwim(){	
 		if ((_surface.GetActualPosition (transform.position) + Vector3.down * 0.3f).y < transform.position.y) {
+			if (_maxDepth == 0) {
+				return;
+			}
 			GetComponent<Animator> ().ResetTrigger ("Dive");
 			GetComponent<Animator> ().SetTrigger ("Surface");
 			_title.SetState (title.state.ToBeDisplayed);
+			NotifyManager (taskManager.action.diveSuccess);
+			_maxDepth = 0;
 			return;
 		}
+
+		_maxDepth = Mathf.Max (_maxDepth, -transform.position.y);
 
 #if UNITY_EDITOR
 		if (Input.GetKeyDown (KeyCode.A)) {
@@ -113,6 +120,10 @@ public class diver : MonoBehaviour {
 	}
 
 
+	public float _maxDepth = 0;
 
+	void NotifyManager(taskManager.action action){
+		Camera.main.GetComponent<taskManager>().Notify(action, _maxDepth);
+	}
 
 }

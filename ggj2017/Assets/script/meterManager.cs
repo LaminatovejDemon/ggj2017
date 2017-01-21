@@ -25,7 +25,7 @@ public class meterManager : MonoBehaviour {
 			_meters [i].text = "- " + (int)(-_meters [i].transform.position.y) + "m";
 		}
 	}
-
+		
 	void UpdateMeters(){
 		for (int i = 0; i < _meters.Length; ++i) {
 			float viewportPoint_ = Camera.main.WorldToViewportPoint (_meters [i].transform.position).y;
