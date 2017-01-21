@@ -5,7 +5,8 @@ using UnityEngine;
 public class surface : MonoBehaviour {
 
 	public int _surfaceHeight = 50;
-	public int _surfaceWidth = 50;
+	public int _surfaceWidth = 100;
+	public float _uvScale = 0.1f;
 
 	Vector3[] _vertices = null;
 	int[] _indices = null;
@@ -45,10 +46,10 @@ public class surface : MonoBehaviour {
 			_indices [i*12 + 10] = i*4+2;
 			_indices [i*12 + 11] = i*4;
 
-			_uvs [i * 4 + 0] = new Vector2(_vertices [i * 4 + 0].x, _vertices [i * 4 + 0].z);
-			_uvs [i * 4 + 1] = new Vector2(_vertices [i * 4 + 1].x, _vertices [i * 4 + 1].z);
-			_uvs [i * 4 + 2] = new Vector2(_vertices [i * 4 + 2].x, _vertices [i * 4 + 2].z);
-			_uvs [i * 4 + 3] = new Vector2(_vertices [i * 4 + 3].x, _vertices [i * 4 + 3].z);
+			_uvs [i * 4 + 0] = new Vector2(_vertices [i * 4 + 0].x * _uvScale, _vertices [i * 4 + 0].z * _uvScale);
+			_uvs [i * 4 + 1] = new Vector2(_vertices [i * 4 + 1].x * _uvScale, _vertices [i * 4 + 1].z * _uvScale);
+			_uvs [i * 4 + 2] = new Vector2(_vertices [i * 4 + 2].x * _uvScale, _vertices [i * 4 + 2].z * _uvScale);
+			_uvs [i * 4 + 3] = new Vector2(_vertices [i * 4 + 3].x * _uvScale, _vertices [i * 4 + 3].z * _uvScale);
 		}
 
 		mesh.vertices = _vertices;
@@ -56,10 +57,20 @@ public class surface : MonoBehaviour {
 		mesh.uv = _uvs;
 	}
 
+	public float GetActualPosition(int seed){
+		InitiateSurface ();
+		return _vertices [seed].y;
+	}
+
+	public float GetPositionInTime(int seed){
+		return Mathf.Sin (Time.time + (_vertices [seed].x * 0.1f) + (_vertices [seed].z * 0.043f));
+	}
+
 	void SurfaceUpdate(){
+		
 		for (int i = 0; i < _vertices.Length; ++i) {
 			Vector3 backup_ = _vertices [i];
-			backup_.y = Mathf.Sin (Time.time + (_vertices[i].x * 0.1f) + (_vertices[i].z * 0.043f));
+			backup_.y = GetPositionInTime (i);
 			_vertices [i] = backup_;
 		}
 
