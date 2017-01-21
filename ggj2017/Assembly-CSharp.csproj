@@ -46,8 +46,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\edge.cs" />
-     <Compile Include="Assets\surface.cs" />
+     <Compile Include="Assets\script\cameraLink.cs" />
+     <Compile Include="Assets\script\diver.cs" />
+     <Compile Include="Assets\script\edge.cs" />
+     <Compile Include="Assets\script\surface.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

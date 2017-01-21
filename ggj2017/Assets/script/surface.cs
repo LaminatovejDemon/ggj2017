@@ -57,13 +57,19 @@ public class surface : MonoBehaviour {
 		mesh.uv = _uvs;
 	}
 
-	public float GetActualPosition(int seed){
+	public float GetActualPosition(int seed, float zOffset = 0){
 		InitiateSurface ();
-		return _vertices [seed].y;
+		return _vertices [seed + ((int)zOffset * _surfaceWidth * 4)].y;
 	}
 
 	public float GetPositionInTime(int seed){
 		return Mathf.Sin (Time.time + (_vertices [seed].x * 0.1f) + (_vertices [seed].z * 0.043f));
+	}
+
+	public Vector3 GetActualPosition(Vector3 position){
+		InitiateSurface ();
+		Vector3 alterVector_ = position - transform.position;
+		return _vertices [(int)(alterVector_.x - 0.5f) * 4 + ((int)(alterVector_.z + 0.5f) * _surfaceWidth * 4) ];
 	}
 
 	void SurfaceUpdate(){

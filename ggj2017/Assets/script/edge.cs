@@ -71,7 +71,7 @@ public class edge : MonoBehaviour {
 
 	void UpdateEdge () {
 		for (int i = 0; i < _vertices.Length; ++i) {
-			_verticesAnimation[i].y = _surface.GetActualPosition(i) + _vertices [i].y;
+			_verticesAnimation[i].y = _surface.GetActualPosition(i, transform.position.z) + _vertices [i].y;
 		}
 
 		GetComponent<MeshFilter> ().mesh.vertices = _verticesAnimation;
