@@ -12,7 +12,7 @@ public class task : MonoBehaviour {
 		Vector3 distance_ = transform.position - diver.instance.transform.position;
 		distance_.z = 0;
 
-		if ((distance_).magnitude < 1.0f) {
+		if ((distance_).magnitude < 2.0f) {
 			diver.instance.GetTreasure ();
 			GetComponent<ParticleSystem> ().Stop ();
 		}

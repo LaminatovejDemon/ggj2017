@@ -12,7 +12,7 @@ public class taskManager : MonoBehaviour {
 	public task _taskTemplate;
 	task _taskInstance = null;
 	public GameObject _taskMarkerTemplate;
-	GameObject _taskMarkerInstance = null;
+	GameObject [] _taskMarkerInstance;
 	int progress = 0;
 
 
@@ -22,8 +22,8 @@ public class taskManager : MonoBehaviour {
 		_tutorial2.Reset ();
 		progress = 0;
 		Destroy (_taskInstance);
-		Destroy (_taskMarkerInstance);
 		_treasureStatus = treasureStatus.none;
+		PrepareTask ();
 	}
 
 	public float[] _progressDepth;
@@ -91,11 +91,17 @@ public class taskManager : MonoBehaviour {
 	}
 
 	void PrepareTask(){
+		if (_treasureStatus == treasureStatus.hidden) {
+			return;
+		}
 		if (_taskInstance != null) {
 			Destroy (_taskInstance.gameObject);
 		}
 		if (_taskMarkerInstance == null) {
-			_taskMarkerInstance = GameObject.Instantiate (_taskMarkerTemplate);
+			_taskMarkerInstance = new GameObject[2];
+			for (int i = 0; i < _taskMarkerInstance.Length; ++i) {
+				_taskMarkerInstance [i] = GameObject.Instantiate (_taskMarkerTemplate);
+			}
 		}
 		_treasureStatus = treasureStatus.hidden;
 		_taskInstance = GameObject.Instantiate (_taskTemplate);
@@ -115,8 +121,11 @@ public class taskManager : MonoBehaviour {
 			direction_ = direction_.normalized * 3.0f;
 		}
 
+
 		Quaternion turn_ = Quaternion.LookRotation (direction_);
-		_taskMarkerInstance.transform.position = diver.instance.transform.position + Vector3.back * 1.0f + (turn_ * Vector3.forward * direction_.magnitude);
+		for (int i = 0; i < _taskMarkerInstance.Length; ++i) {
+			_taskMarkerInstance[i].transform.position = diver.instance.transform.position + Vector3.back * (1.0f) + (turn_ * Vector3.forward * (direction_.magnitude - (0.3f * i )));
+		}
 
 	}
 }

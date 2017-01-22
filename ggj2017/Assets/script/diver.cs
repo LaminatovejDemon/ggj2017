@@ -45,7 +45,7 @@ public class diver : MonoBehaviour {
 	bool _keyDownDown = false;
 	public title _title;
 	public GameObject _accelerometerUIMesh;
-	float _accelThreshold = 0.17f;
+	float _accelThreshold = 0.05f;
 	state _state = state.None;
 
 	public void Restart(){
@@ -166,11 +166,11 @@ public class diver : MonoBehaviour {
 
 
 		if (_keyUpDown) {
-			_swimAngle += Time.deltaTime * 2.0f;
+			_swimAngle -= Time.deltaTime * 2.0f;
 		}
 
 		if (_keyDownDown) {
-			_swimAngle -= Time.deltaTime * 2.0f;
+			_swimAngle += Time.deltaTime * 2.0f;
 		}
 
 		if (!(_keyDownDown || _keyUpDown)) {
@@ -198,6 +198,7 @@ public class diver : MonoBehaviour {
 			_title.SetState(title.state.ToBeHidden);
 			GetComponent<Animator> ().SetTrigger ("Dive");
 			_state = state.Diving;
+			Camera.main.GetComponent<oxygenManager>().DismissRewawrd();
 		}
 
 

@@ -51,6 +51,7 @@ public class Oxigen : MonoBehaviour {
 		_restartTimeStamp = Time.time;
 		_maxOxigenAmount = _defaultOxigenAmount;
 		_oxigenAmount = _defaultOxigenAmount;
+		Camera.main.GetComponent<oxygenManager> ().Reset ();
 	}
 
 	void UpdateDeath(){
@@ -106,7 +107,7 @@ public class Oxigen : MonoBehaviour {
 
 	float CalculateReward(float depth, bool force = false){
 		
-		float reward_ = (!force && depth < 20.0f) ? 0 : Mathf.Sqrt (depth);
+		float reward_ = (!force && depth < 20.0f) ? 0 : Mathf.Pow(depth, 1.5f) * 0.001f;
 		Debug.Log("Reward is " + reward_);
 		return reward_;
 	}

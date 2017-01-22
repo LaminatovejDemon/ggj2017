@@ -8,6 +8,15 @@ public class oxygenManager : MonoBehaviour {
 	public TextMesh _meterTemplate;
 	TextMesh[] _meters;
 
+
+	public void Reset(){
+		_rewardTitle.Reset ();
+	}
+
+	public void DismissRewawrd(){
+		_rewardTitle.SetState (title.state.ToBeHidden);
+	}
+
 	public void GotReward(float value){
 		if (value <= 0) {
 			return;
