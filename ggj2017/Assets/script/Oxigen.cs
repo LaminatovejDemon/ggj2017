@@ -86,6 +86,10 @@ public class Oxigen : MonoBehaviour {
 
 	void UpdateOxigen () {
 		if (diver.instance.GetState() == diver.state.Diving) {
+			if (-diver.instance.transform.position.y * 0.5f > _oxigenAmount && _oxigenAmount > 10) {
+				Camera.main.GetComponent<audioManager> ().Notify (taskManager.action.danger);
+				Camera.main.GetComponent<oxygenManager> ().DoubleXP ();
+			}
 			if (_oxigenAmount <= 0.0) {
 				diver.instance.Death ();
 				_deathTicker = Time.time;
@@ -108,6 +112,9 @@ public class Oxigen : MonoBehaviour {
 	float CalculateReward(float depth, bool force = false){
 		
 		float reward_ = (!force && depth < 20.0f) ? 0 : Mathf.Pow(depth, 1.5f) * 0.001f;
+		if (Camera.main.GetComponent<oxygenManager> ().IsDoubleXP ()) {
+			reward_ *= 2.0f;
+		}
 		Debug.Log("Reward is " + reward_);
 		return reward_;
 	}

@@ -44,6 +44,7 @@ public class taskManager : MonoBehaviour {
 		treasureDiveSuccess,
 		treasureFound,
 		restart,
+		danger,
 	};
 
 	public void Notify(action what, float maxDepth = 0){

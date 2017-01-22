@@ -7,10 +7,20 @@ public class oxygenManager : MonoBehaviour {
 	public title _rewardTitle;
 	public TextMesh _meterTemplate;
 	TextMesh[] _meters;
+	bool _doubleXP = false;
 
+
+	public bool IsDoubleXP(){
+		return _doubleXP;
+	}
+
+	public void DoubleXP(){
+		_doubleXP = true;
+	}
 
 	public void Reset(){
 		_rewardTitle.Reset ();
+		_doubleXP = false;
 	}
 
 	public void DismissRewawrd(){
@@ -18,11 +28,20 @@ public class oxygenManager : MonoBehaviour {
 	}
 
 	public void GotReward(float value){
+		
 		if (value <= 0) {
 			return;
+			_doubleXP = false;
 		}
-		_rewardTitle.SetTitle ("Maximum oxygen capacity raised by  " + value.ToString ("0.00") + "s");
-		_rewardTitle.SetState (title.state.ToBeDisplayed);
+
+		if (!_doubleXP) {
+			_rewardTitle.SetTitle ("Maximum oxygen capacity raised by  " + value.ToString ("0.00") + "s");
+		} else {
+			_rewardTitle.SetTitle ("Dangerous dive strenghtened you by " + (value * 0.5f).ToString ("0.00") + "s X2");
+		}
+		_doubleXP = false;
+			
+		_rewardTitle.SetState (title.state.FadeIn);
 	}
 
 	void InitialiseMeters(){

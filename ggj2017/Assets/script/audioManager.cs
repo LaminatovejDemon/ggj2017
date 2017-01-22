@@ -7,27 +7,14 @@ public class audioManager : MonoBehaviour {
 	public AudioSource introAudio;
 	public AudioSource divingAudio;
 	public AudioSource divingWarningAudio;
-
-	void Start () {
-		divingAudio.enabled = true;
-		divingWarningAudio.enabled = true;
-	}
-
-	void Update () {
-		if (diverNeedsToGoBack ()) {
-			playDivingWarningAudio ();
-		}
-
-		Camera.main.GetComponent<Oxigen>().GetOxygenLeft();
-		diver.instance.GetCurrentDepth();
-
-		//if diving -> start diving music
-			//if DIVER SHOULD GO UP
-	}
-
+			
 	public void Notify(taskManager.action what, float maxDepth = 0){
 		switch (what) {
-		case taskManager.action.idle:
+		case taskManager.action.danger:
+			playDivingWarningAudio ();
+			break;
+		case taskManager.action.treasureDiveSuccess:
+		case taskManager.action.diveSuccess:
 			playIntroAudio ();
 			break;
 		case taskManager.action.diveStarted:
@@ -39,7 +26,8 @@ public class audioManager : MonoBehaviour {
 	}
 
 	void playIntroAudio () {
-		if (introAudio != null) {
+		if (introAudio != null && !introAudio.isPlaying) {
+			Debug.Log ("Playing Intro");
 			introAudio.Play ();
 			divingAudio.Stop ();
 			divingWarningAudio.Stop ();
@@ -47,7 +35,8 @@ public class audioManager : MonoBehaviour {
 	}
 
 	void playDivingAudio () {
-		if (divingAudio != null) {
+		if (divingAudio != null && !divingAudio.isPlaying) {
+			Debug.Log ("Playing Diving");
 			introAudio.Stop ();
 			divingAudio.Play ();
 			divingWarningAudio.Stop ();
@@ -55,15 +44,16 @@ public class audioManager : MonoBehaviour {
 	}
 
 	void playDivingWarningAudio () {
-		if (divingWarningAudio != null) {
+		if (divingWarningAudio != null && !divingWarningAudio.isPlaying) {
+			Debug.Log ("Playing Warning");
 			introAudio.Stop ();
 			divingAudio.Stop ();
 			divingWarningAudio.Play ();
 		}
 	}
 
-	bool diverNeedsToGoBack () {
+/*	bool diverNeedsToGoBack () {
 		return (diver.instance.GetState () == diver.state.Diving) && 
 			((diver.instance.GetCurrentDepth () / Camera.main.GetComponent<Oxigen> ().GetOxygenLeft ()) < 2);
-	}
+	}*/
 }
