@@ -30,8 +30,8 @@ public class oxygenManager : MonoBehaviour {
 	public void GotReward(float value){
 		
 		if (value <= 0) {
-			return;
 			_doubleXP = false;
+			return;
 		}
 
 		if (!_doubleXP) {

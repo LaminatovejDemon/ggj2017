@@ -61,6 +61,7 @@ public class diver : MonoBehaviour {
 		_maxDepth = 0;
 		_swimAngle = 0.5f;
 		GetComponent<Animator> ().speed = 1.0f;
+		Camera.main.GetComponent<audioManager> ().Reset ();
 	}
 
 	public void Death () {
@@ -233,8 +234,13 @@ public class diver : MonoBehaviour {
 
 	public bool _treasure = false;
 	public void GetTreasure(){
+		if ( _treasure ){
+			return;
+		}
+				
 		NotifyManager (taskManager.action.treasureFound);
 		_treasure = true;
+//		Camera.main.GetComponent<audioManager> ().Notify (taskManager.action.treasureFound);
 	}
 
 }

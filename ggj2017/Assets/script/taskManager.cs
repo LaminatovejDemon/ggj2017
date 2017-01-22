@@ -24,6 +24,7 @@ public class taskManager : MonoBehaviour {
 		Destroy (_taskInstance);
 		_treasureStatus = treasureStatus.none;
 		PrepareTask ();
+//		Camera.main.GetComponent<audioManager> ().Reset ();
 	}
 
 	public float[] _progressDepth;
