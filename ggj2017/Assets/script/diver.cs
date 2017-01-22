@@ -76,6 +76,10 @@ public class diver : MonoBehaviour {
 		return _state;
 	}
 
+	public float GetCurrentDepth () {
+		return _maxDepth;
+	}
+
 	void UpdateAccelerometer(){
 		Vector3 backup_ = _accelerometerUIMesh.transform.localScale;
 		backup_.x += (Mathf.Abs(Input.acceleration.x) - backup_.x) * 3f * Time.deltaTime;
@@ -224,6 +228,7 @@ public class diver : MonoBehaviour {
 	void NotifyManager(taskManager.action action){
 		Camera.main.GetComponent<taskManager>().Notify(action, _maxDepth);
 		Camera.main.GetComponent<Oxigen>().Notify(action, _maxDepth);
+		Camera.main.GetComponent<audioManager>().Notify(action, _maxDepth);
 	}
 
 	public bool _treasure = false;
