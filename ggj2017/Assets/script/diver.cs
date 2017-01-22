@@ -180,8 +180,11 @@ public class diver : MonoBehaviour {
 			NotifyManager (taskManager.action.screenTurned);
 			_swimAngle = Mathf.Clamp (_swimAngle, 0, 1);
 		}
-			
+#if UNITY_EDITOR	
 		GetComponent<Animator> ().SetFloat ("SwimDirection", _swimAngle);
+#else
+		GetComponent<Animator> ().SetFloat ("SwimDirection", -Input.acceleration.x + 0.5f);
+#endif
 	}
 
 	void HandleIdle(){

@@ -29,20 +29,31 @@ public class title : MonoBehaviour {
 		if (_followUp != null) {
 			_followUp.Reset ();
 		}
-		SetColor(new Color (1, 1, 1, 0));
+		SetAlpha(0);
 	}
 
-	void SetColor(Color target){
+	public void SetTitle(string title){
+		GetComponent<TextMesh> ().text = title;
+	}
+
+	void SetAlpha(float alpha){
 		if (_ver1 == null && _ver2 == null) {
 			_ver1 = GetComponent<TextMesh> ();
 			if (_ver1 == null) {
 				_ver2 = GetComponent<MeshRenderer> ().material;
 			}
 		}
+
+		Color bak_;
+
 		if (_ver1 != null) {
-			_ver1.color = target;	
+			bak_ = _ver1.color;
+			bak_.a = alpha;
+			_ver1.color = bak_;	
 		} else if ( _ver2 != null ){
-			_ver2.SetColor("_TintColor", target);
+			bak_ = _ver2.GetColor ("_TintColor");
+			bak_.a = alpha;
+			_ver2.SetColor("_TintColor", bak_);
 		}
 	}
 
@@ -80,14 +91,14 @@ public class title : MonoBehaviour {
 
 		switch (_state) {
 		case state.Hidden:
-			SetColor(new Color (1, 1, 1, 0));
+			SetAlpha(0);
 			break;
 		case state.ToBeDisplayed:
 
 			if (_randomTexts.Length > 0) {
 				GetComponent<TextMesh> ().text = _randomTexts [Random.Range (0, _randomTexts.Length-1)];
 			}
-			SetColor(new Color (1, 1, 1, 0));
+			SetAlpha(0);
 			if (Time.time - _stateTimeStamp > 2.0f) {
 				SetState (state.FadeIn);
 				if (_followUp != null) {
@@ -97,10 +108,10 @@ public class title : MonoBehaviour {
 			break;
 		case state.FadeIn:
 			if (Time.time - _stateTimeStamp > 2.0f) {
-				SetColor(new Color (1, 1, 1, 1));
+				SetAlpha(1);
 //				SetState (state.ToBeHidden);
 			} else {
-				SetColor(new Color (1, 1, 1, 0.5f * (Time.time - _stateTimeStamp)));
+				SetAlpha(0.5f * (Time.time - _stateTimeStamp));
 			}
 			break;
 		case state.ToBeHidden:
@@ -113,10 +124,10 @@ public class title : MonoBehaviour {
 			break;
 		case state.FadeOut:
 			if (Time.time - _stateTimeStamp > 1.0f) {
-				SetColor(new Color (1, 1, 1, 0));
+				SetAlpha(0);
 				SetState (state.Hidden);
 			} else {
-				SetColor( new Color (1, 1, 1, 1.0f - ( (Time.time - _stateTimeStamp))));
+				SetAlpha(1.0f - ( (Time.time - _stateTimeStamp)));
 			}
 			break;
 		}

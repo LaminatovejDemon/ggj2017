@@ -6,7 +6,6 @@ public class Oxigen : MonoBehaviour {
 
 	public GameObject _deathCurtain;
 	public title _deathTitle;
-	public title _rewardTitle;
 
 	public float _maxOxigenAmount;
 
@@ -105,13 +104,29 @@ public class Oxigen : MonoBehaviour {
 		}
 	}
 
+	float CalculateReward(float depth, bool force = false){
+		
+		float reward_ = (!force && depth < 20.0f) ? 0 : Mathf.Sqrt (depth);
+		Debug.Log("Reward is " + reward_);
+		return reward_;
+	}
+
 	public void Notify(taskManager.action what, float maxDepth = 0){
+
+		float reward_ = 0;
 //		Debug.Log ("Oxigen Notified: " + what.ToString () + "with depth: " + maxDepth);
 		switch (what) {
 		case taskManager.action.treasureDiveSuccess:
-			//_maxOxigenAmount += REWARD
+//			_maxOxigenAmount += maxDepth / 10) * _baseSecondsReward;
+			reward_ = CalculateReward (maxDepth, true) * 10.0f;
+			_maxOxigenAmount += reward_;
+			Camera.main.GetComponent<oxygenManager> ().GotReward (reward_);
+			_oxigenAmount = _maxOxigenAmount;
+			break;
 		case taskManager.action.diveSuccess:
-			_maxOxigenAmount += Mathf.Floor (maxDepth / 10) * _baseSecondsReward;
+			reward_ = CalculateReward(maxDepth);
+			Camera.main.GetComponent<oxygenManager> ().GotReward(reward_);
+			_maxOxigenAmount += reward_;
 			_oxigenAmount = _maxOxigenAmount;
 			break;
 		default:

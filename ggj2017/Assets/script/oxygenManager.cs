@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class oxygenManager : MonoBehaviour {
 
+	public title _rewardTitle;
 	public TextMesh _meterTemplate;
 	TextMesh[] _meters;
 
-
-	Vector3 GetBase(){
-		Vector3 ret_ = Camera.main.transform.position + Vector3.forward * 0.2f + Vector3.right * (Camera.main.aspect * 4.0f);
-		ret_.y = (int)(Camera.main.transform.position.y / 10.0f) * 10.0f;
-		ret_ += -Vector3.up * 10.0f;
-		return ret_;
+	public void GotReward(float value){
+		if (value <= 0) {
+			return;
+		}
+		_rewardTitle.SetTitle ("Maximum oxygen capacity raised by  " + value.ToString ("0.00") + "s");
+		_rewardTitle.SetState (title.state.ToBeDisplayed);
 	}
 
 	void InitialiseMeters(){
@@ -21,7 +22,6 @@ public class oxygenManager : MonoBehaviour {
 		}
 
 		_meters = new TextMesh[11];
-		Vector3 base_ = GetBase ();
 
 		for (int i = 0; i < _meters.Length; ++i) {
 			_meters [i] = GameObject.Instantiate (_meterTemplate);
