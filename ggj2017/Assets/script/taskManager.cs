@@ -16,7 +16,7 @@ public class taskManager : MonoBehaviour {
 	int progress = 0;
 
 
-	void Restart(){
+	public void Reset(){
 		_title.Reset ();
 		_tutorial1.Reset ();
 		_tutorial2.Reset ();
@@ -83,7 +83,7 @@ public class taskManager : MonoBehaviour {
 			_treasureStatus = treasureStatus.found;
 			break;
 		case action.restart:
-			Restart ();
+			Reset ();
 			diver.instance.Restart ();
 			break;
 		}

@@ -26,7 +26,9 @@ public class title : MonoBehaviour {
 		_state = state.Hidden;
 		_initialPosition = Vector3.zero;
 		_stateTimeStamp = -1;
-
+		if (_followUp != null) {
+			_followUp.Reset ();
+		}
 		SetColor(new Color (1, 1, 1, 0));
 	}
 

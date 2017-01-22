@@ -67,6 +67,7 @@ public class diver : MonoBehaviour {
 		if ( _state == state.Dying ){
 			return;
 		}
+		Camera.main.GetComponent<taskManager> ().Reset ();
 		GetComponent<Animator> ().speed = 0.15f;
 		_state = state.Dying;
 	}
