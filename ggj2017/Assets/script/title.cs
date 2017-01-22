@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class title : MonoBehaviour {
 
-	public title _subtitle;
+	public string [] _randomTexts;
 
 	public enum state{
 		Hidden,
@@ -18,10 +18,17 @@ public class title : MonoBehaviour {
 	state _state = state.Hidden;
 	Vector3 _initialPosition = Vector3.zero;
 
-	void Start(){
-		SetState (state.ToBeDisplayed);	
+	public void Reset(){
+		_state = state.Hidden;
+		_initialPosition = Vector3.zero;
+		_stateTimeStamp = -1;
+		GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
 	}
-		
+
+	public state GetState(){
+		return _state;
+	}
+			
 	void Update () {
 
 		if (_initialPosition == Vector3.zero) {
@@ -39,12 +46,13 @@ public class title : MonoBehaviour {
 			GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
 			break;
 		case state.ToBeDisplayed:
+
+			if (_randomTexts.Length > 0) {
+				GetComponent<TextMesh> ().text = _randomTexts [Random.Range (0, _randomTexts.Length-1)];
+			}
 			GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
 			if (Time.time - _stateTimeStamp > 2.0f) {
 				SetState (state.FadeIn);
-				if ( _subtitle != null ){
-					_subtitle.SetState (state.ToBeDisplayed);
-				}
 			}
 			break;
 		case state.FadeIn:
@@ -58,9 +66,6 @@ public class title : MonoBehaviour {
 		case state.ToBeHidden:
 			if (Time.time - _stateTimeStamp > 1.0f) {
 				SetState (state.FadeOut);
-					if ( _subtitle != null ){
-						_subtitle.SetState (state.ToBeHidden);
-					}
 			}
 			break;
 		case state.FadeOut:
@@ -76,6 +81,12 @@ public class title : MonoBehaviour {
 	}
 
 	public void SetState(state target){
+		if ( target == _state || (target == state.ToBeDisplayed && _state == state.FadeIn) ){
+			return;
+		}
+		if (target == state.ToBeHidden && _state == state.Hidden) {
+			return;
+		}
 		_state = target;
 		_stateTimeStamp = Time.time;
 	}

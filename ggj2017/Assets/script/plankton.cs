@@ -19,7 +19,7 @@ public class plankton : MonoBehaviour {
 //		transform.position += Vector3.forward * Random.Range(10.0f, 20.0f);
 		float _scale_ = Random.Range (0.02f, 0.8f);
 		_initTimestamp = Time.time;
-		_maxAlpha = Random.Range (0.001f, 0.025f) / _scale_;
+		_maxAlpha = Random.Range (0.005f, 0.03f) / _scale_;
 		_velocity = new Vector3 (Random.Range (-1.0f, 1.0f), Random.Range (-1.0f, 1.0f), 0) * 0.05f / _scale_;
 		_lifeSpan = Random.Range (2.0f, 5.0f);
 		while (transform.position.y > -10.0f) {

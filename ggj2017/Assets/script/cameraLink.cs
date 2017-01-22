@@ -10,6 +10,10 @@ public class cameraLink : MonoBehaviour {
 	Vector3 _targetValue;
 	public bool _yAxis = true;
 
+	public void Reset(){
+		this.transform.position = _target.transform.position + _offset;
+	}
+
 	// Use this for initialization
 	void Start () {
 		_offset = this.transform.position - _target.transform.position;

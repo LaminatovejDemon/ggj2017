@@ -4,12 +4,27 @@ using UnityEngine;
 
 public class taskManager : MonoBehaviour {
 
+	public title _title;
+	public title _tutorial1;
+	public title _tutorial2;
+	bool _tutorial1Happened = false;
+	bool _tutorial2Happened = false;
 	public task _taskTemplate;
 	task _taskInstance = null;
 	public GameObject _taskMarkerTemplate;
 	GameObject _taskMarkerInstance = null;
 	int progress = 0;
 
+
+	void Restart(){
+		_title.Reset ();
+		_tutorial1.Reset ();
+		_tutorial2.Reset ();
+		progress = 0;
+		Destroy (_taskInstance);
+		Destroy (_taskMarkerInstance);
+		_treasureStatus = treasureStatus.none;
+	}
 
 	public float[] _progressDepth;
 
@@ -22,16 +37,39 @@ public class taskManager : MonoBehaviour {
 	};
 
 	public enum action{
+		idle,
+		diveStarted,
+		screenTurned,
 		diveSuccess,
 		treasureDiveSuccess,
 		treasureFound,
-		death,
+		restart,
 	};
 
-	public void Notify(action what, float maxDepth){
+	public void Notify(action what, float maxDepth = 0){
 		switch (what) {
+		case action.idle:
+			_tutorial1.SetState (title.state.ToBeDisplayed);
+			_tutorial1Happened = true;
+			break;
+		case action.diveStarted:
+			if (_tutorial1Happened) {
+				_tutorial1Happened = false;
+				_tutorial1.SetState (title.state.ToBeHidden);
+				_tutorial2.SetState (title.state.ToBeDisplayed);
+				_tutorial2Happened = true;
+			}
+
+			break;
+		case action.screenTurned:
+			if (_tutorial2Happened) {
+				_tutorial2.SetState (title.state.ToBeHidden);
+				_tutorial2Happened = false;
+			}
+			break;
 		case action.diveSuccess:
-			if (_taskInstance == null) {
+			if (_taskMarkerInstance == null) {
+				_title.SetState (title.state.ToBeDisplayed);
 				PrepareTask ();
 			}
 			break;
@@ -42,6 +80,10 @@ public class taskManager : MonoBehaviour {
 			break;
 		case action.treasureFound:
 			_treasureStatus = treasureStatus.found;
+			break;
+		case action.restart:
+			Restart ();
+			diver.instance.Restart ();
 			break;
 		}
 

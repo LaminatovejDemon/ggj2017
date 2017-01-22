@@ -5,6 +5,11 @@ using UnityEngine;
 public class diver : MonoBehaviour {
 
 
+	public ParticleSystem _bubbles;
+	public Vector3 _defaultPosition;
+	public Quaternion _defaultRotation;
+	public float _InitialDelay;
+
 	public static diver instance{
 		get {
 			return _instance;
@@ -17,14 +22,18 @@ public class diver : MonoBehaviour {
 	private static diver _instance;
 
 	public enum state{
+		None,
 		Diving,
 		Floating,
+		Dying,
 	};
 
 	void RegisterSingleton(){
 		if (_instance != null) {
 			Debug.LogWarning ("You PORK");
-		}
+		} 
+		_defaultPosition = transform.position;
+		_defaultRotation = transform.rotation;
 		_instance = this;
 	}
 
@@ -37,10 +46,33 @@ public class diver : MonoBehaviour {
 	public title _title;
 	public GameObject _accelerometerUIMesh;
 	float _accelThreshold = 0.17f;
-	public state _state = state.Floating;
+	state _state = state.None;
+
+	public void Restart(){
+		GetComponent<Animator> ().SetTrigger ("Restart");
+		GetComponent<Animator> ().ResetTrigger ("Surface");
+		GetComponent<Animator> ().ResetTrigger ("Dive");
+		transform.position = _defaultPosition;
+		transform.rotation = _defaultRotation;
+		Camera.main.GetComponent<cameraLink> ().Reset ();
+		_state = state.Floating;
+		_bubbles.Stop ();
+		_InitialDelay = Time.time;
+		_maxDepth = 0;
+		_swimAngle = 0.5f;
+		GetComponent<Animator> ().speed = 1.0f;
+	}
 
 	public void Death () {
+		if ( _state == state.Dying ){
+			return;
+		}
+		GetComponent<Animator> ().speed = 0.15f;
+		_state = state.Dying;
+	}
 
+	public state GetState(){
+		return _state;
 	}
 
 	void UpdateAccelerometer(){
@@ -55,10 +87,31 @@ public class diver : MonoBehaviour {
 	}
 
 	void Start(){
+		_bubbles.Stop ();
 		RegisterSingleton ();
 	}
 
 	void Update () {
+		
+		switch (_state) {
+		case state.Dying:
+			return;
+		case state.None:
+			NotifyManager (taskManager.action.idle);
+			_state = state.Floating;
+			break;
+		}
+
+		if ( _state == state.Floating && _InitialDelay != -1 && Time.time - _InitialDelay > 10.0f ) {
+			NotifyManager (taskManager.action.idle);
+			_InitialDelay = -1;
+		}
+
+		if (transform.position.y > -15.0f && !_bubbles.isStopped) {
+			_bubbles.Stop();
+		} else if (transform.position.y < -15.0f & _bubbles.isStopped) {
+			_bubbles.Play ();
+		}
 		
 		UpdateAccelerometer ();
 			
@@ -77,7 +130,8 @@ public class diver : MonoBehaviour {
 			}
 			GetComponent<Animator> ().ResetTrigger ("Dive");
 			GetComponent<Animator> ().SetTrigger ("Surface");
-			_title.SetState (title.state.ToBeDisplayed);
+			_InitialDelay = Time.time;
+
 			NotifyManager (_treasure ? taskManager.action.treasureDiveSuccess : taskManager.action.diveSuccess);
 			_treasure = false;
 			_state = state.Floating;
@@ -119,8 +173,10 @@ public class diver : MonoBehaviour {
 		}
 
 		if (!(_keyDownDown || _keyUpDown)) {
+			
 			_swimAngle += (0.5f - _swimAngle) * Time.deltaTime * 3.0f; 
 		} else {
+			NotifyManager (taskManager.action.screenTurned);
 			_swimAngle = Mathf.Clamp (_swimAngle, 0, 1);
 		}
 			
@@ -134,6 +190,7 @@ public class diver : MonoBehaviour {
 		if ( Input.touchCount > 0 ){
 
 #endif
+			NotifyManager(taskManager.action.diveStarted);
 			_title.SetState(title.state.ToBeHidden);
 			GetComponent<Animator> ().SetTrigger ("Dive");
 			_state = state.Diving;
