@@ -62,12 +62,13 @@ public class taskManager : MonoBehaviour {
 
 			break;
 		case action.screenTurned:
+			
+			break;
+		case action.diveSuccess:
 			if (_tutorial2Happened) {
 				_tutorial2.SetState (title.state.ToBeHidden);
 				_tutorial2Happened = false;
 			}
-			break;
-		case action.diveSuccess:
 			if (_taskMarkerInstance == null) {
 				_title.SetState (title.state.ToBeDisplayed);
 				PrepareTask ();

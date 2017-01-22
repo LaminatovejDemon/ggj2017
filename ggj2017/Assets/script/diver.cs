@@ -102,7 +102,7 @@ public class diver : MonoBehaviour {
 			break;
 		}
 
-		if ( _state == state.Floating && _InitialDelay != -1 && Time.time - _InitialDelay > 10.0f ) {
+		if ( _title.GetState() == title.state.Hidden && _state == state.Floating && _InitialDelay != -1 && Time.time - _InitialDelay > 10.0f ) {
 			NotifyManager (taskManager.action.idle);
 			_InitialDelay = -1;
 		}

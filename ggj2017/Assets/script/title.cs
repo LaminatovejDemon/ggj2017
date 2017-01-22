@@ -5,6 +5,10 @@ using UnityEngine;
 public class title : MonoBehaviour {
 
 	public string [] _randomTexts;
+	public title _followUp;
+
+	TextMesh _ver1;
+	Material _ver2;
 
 	public enum state{
 		Hidden,
@@ -22,7 +26,38 @@ public class title : MonoBehaviour {
 		_state = state.Hidden;
 		_initialPosition = Vector3.zero;
 		_stateTimeStamp = -1;
-		GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
+
+		SetColor(new Color (1, 1, 1, 0));
+	}
+
+	void SetColor(Color target){
+		if (_ver1 == null && _ver2 == null) {
+			_ver1 = GetComponent<TextMesh> ();
+			if (_ver1 == null) {
+				_ver2 = GetComponent<MeshRenderer> ().material;
+			}
+		}
+		if (_ver1 != null) {
+			_ver1.color = target;	
+		} else if ( _ver2 != null ){
+			_ver2.SetColor("_TintColor", target);
+		}
+	}
+
+	Color GetColor(){
+		if (_ver1 == null && _ver2 == null) {
+			_ver1 = GetComponent<TextMesh> ();
+			if (_ver1 == null) {
+				_ver2 = GetComponent<MeshRenderer> ().material;
+			}
+		}
+
+		if (_ver1 != null) {
+			return _ver1.color;
+		} else if ( _ver2 != null ){
+			return _ver2.GetColor("_TintColor");
+		}
+		return Color.red;
 	}
 
 	public state GetState(){
@@ -43,37 +78,43 @@ public class title : MonoBehaviour {
 
 		switch (_state) {
 		case state.Hidden:
-			GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
+			SetColor(new Color (1, 1, 1, 0));
 			break;
 		case state.ToBeDisplayed:
 
 			if (_randomTexts.Length > 0) {
 				GetComponent<TextMesh> ().text = _randomTexts [Random.Range (0, _randomTexts.Length-1)];
 			}
-			GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
+			SetColor(new Color (1, 1, 1, 0));
 			if (Time.time - _stateTimeStamp > 2.0f) {
 				SetState (state.FadeIn);
+				if (_followUp != null) {
+					_followUp.SetState (state.ToBeDisplayed);
+				}
 			}
 			break;
 		case state.FadeIn:
 			if (Time.time - _stateTimeStamp > 2.0f) {
-				GetComponent<TextMesh> ().color = new Color (1, 1, 1, 1);
+				SetColor(new Color (1, 1, 1, 1));
 //				SetState (state.ToBeHidden);
 			} else {
-				GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0.5f * (Time.time - _stateTimeStamp));
+				SetColor(new Color (1, 1, 1, 0.5f * (Time.time - _stateTimeStamp)));
 			}
 			break;
 		case state.ToBeHidden:
 			if (Time.time - _stateTimeStamp > 1.0f) {
 				SetState (state.FadeOut);
+				if (_followUp != null) {
+					_followUp.SetState (state.ToBeHidden);
+				}
 			}
 			break;
 		case state.FadeOut:
 			if (Time.time - _stateTimeStamp > 1.0f) {
-				GetComponent<TextMesh> ().color = new Color (1, 1, 1, 0);
+				SetColor(new Color (1, 1, 1, 0));
 				SetState (state.Hidden);
 			} else {
-				GetComponent<TextMesh> ().color = new Color (1, 1, 1, 1.0f - ( (Time.time - _stateTimeStamp)));
+				SetColor( new Color (1, 1, 1, 1.0f - ( (Time.time - _stateTimeStamp))));
 			}
 			break;
 		}

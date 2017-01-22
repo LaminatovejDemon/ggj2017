@@ -6,19 +6,23 @@ public class Oxigen : MonoBehaviour {
 
 	public GameObject _deathCurtain;
 	public title _deathTitle;
+	public title _rewardTitle;
 
 	public float _maxOxigenAmount;
-	public TextMesh _oxigenTemplate;
-	TextMesh _oxigen;
+
 	float _oxigenAmount;
 	float _baseSecondsReward = 0.25f;
 	float _defaultOxigenAmount = 25f;
 	float _deathTicker = -1;
 	float _restartTimeStamp = -1;
+	float _visibleOxygen = 0f;
+
+	public float GetOxygenLeft(){
+		return _visibleOxygen;
+	}
 		
 	// Update is called once per frame
 	void Update () {
-		InitialiseOxigen ();
 		UpdateOxigen ();
 		UpdateDeath ();
 		UpdateRestart ();
@@ -42,6 +46,7 @@ public class Oxigen : MonoBehaviour {
 	void Restart(){
 		_baseSecondsReward = 0.25f;
 		_defaultOxigenAmount = 25f;
+		_visibleOxygen = 0f;
 		_deathTicker = -1;
 		_deathTitle.Reset ();
 		_restartTimeStamp = Time.time;
@@ -74,20 +79,9 @@ public class Oxigen : MonoBehaviour {
 
 	}
 
-	void InitialiseOxigen () {
-		if (_oxigen != null) {
-			return;
-		}
-			
+	void Start () {
 		_maxOxigenAmount = _defaultOxigenAmount;
 		_oxigenAmount = _defaultOxigenAmount;
-		_oxigen = new TextMesh ();
-		_oxigen= GameObject.Instantiate (_oxigenTemplate);
-		_oxigen.transform.GetChild (0).gameObject.SetActive (false);
-		Vector3 localPos_ = _oxigen.transform.localPosition;
-		_oxigen.transform.parent = Camera.main.transform;
-		_oxigen.transform.localRotation = Quaternion.identity;
-		_oxigen.transform.localPosition = localPos_;
 	}
 
 	void UpdateOxigen () {
@@ -97,11 +91,16 @@ public class Oxigen : MonoBehaviour {
 				_deathTicker = Time.time;
 			} else {
 				_oxigenAmount -= 1.0f * Time.deltaTime;
-				_oxigen.text = _oxigenAmount.ToString ("0.0");
+			}
+		}
 
-				_oxigen.transform.GetChild (0).gameObject.SetActive (true);
-				float value = Mathf.Max(0.25f, ((_maxOxigenAmount - _oxigenAmount) / _maxOxigenAmount));
-				_oxigen.transform.GetChild (0).GetComponent<MeshRenderer> ().material.SetFloat ("_Cutoff", value);
+		if (_oxigenAmount != _visibleOxygen) {
+			float addition_ = (_oxigenAmount - _visibleOxygen) * 0.8f * Time.deltaTime;
+			if ((_visibleOxygen < _oxigenAmount && _visibleOxygen + addition_ > _oxigenAmount) ||
+			    (_visibleOxygen > _oxigenAmount && _visibleOxygen + addition_ < _oxigenAmount)) {
+				_visibleOxygen = _oxigenAmount;
+			} else {
+				_visibleOxygen = _visibleOxygen + addition_;
 			}
 		}
 	}
@@ -114,12 +113,9 @@ public class Oxigen : MonoBehaviour {
 		case taskManager.action.diveSuccess:
 			_maxOxigenAmount += Mathf.Floor (maxDepth / 10) * _baseSecondsReward;
 			_oxigenAmount = _maxOxigenAmount;
-			_oxigen.text = _maxOxigenAmount.ToString();
 			break;
 		default:
 			break;
 		}
-
-		_oxigen.transform.GetChild (0).gameObject.SetActive (false);
 	}
 }
