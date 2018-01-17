@@ -12,7 +12,6 @@ public class surface : MonoBehaviour {
 	int[] _indices = null;
 	Vector2[] _uvs = null;
 
-
 	void InitiateSurface(){
 		if (_vertices != null) {
 			return;

@@ -1,14 +1,22 @@
-﻿using System.Collections;
+﻿//#define TOUCH_CONTROL
+#define DIRECTION_CONTROL
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class diver : MonoBehaviour {
 
-
+	public cameraLink _cameraLink;
+	public audioManager _audioManager;
+	public taskManager _taskManager;
+	public oxygenManager _oxigenManager;
 	public ParticleSystem _bubbles;
 	public Vector3 _defaultPosition;
 	public Quaternion _defaultRotation;
 	public float _InitialDelay;
+
+	float _directionAngleInterpolated = 0;
 
 	public static diver instance{
 		get {
@@ -25,7 +33,9 @@ public class diver : MonoBehaviour {
 		None,
 		Diving,
 		Floating,
+		Hovering,
 		Dying,
+
 	};
 
 	void RegisterSingleton(){
@@ -44,7 +54,6 @@ public class diver : MonoBehaviour {
 	bool _keyUpDown = false;
 	bool _keyDownDown = false;
 	public title _title;
-	public GameObject _accelerometerUIMesh;
 	float _accelThreshold = 0.05f;
 	state _state = state.None;
 
@@ -54,21 +63,25 @@ public class diver : MonoBehaviour {
 		GetComponent<Animator> ().ResetTrigger ("Dive");
 		transform.position = _defaultPosition;
 		transform.rotation = _defaultRotation;
-		Camera.main.GetComponent<cameraLink> ().Reset ();
+		_cameraLink.Reset ();
 		_state = state.Floating;
+#if DIRECTION_CONTROL
+		directionMarker.instance.Reset();
+		_directionAngleInterpolated = 0;
+#endif
 		_bubbles.Stop ();
 		_InitialDelay = Time.time;
 		_maxDepth = 0;
 		_swimAngle = 0.5f;
 		GetComponent<Animator> ().speed = 1.0f;
-		Camera.main.GetComponent<audioManager> ().Reset ();
+		_audioManager.Reset ();
 	}
 
 	public void Death () {
 		if ( _state == state.Dying ){
 			return;
 		}
-		Camera.main.GetComponent<taskManager> ().Reset ();
+		_taskManager.Reset ();
 		GetComponent<Animator> ().speed = 0.15f;
 		_state = state.Dying;
 	}
@@ -77,21 +90,14 @@ public class diver : MonoBehaviour {
 		return _state;
 	}
 
-	public float GetCurrentDepth () {
+	public float GetCurrentDepth(){
+		return transform.position.y;
+	}
+
+	public float GetMaxDepth () {
 		return _maxDepth;
 	}
-
-	void UpdateAccelerometer(){
-		Vector3 backup_ = _accelerometerUIMesh.transform.localScale;
-		backup_.x += (Mathf.Abs(Input.acceleration.x) - backup_.x) * 3f * Time.deltaTime;
-		backup_.y += ((Mathf.Abs (Input.acceleration.x) > _accelThreshold ? 0.17f : 0.07f) - backup_.y) * 3f * Time.deltaTime;
-
-		_accelerometerUIMesh.transform.localScale = backup_;
-		backup_ = _accelerometerUIMesh.transform.localPosition;
-		backup_.x += (Input.acceleration.x - backup_.x) * 3f * Time.deltaTime;
-		_accelerometerUIMesh.transform.localPosition = backup_;
-	}
-
+		
 	void Start(){
 		_bubbles.Stop ();
 		RegisterSingleton ();
@@ -105,6 +111,9 @@ public class diver : MonoBehaviour {
 		case state.None:
 			NotifyManager (taskManager.action.idle);
 			_state = state.Floating;
+#if DIRECTION_CONTROL
+			directionMarker.instance.Reset ();
+#endif
 			break;
 		}
 
@@ -118,9 +127,7 @@ public class diver : MonoBehaviour {
 		} else if (transform.position.y < -15.0f & _bubbles.isStopped) {
 			_bubbles.Play ();
 		}
-		
-		UpdateAccelerometer ();
-			
+					
 		if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("Idle")) {
 			HandleIdle ();
 		} else if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("diverSwimTree")) {
@@ -128,6 +135,17 @@ public class diver : MonoBehaviour {
 		}
 	}
 
+	public void Hover(bool enable){
+		if (_state == state.Diving && enable) {
+			GetComponent<Animator> ().ResetTrigger ("Unhover");
+			GetComponent<Animator> ().SetTrigger ("Hover");
+			_state = state.Hovering;
+		} else if (_state == state.Hovering && !enable) {
+			_state = state.Diving;
+			GetComponent<Animator> ().ResetTrigger ("Hover");
+			GetComponent<Animator> ().SetTrigger ("Unhover");
+		}
+	}
 
 	void HandleSwim(){	
 		if ((_surface.GetActualPosition (transform.position) + Vector3.down * 0.3f).y < transform.position.y) {
@@ -136,18 +154,35 @@ public class diver : MonoBehaviour {
 			}
 			GetComponent<Animator> ().ResetTrigger ("Dive");
 			GetComponent<Animator> ().SetTrigger ("Surface");
+			GetComponent<Animator> ().ResetTrigger ("Hover");
 			_InitialDelay = Time.time;
 
 			NotifyManager (_treasure ? taskManager.action.treasureDiveSuccess : taskManager.action.diveSuccess);
 			_treasure = false;
 			_state = state.Floating;
+#if DIRECTION_CONTROL
+			directionMarker.instance.Reset ();
+#endif
 			_maxDepth = 0;
 			return;
 		}
 
 		_maxDepth = Mathf.Max (_maxDepth, -transform.position.y);
 
-#if UNITY_EDITOR
+		HandleTouch ();
+	}
+
+	void HandleTouch(){
+#if DIRECTION_CONTROL
+
+		float directionAngle_ = (directionMarker.instance.GetDiffAngle() + 1) * 0.5f;
+
+		_directionAngleInterpolated += (directionAngle_ - _directionAngleInterpolated) * 0.9f;
+		GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
+
+		return;
+
+#elif UNITY_EDITOR
 		if (Input.GetKeyDown (KeyCode.A)) {
 			_keyUpDown = true;
 		} else if (Input.GetKeyUp (KeyCode.A)) {
@@ -158,18 +193,28 @@ public class diver : MonoBehaviour {
 		} else if (Input.GetKeyUp (KeyCode.D)) {
 			_keyDownDown = false;
 		}
+#elif TOUCH_CONTROL
+		_keyDownDown = false;
+		_keyUpDown = false;
+		for (int i = 0; i < Input.touchCount; ++i) {
+		if (!_keyDownDown && Camera.main.ScreenToViewportPoint (Input.GetTouch (i).position).x > 0.5f) {
+		_keyDownDown = true;
+		} else if (!_keyUpDown && Camera.main.ScreenToViewportPoint (Input.GetTouch (i).position).x < 0.5f) {
+		_keyUpDown = true;
+		}
+		}
 #else
 		if ( Input.acceleration.x > _accelThreshold ){
-			_keyUpDown = true;
+		_keyUpDown = true;
 		} else if (Input.acceleration.x < -_accelThreshold){
-			_keyDownDown = true;
+		_keyDownDown = true;
 		} else {
-			_keyUpDown = false;
-			_keyDownDown = false;
+		_keyUpDown = false;
+		_keyDownDown = false;
 		}
 #endif
 
-
+#if TOUCH_CONTROL || (UNITY_EDITOR && !DIRECTION_CONTROL)
 		if (_keyUpDown) {
 			_swimAngle -= Time.deltaTime * 2.0f;
 		}
@@ -179,35 +224,43 @@ public class diver : MonoBehaviour {
 		}
 
 		if (!(_keyDownDown || _keyUpDown)) {
-			
+
 			_swimAngle += (0.5f - _swimAngle) * Time.deltaTime * 3.0f; 
 		} else {
 			NotifyManager (taskManager.action.screenTurned);
 			_swimAngle = Mathf.Clamp (_swimAngle, 0, 1);
 		}
-#if UNITY_EDITOR	
+
 		GetComponent<Animator> ().SetFloat ("SwimDirection", _swimAngle);
-#else
+#endif 
+
+#if !DIRECTION_CONTROL
 		GetComponent<Animator> ().SetFloat ("SwimDirection", -Input.acceleration.x + 0.5f);
 #endif
+	}
+
+	public void InitiateDive(){
+		if (_state == state.Diving) {
+			return;
+		}
+
+		NotifyManager(taskManager.action.diveStarted);
+		_title.SetState(title.state.ToBeHidden);
+		GetComponent<Animator> ().SetTrigger ("Dive");
+		_state = state.Diving;
+		_oxigenManager.DismissRewawrd();
 	}
 
 	void HandleIdle(){
 #if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.S)) {
-#else
+#elif !DIRECTION_CONTROL
 		if ( Input.touchCount > 0 ){
-
-#endif
-			NotifyManager(taskManager.action.diveStarted);
-			_title.SetState(title.state.ToBeHidden);
-			GetComponent<Animator> ().SetTrigger ("Dive");
-			_state = state.Diving;
-			Camera.main.GetComponent<oxygenManager>().DismissRewawrd();
+#else 
+		if ( false ){
+#endif 
+			InitiateDive();
 		}
-
-
-
 
 		if (_defaultVector == Vector3.one) {
 			_defaultVector = transform.eulerAngles;
@@ -217,19 +270,17 @@ public class diver : MonoBehaviour {
 			transform.eulerAngles = _defaultVector;
 		}
 
-
 		Vector3 posBak_ = transform.position;
 		posBak_.y = (_surface.GetActualPosition(transform.position) + Vector3.down * 0.3f).y;
 		transform.position += (posBak_ - transform.position) * Time.deltaTime * 10.0f;
 	}
 
-
 	public float _maxDepth = 0;
 
-	void NotifyManager(taskManager.action action){
-		Camera.main.GetComponent<taskManager>().Notify(action, _maxDepth);
-		Camera.main.GetComponent<Oxigen>().Notify(action, _maxDepth);
-		Camera.main.GetComponent<audioManager>().Notify(action, _maxDepth);
+	public void NotifyManager(taskManager.action action){
+		_taskManager.Notify(action, _maxDepth);
+		_oxigenManager._oxygen.Notify(action, _maxDepth);
+		_audioManager.Notify(action, _maxDepth);
 	}
 
 	public bool _treasure = false;

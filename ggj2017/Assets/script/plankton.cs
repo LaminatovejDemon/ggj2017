@@ -14,7 +14,9 @@ public class plankton : MonoBehaviour {
 		_manager = manager;
 
 		Vector3 randomViewport_ = new Vector3 ((Random.value) * 1.0f, (Random.value) * 1.0f, Random.Range(3.0f, 20.0f));
-		transform.position = Camera.main.ViewportToWorldPoint( randomViewport_);
+		GameObject renderCameraObject_ = GameObject.FindGameObjectWithTag ("RenderCamera");
+		Camera renderCamera_ = renderCameraObject_.GetComponent<Camera>();
+		transform.position = renderCamera_.ViewportToWorldPoint( randomViewport_);
 //		Debug.Log ("position is " + transform.position + " ( " + randomViewport_ + ")");
 //		transform.position += Vector3.forward * Random.Range(10.0f, 20.0f);
 		float _scale_ = Random.Range (0.02f, 0.8f);

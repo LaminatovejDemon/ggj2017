@@ -13,7 +13,7 @@ public class taskManager : MonoBehaviour {
 	task _taskInstance = null;
 	public GameObject _taskMarkerTemplate;
 	GameObject [] _taskMarkerInstance;
-	int progress = 0;
+	public int progress = 0;
 
 
 	public void Reset(){

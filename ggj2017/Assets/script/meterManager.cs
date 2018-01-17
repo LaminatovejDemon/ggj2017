@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class meterManager : MonoBehaviour {
 
+	public Camera _renderCamera;
+	public Camera _referenceCamera;
 	public TextMesh _meterTemplate;
+	float step_ = 1;
 	TextMesh[] _meters;
 
 
@@ -13,9 +16,9 @@ public class meterManager : MonoBehaviour {
 			return;
 		}
 
-		_meters = new TextMesh[5];
-		Vector3 base_ = Vector3.forward * 0.2f + Vector3.left * (Camera.main.aspect * 4.0f);
-		base_.y = (int)(Camera.main.transform.position.y / 10.0f) * 10.0f;
+		_meters = new TextMesh[(int)((_referenceCamera.orthographicSize * 2) / step_) + 2];
+		Vector3 base_ = Vector3.forward * 0.2f + Vector3.left * (_renderCamera.aspect * 4.9f);
+		base_.y = (int)(_renderCamera.transform.position.y / 10.0f) * 10.0f;
 		base_ += -Vector3.up * 5.0f;
 
 		for (int i = 0; i < _meters.Length; ++i) {
@@ -23,26 +26,24 @@ public class meterManager : MonoBehaviour {
 			Vector3 position_ =  base_ + Vector3.down * (i * 5.0f);
 			_meters [i].transform.position = position_;
 			_meters [i].text = "- " + (int)(-_meters [i].transform.position.y) + "m";
+			_meters [i].transform.parent = _renderCamera.transform;
 		}
 	}
 		
 	void UpdateMeters(){
+		float depth_ = _referenceCamera.transform.position.y;//diver.instance.GetCurrentDepth();
+		float depthMajor_ = (int)(depth_ / step_) * step_;
+		float depthMinor_ = depth_ - depthMajor_;
+
+		float viewPortX_ = _renderCamera.WorldToViewportPoint (_meters [0].transform.position).x;
+
 		for (int i = 0; i < _meters.Length; ++i) {
-			float viewportPoint_ = Camera.main.WorldToViewportPoint (_meters [i].transform.position).y;
+			Vector3 pos_ = _meters [i].transform.position;
+			pos_.y = _renderCamera.ViewportToWorldPoint (Vector3.up * ( 0.5f - ((_meters.Length * 0.5f) - i) * 0.1f )).y * step_ - depthMinor_;
+			_meters [i].transform.position = pos_;
 
-			if (viewportPoint_ > 1.0f) {
-				_meters [i].transform.position += Vector3.down * 25.0f;
-				_meters [i].text = "- " + (int)(-_meters [i].transform.position.y) + "m";
-			}
-
-			if (viewportPoint_ < -0.65f && _meters[i].transform.position.y+25.0f < 2.0f) {
-				_meters [i].transform.position -= Vector3.down * 25.0f;
-				_meters [i].text = "- " + (int)(-_meters [i].transform.position.y) + "m";
-			}
-
-			Vector3 bak_ = _meters [i].transform.position;
-			bak_.x = Camera.main.transform.position.x - (Camera.main.aspect * 4.0f);
-			_meters [i].transform.position = bak_;
+			float currentDepth_ = -(int)(depthMajor_ + (i * step_) - (_meters.Length+2) * 0.5f );
+			_meters [i].text = currentDepth_ > 0 ? currentDepth_ + "m" : "";
 		}
 	}
 
