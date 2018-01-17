@@ -114,13 +114,18 @@ public class directionMarker : MonoBehaviour {
 		#endif
 
 		Vector3 viewport_ = Camera.main.ScreenToViewportPoint (averagePosition_) + Vector3.forward * (_UICamera.transform.position - diver.instance.transform.position).magnitude;
+		Vector3 diverViewport_ = _worldCamera.WorldToViewportPoint (diver.instance.transform.position);
+
 		Vector3 world_ = _UICamera.ViewportToWorldPoint(viewport_);
 
 		transform.position = world_;
 
 		Vector2 viewport2d_ = (Vector2)viewport_;
+		Vector2 diverViewport2d_ = (Vector2)diverViewport_;
 
-		if ((viewport2d_ - Vector2.one * 0.5f).magnitude < 0.2f) {
+		Debug.Log(": " + (viewport2d_ - diverViewport2d_).magnitude);
+
+		if ((viewport2d_ - diverViewport2d_).magnitude < 0.05f) {
 			Hover (true);	
 		} else {
 			Hover (false);

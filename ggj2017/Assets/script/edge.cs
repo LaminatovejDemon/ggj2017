@@ -39,10 +39,10 @@ public class edge : MonoBehaviour {
 //		int y = -1;
 //		sint i = 0;
 		for (int i = 0; i < _surfaceWidth; i++) {
-			_vertices [i*4+0] = new Vector3 ((i%_surfaceWidth)+1, i / _surfaceWidth -_depth * 0.5f, 0);
-			_vertices [i*4+1] = new Vector3 ((i%_surfaceWidth), i / _surfaceWidth -_depth * 0.5f, 0);
-			_vertices [i*4+2] = new Vector3 ((i%_surfaceWidth), i / _surfaceWidth + 0.1f, 0);
-			_vertices [i*4+3] = new Vector3 ((i%_surfaceWidth)+1, i / _surfaceWidth + 0.1f , 0);
+			_vertices [i*4+0] = new Vector3 ((i%_surfaceWidth)+1, i / _surfaceWidth -_depth * 0.5f - transform.position.y - 0.1f, 0);
+			_vertices [i*4+1] = new Vector3 ((i%_surfaceWidth), i / _surfaceWidth -_depth * 0.5f - transform.position.y - 0.1f, 0);
+			_vertices [i*4+2] = new Vector3 ((i%_surfaceWidth), i / _surfaceWidth + 0.1f - transform.position.y - 0.1f, 0);
+			_vertices [i*4+3] = new Vector3 ((i%_surfaceWidth)+1, i / _surfaceWidth + 0.1f - transform.position.y - 0.1f, 0);
 			_verticesAnimation [i * 4] = _vertices [i * 4];
 			_verticesAnimation [i * 4+1] = _vertices [i * 4+1];
 			_verticesAnimation [i * 4+2] = _vertices [i * 4+2];
@@ -66,6 +66,9 @@ public class edge : MonoBehaviour {
 		mesh.vertices = _vertices;
 		mesh.triangles = _indices;
 		mesh.uv = _uvs;
+		mesh.RecalculateBounds();
+		GetComponent<MeshFilter>().mesh = mesh;
+
 	}
 
 

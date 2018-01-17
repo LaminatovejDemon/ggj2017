@@ -16,7 +16,7 @@ public class diver : MonoBehaviour {
 	public Quaternion _defaultRotation;
 	public float _InitialDelay;
 
-	float _directionAngleInterpolated = 0;
+	float _directionAngleInterpolated = 0.5f;
 
 	public static diver instance{
 		get {
@@ -67,7 +67,7 @@ public class diver : MonoBehaviour {
 		_state = state.Floating;
 #if DIRECTION_CONTROL
 		directionMarker.instance.Reset();
-		_directionAngleInterpolated = 0;
+		_directionAngleInterpolated = 0.5f;
 #endif
 		_bubbles.Stop ();
 		_InitialDelay = Time.time;
@@ -128,7 +128,7 @@ public class diver : MonoBehaviour {
 			_bubbles.Play ();
 		}
 					
-		if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("Idle")) {
+		if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("Surface")) {
 			HandleIdle ();
 		} else if (GetComponent<Animator> ().GetCurrentAnimatorStateInfo (0).IsName ("diverSwimTree")) {
 			HandleSwim ();
@@ -177,7 +177,8 @@ public class diver : MonoBehaviour {
 
 		float directionAngle_ = (directionMarker.instance.GetDiffAngle() + 1) * 0.5f;
 
-		_directionAngleInterpolated += (directionAngle_ - _directionAngleInterpolated) * 0.9f;
+		Interpolate(ref _directionAngleInterpolated, directionAngle_, 0.02f);
+
 		GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
 
 		return;
@@ -294,4 +295,27 @@ public class diver : MonoBehaviour {
 //		Camera.main.GetComponent<audioManager> ().Notify (taskManager.action.treasureFound);
 	}
 
+	void Interpolate(ref float source, float target, float speed){
+		if (target == source) {
+			return;
+		}
+
+		float delta_ = target - source;
+
+		if (delta_ > 0) {
+			if (target < source + speed) {
+				source = target;
+			} else {
+				source += speed;
+			}
+		} else {
+			if (target > source - speed) {
+				source = target;
+			} else {	
+				source -= speed;
+			}
+		}
+
+		return;
+	}
 }

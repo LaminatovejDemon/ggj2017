@@ -65,7 +65,7 @@ public class surface : MonoBehaviour {
 		return Mathf.Sin (Time.time + (_vertices [seed].x * 0.1f) + (_vertices [seed].z * 0.043f));
 	}
 
-	public Vector3 GetActualPosition(Vector3 position){
+	public  Vector3 GetActualPosition(Vector3 position){
 		InitiateSurface ();
 		Vector3 alterVector_ = position - transform.position;
 		return _vertices [(int)(alterVector_.x - 0.5f) * 4 + ((int)(alterVector_.z + 0.5f) * _surfaceWidth * 4) ];
