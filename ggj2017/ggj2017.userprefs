@@ -1,18 +1,13 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/script/surface.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/script/SurfaceSide.cs">
     <Files>
-      <File FileName="Assets/script/diver.cs" Line="252" Column="35" />
-      <File FileName="Assets/script/edge.cs" Line="69" Column="28" />
-      <File FileName="Assets/script/planktonManager.cs" Line="22" Column="2" />
-      <File FileName="Assets/script/plankton.cs" Line="31" Column="15" />
-      <File FileName="Assets/script/directionMarker.cs" Line="128" Column="56" />
-      <File FileName="Assets/script/surface.cs" Line="64" Column="32" />
+      <File FileName="Assets/script/SurfaceSide.cs" Line="83" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/plysovejkaktus/src/ggj2017/ggj2017/Assets/script/diver.cs" line="61" column="39" />
+      <Breakpoint file="/Users/plysovejkaktus/src/ggj2017/ggj2017/Assets/script/diver.cs" line="401" column="39" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

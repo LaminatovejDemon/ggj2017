@@ -31,7 +31,10 @@ public class meterManager : MonoBehaviour {
 	}
 		
 	void UpdateMeters(){
-		float depth_ = _referenceCamera.transform.position.y;//diver.instance.GetCurrentDepth();
+
+		Vector3 diverPos_ = Diver.instance.transform.position;
+
+		float depth_ = _referenceCamera.transform.position.y -Diver.instance._surface.GetSurfaceZ(diverPos_).y;
 		float depthMajor_ = (int)(depth_ / step_) * step_;
 		float depthMinor_ = depth_ - depthMajor_;
 

@@ -86,13 +86,13 @@ public class Oxygen : MonoBehaviour {
 	}
 
 	void UpdateOxigen () {
-		if (diver.instance.GetState() == diver.state.Diving) {
-			if (-diver.instance.transform.position.y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
+		if (Diver.instance.GetState() == Diver.state.Diving) {
+			if (-Diver.instance.transform.position.y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
 				_oxygenManager._audioManager.Notify (taskManager.action.danger);
 				_oxygenManager.DoubleXP ();
 			}
 			if (_oxigenAmount <= 0.0) {
-				diver.instance.Death ();
+				Diver.instance.Death ();
 				_deathTicker = Time.time;
 			} else {
 				_oxigenAmount -= 1.0f * Time.deltaTime;

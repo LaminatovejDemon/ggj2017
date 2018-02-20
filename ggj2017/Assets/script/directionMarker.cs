@@ -33,12 +33,19 @@ public class directionMarker : MonoBehaviour {
 		
 	bool _mouseDown = false;
 
+
+	public bool IsAboveGround(){
+		return false;
+
+		return transform.position.y - Diver.instance.transform.position.y > 0;
+	}
+
 	public float GetDiffAngle(){
-		diver.instance.NotifyManager (taskManager.action.screenTurned);
-		_uiVector = -_worldCamera.WorldToViewportPoint(diver.instance.transform.position) + _UICamera.WorldToViewportPoint(transform.position);
+		Diver.instance.NotifyManager (taskManager.action.screenTurned);
+		_uiVector = -_worldCamera.WorldToViewportPoint(Diver.instance.transform.position) + _UICamera.WorldToViewportPoint(transform.position);
 		_uiVector.z = 0;
 		_uiVector.Normalize ();
-		_diverVector = diver.instance.transform.rotation * Vector3.down;
+		_diverVector = Diver.instance.transform.rotation * Vector3.down;
 		_diverVector.Normalize ();
 
 		_diffVector = _uiVector - _diverVector;
@@ -50,7 +57,7 @@ public class directionMarker : MonoBehaviour {
 		if (_active) {
 			return;
 		}
-		diver.instance.InitiateDive ();
+		Diver.instance.Swim ();
 		GetComponent<Renderer> ().enabled = true;
 		_active = true;
 	}
@@ -65,11 +72,11 @@ public class directionMarker : MonoBehaviour {
 	}
 
 	void OnDrawGizmos(){
-		if (diver.instance == null) {
+		if (Diver.instance == null) {
 			return;
 		}
 
-		Vector3 origin_ = diver.instance.transform.position;
+		Vector3 origin_ = Diver.instance.transform.position;
 
 		Gizmos.color = Color.magenta;
 		Gizmos.DrawLine (origin_, origin_ + _uiVector * 100.0f);
@@ -113,8 +120,8 @@ public class directionMarker : MonoBehaviour {
 		averagePosition_ /= Input.touchCount;
 		#endif
 
-		Vector3 viewport_ = Camera.main.ScreenToViewportPoint (averagePosition_) + Vector3.forward * (_UICamera.transform.position - diver.instance.transform.position).magnitude;
-		Vector3 diverViewport_ = _worldCamera.WorldToViewportPoint (diver.instance.transform.position);
+		Vector3 viewport_ = Camera.main.ScreenToViewportPoint (averagePosition_) + Vector3.forward * (_UICamera.transform.position - Diver.instance.transform.position).magnitude;
+		Vector3 diverViewport_ = _worldCamera.WorldToViewportPoint (Diver.instance.transform.position);
 
 		Vector3 world_ = _UICamera.ViewportToWorldPoint(viewport_);
 
@@ -122,8 +129,6 @@ public class directionMarker : MonoBehaviour {
 
 		Vector2 viewport2d_ = (Vector2)viewport_;
 		Vector2 diverViewport2d_ = (Vector2)diverViewport_;
-
-		Debug.Log(": " + (viewport2d_ - diverViewport2d_).magnitude);
 
 		if ((viewport2d_ - diverViewport2d_).magnitude < 0.05f) {
 			Hover (true);	
@@ -139,6 +144,6 @@ public class directionMarker : MonoBehaviour {
 		Debug.Log(Time.time + ": " + state + ": ");
 
 		_hover = state;
-		diver.instance.Hover (state);
+		Diver.instance.Hover (state);
 	}
 }
