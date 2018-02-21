@@ -1,30 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
+namespace Water{
 public class Surface : MonoBehaviour {
 
 	public int _surfaceHeight = 50;
 	public int _surfaceWidth = 100;
 	public float _textureScale = 0.1f;
 	public float _resolutionX = 1.0f;
+
+	public float _waveHeight = 1.0f;
+	public float _waveSpeed = 1.0f;
+	
+	//Not implemented, don't modify
+	public readonly float _resolutionY = 1.0f;
+	
 	public float _borderExtentionX;
 
 	Vector3[] _vertices = null;
 	int[] _indices = null;
 	Vector2[] _uvs = null;
 
-	List<SurfaceSide> _animationListeners;
+	List<SurfaceEdge> _animationListeners;
 
 	public int GetSurfaceWidth()
 	{
-		return (int)(_surfaceWidth / _resolutionX);
+		return (int)(_surfaceWidth / _resolutionX + 0.99f);
 	}
 
-	public void RegisterAnimationListener(SurfaceSide source)
+	public void RegisterAnimationListener(SurfaceEdge source)
 	{
 		if (_animationListeners == null) {
-			_animationListeners = new List<SurfaceSide> ();
+			_animationListeners = new List<SurfaceEdge> ();
 		}
 
 		if (_animationListeners.Contains (source)) {
@@ -75,7 +84,7 @@ public class Surface : MonoBehaviour {
 			if ( i%w_ == w_-1 )
 				_vertices [i*4+3] = new Vector3 (borderDistance_, 0, i / w_ + 1);
 			else
-				_vertices [i*4+3] = new Vector3 (((i%w_ - w_ * 0.5f)+1) * _resolutionX, 0, i / w_ + 1);
+				_vertices [i*4+3] = new Vector3 (((i%w_)+1 - w_ * 0.5f) * _resolutionX, 0, i / w_ + 1);
 
 			//topside
 			_indices [i*12] = i*4;
@@ -106,11 +115,13 @@ public class Surface : MonoBehaviour {
 		
 	float CalculateGridZ(int x, int y){
 		float value_ = 0;
-		float locX_ = x + transform.position.x / _resolutionX;
+		float locX_ = (x + transform.position.x) * _resolutionX;
 		float locY_ = y + transform.position.z;
 
+		float time_ = Time.time * _waveSpeed;
+
 		int wave1_, from1_, to1_;
-		wave1_ = (int)(locX_ * 2.0f + locY_ * 1.73f + Time.time * 20.0f) % 100; 
+		wave1_ = (int)(locX_ * 2.0f + locY_ * 1.73f + time_ * 20.0f) % 100; 
 		from1_ = 5;
 		to1_ = 25;
 		if (wave1_ > from1_ && wave1_ < to1_) {
@@ -119,18 +130,18 @@ public class Surface : MonoBehaviour {
 		}
 
 		int wave2_, from2_, to2_;
-		wave2_ = (int)(locY_ * 2.0f + Time.time * 20.0f) % 100; 
-		from2_ = 5;
-		to2_ = 10;
+		wave2_ = (int)(locY_ * 2.0f + time_ * 20.0f) % 100; 
+		from2_ = 2;
+		to2_ = 19;
 		if (wave2_ > from2_ && wave2_ < to2_) {
-			value_ += 0.4f  
+			value_ += 0.2f  
 				* (1.0f + Mathf.Sin(Mathf.PI * 2.0f * (-0.25f + (float)(wave2_-from2_)/(float)(to2_-from2_))));
 		}
 
-		value_ += Mathf.Sin (locX_ * 0.15f + locY_ * 0.25f + Time.time * 0.8f) * 0.3f;
+		value_ += Mathf.Sin (locX_ * 0.15f + locY_ * 0.25f + time_ * 0.8f) * 0.3f;
 		
-		value_ += Mathf.Sin(Time.time * 1.4f + locX_ * 0.05f + locY_ * 0.1f) * 0.7f;
-		return  value_;
+		value_ += Mathf.Sin(time_ * 1.4f + locX_ * 0.05f + locY_ * 0.1f) * 0.7f;
+		return  value_ * _waveHeight;
 	}
 
 	public float GetGridZ(int x, int y, int vertexOffset = 3){
@@ -145,25 +156,33 @@ public class Surface : MonoBehaviour {
 	public Vector3 GetSurfaceZ(Vector3 position){
 		InitiateSurface ();
 
-		Vector3 _alteredVector = position + Vector3.left * ((GetSurfaceWidth() * 0.5f) * _resolutionX) + Vector3.forward; 
+		Vector3 _alteredVector = position + Vector3.right * ((GetSurfaceWidth() * 0.5f) * _resolutionX) + Vector3.forward; 
 
 		_alteredVector.x -= transform.position.x;
-		_alteredVector.z += transform.position.z;
+		_alteredVector.z -= transform.position.z;
 
 		_alteredVector = GetGridPosition((int)(_alteredVector.x / _resolutionX), (int)(_alteredVector.z));
 
 		_alteredVector.x += transform.position.x;
-		_alteredVector.z -= transform.position.z;
+		_alteredVector.z += transform.position.z;
 
 		return _alteredVector;
 	}
 		
 	Vector3 GetGridPosition(int x, int y, int offset_ = 0){
+	
+		if ( x < 0 || y < 0 || x >= GetSurfaceWidth() || y >= _surfaceHeight ) {
+			Debug.LogWarning(this.ToString() + ", " + MethodBase.GetCurrentMethod().ToString() + ": Out of bounds (" + x + ", " + y + ")");
+			x = Mathf.Clamp(x, 0, GetSurfaceWidth() -1);
+			y = Mathf.Clamp(y, 0, _surfaceHeight - 1);
+		}
+		
 		int index_ = ((y * GetSurfaceWidth()) + x) * 4 + offset_;
 		return _vertices[index_]; 
 	}
 
 	void AnimateSurface(){
+
 		int index_ = 0;
 		Vector3 bak_;
 
@@ -204,4 +223,5 @@ public class Surface : MonoBehaviour {
 		InitiateSurface ();	
 		AnimateSurface ();
 	}
+}
 }

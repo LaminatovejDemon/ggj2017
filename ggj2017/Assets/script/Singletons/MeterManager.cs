@@ -36,7 +36,7 @@ public class MeterManager : BaseManager<MeterManager> {
 		float depthMajor_ = (int)(depth_ / step_) * step_;
 		float depthMinor_ = depth_ - depthMajor_;
 
-		float viewPortX_ = MainCamera.get.GetComponent<Camera>().WorldToViewportPoint (_meters [0].transform.position).x;
+		// float viewPortX_ = MainCamera.get.GetComponent<Camera>().WorldToViewportPoint (_meters [0].transform.position).x;
 
 		for (int i = 0; i < _meters.Length; ++i) {
 			Vector3 pos_ = _meters [i].transform.position;

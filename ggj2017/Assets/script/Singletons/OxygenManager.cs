@@ -86,7 +86,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	public float _maxOxigenAmount;
 
 	float _oxigenAmount;
-	float _baseSecondsReward = 0.25f;
+	// float _baseSecondsReward = 0.25f;
 	float _defaultOxigenAmount = 25f;
 	float _deathTicker = -1;
 	float _restartTimeStamp = -1;
@@ -112,7 +112,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	}
 
 	void Restart(){
-		_baseSecondsReward = 0.25f;
+		// _baseSecondsReward = 0.25f;
 		_defaultOxigenAmount = 25f;
 		_visibleOxygen = 0f;
 		_deathTicker = -1;

@@ -5,48 +5,32 @@ using UnityEngine;
 
 public class DirectionMarker : BaseManager<DirectionMarker> {
 
-	public Camera _worldCamera;
-	public Camera _UICamera;
+	public Water.Surface _groundReference;
 	Vector3 _uiVector;
 	Vector3 _diverVector;
-	Vector3 _diffVector;
+	// Vector3 _diffVector;
 	bool _active = true;
 	bool _hover = false;
-
-	public static DirectionMarker instance{
-		get {
-			return _Instance;
-		}
-		private set {
-			_Instance = value;
-		}
-	}
-
-	static DirectionMarker _Instance;
-
-	void Start(){
-		if ( _Instance != null && _Instance != this ) {
-			GameObject.Destroy (_Instance);
-		}
-		instance = this;
-	}
 		
 	bool _mouseDown = false;
+	Vector3 _lastControllerPosition = Vector3.zero;
 
-
-	public bool IsAboveGround(){
-		return transform.position.y - Diver.get.transform.position.y > 0;
+	public bool IsCursorAboveGround(){
+		UpdateViewportPosition();
+		float difference_ = _groundReference.GetSurfaceZ(Diver.get.transform.position).y - RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition).y;
+		return difference_ < 0;
 	}
 
 	public float GetDiffAngle(){
 		Diver.get.NotifyManager (TaskManager.action.screenTurned);
-		_uiVector = -_worldCamera.WorldToViewportPoint(Diver.get.transform.position) + _UICamera.WorldToViewportPoint(transform.position);
+		_uiVector = -RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.transform.position) 
+					+ RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position);
 		_uiVector.z = 0;
 		_uiVector.Normalize ();
 		_diverVector = Diver.get.transform.rotation * Vector3.down;
 		_diverVector.Normalize ();
 
-		_diffVector = _uiVector - _diverVector;
+		// _diffVector = _uiVector - _diverVector;
 
 		return Vector3.Dot (_uiVector, _diverVector);
 	}
@@ -83,13 +67,15 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 		Gizmos.color = Color.red;
 		Gizmos.DrawLine (origin_, origin_ + _diverVector * 100.0f);
-	}		
 
-	void Update () {
+		Gizmos.color = Color.blue;
+		Gizmos.DrawLine(transform.position + Vector3.left, transform.position + Vector3.right );
+		Gizmos.DrawLine(transform.position + Vector3.up, transform.position + Vector3.down );
+		Gizmos.DrawLine(transform.position + Vector3.forward, transform.position + Vector3.back );
+	}	
 
-		Vector2 averagePosition_ = Vector2.zero;
-		transform.eulerAngles += Vector3.forward * Time.deltaTime * 60.0f;
-
+	bool UpdateViewportPosition(){
+		
 		#if UNITY_EDITOR
 		if ( Input.GetMouseButtonDown(0) ){
 			_mouseDown = true;
@@ -99,35 +85,47 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		}
 
 		if ( !_mouseDown ){
-			return;
+			return false;
 		}
 
-		Set();
+		
 
-		averagePosition_ = Input.mousePosition;
+		_lastControllerPosition = Input.mousePosition;
 
 		#else
 		if (Input.touchCount == 0) {
-			return;
+			return false;
 		}
 
 		for (int i = 0; i < Input.touchCount; ++i) {
-			averagePosition_ += (Input.GetTouch (i).position);
+			position += (Input.GetTouch (i).position);
+		}
+
+		position /= Input.touchCount;
+		#endif
+
+		_lastControllerPosition += Vector3.forward * (RenderCamera.get.transform.position - Diver.get.transform.position).magnitude;
+		_lastControllerPosition = MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint(_lastControllerPosition);
+
+		return true;
+	}	
+
+	void Update () {
+		transform.eulerAngles += Vector3.forward * Time.deltaTime * 60.0f;
+
+		if (! UpdateViewportPosition() ){
+			return;
 		}
 
 		Set();
 
-		averagePosition_ /= Input.touchCount;
-		#endif
-
-		Vector3 viewport_ = MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint (averagePosition_) + Vector3.forward * (_UICamera.transform.position - Diver.get.transform.position).magnitude;
-		Vector3 diverViewport_ = _worldCamera.WorldToViewportPoint (Diver.get.transform.position);
-
-		Vector3 world_ = _UICamera.ViewportToWorldPoint(viewport_);
+		Vector3 diverViewport_ = RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint (Diver.get.transform.position);		
+		Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
 
 		transform.position = world_;
+		
 
-		Vector2 viewport2d_ = (Vector2)viewport_;
+		Vector2 viewport2d_ = (Vector2)_lastControllerPosition;
 		Vector2 diverViewport2d_ = (Vector2)diverViewport_;
 
 		if ((viewport2d_ - diverViewport2d_).magnitude < 0.05f) {
@@ -136,6 +134,8 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			Hover (false);
 		}
 	}
+
+
 
 	void Hover( bool state){
 		if ( _hover == state ){

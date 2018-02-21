@@ -24,13 +24,14 @@ public class Diver : BaseManager<Diver> {
 
 	};
 
-	public Surface _surface;
-	float _swimAngle = 0.5f;
+	public Water.Surface _surface;
+	// float _swimAngle = 0.5f;
 	// Vector3 _defaultVector = Vector3.one;
 	// int SurfaceState;
 	// bool _keyUpDown = false;
 	// bool _keyDownDown = false;
 	// float _accelThreshold = 0.05f;
+	
 	state _state = state.None;
 
 	public void Restart(){
@@ -39,17 +40,17 @@ public class Diver : BaseManager<Diver> {
 		GetComponent<Animator> ().ResetTrigger ("Dive");
 		transform.position = _defaultPosition;
 		transform.rotation = _defaultRotation;
-		RenderCamera.get.GetComponent<CameraLink>().Reset ();
+		RenderCamera.get.GetComponent<PositionLink>().Reset ();
 		SetState(state.Surface);
 		
 #if DIRECTION_CONTROL
-		DirectionMarker.instance.Reset();
+		DirectionMarker.get.Reset();
 		_directionAngleInterpolated = 0.5f;
 #endif
 		_bubbles.Stop ();
 		_InitialDelay = Time.time;
 		_maxDepth = 0;
-		_swimAngle = 0.5f;
+		// _swimAngle = 0.5f;
 		GetComponent<Animator> ().speed = 1.0f;
 		AudioManager.get.Reset ();
 	}
@@ -88,15 +89,15 @@ public class Diver : BaseManager<Diver> {
 			NotifyManager (TaskManager.action.idle);
 			SetState(state.Surface);
 #if DIRECTION_CONTROL
-			DirectionMarker.instance.Reset ();
+			DirectionMarker.get.Reset ();
 #endif
 			break;
 		case state.Surface:
-			RenderCamera.get.GetComponent<CameraLink>()._hardness = 0.05f;
+			RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.05f;
 			HandleIdle ();
 			break;
 		case state.Diving:
-			RenderCamera.get.GetComponent<CameraLink>()._hardness = 0.5f;
+			RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
 			HandleSwim ();
 			break;
 		}
@@ -123,7 +124,10 @@ public class Diver : BaseManager<Diver> {
 				success = true;
 			break;
 			case state.Surface:
-				GetComponent<SurfaceSnap>().enabled = true;
+				GetComponent<Water.SurfaceSnap>().SetActive(true);
+				RenderCamera.get.GetComponent<PositionLink>().SetActive(false);
+				RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(3.9f, true);
+				
 				success = true;
 			break;
 			case state.SurfaceLeft:
@@ -132,11 +136,15 @@ public class Diver : BaseManager<Diver> {
 			break;
 			case state.Diving:
 				if ( _state == state.Surface ){
+					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
+					RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(0);
 					NotifyManager (TaskManager.action.diveStarted);
 					TaskManager.get._title.SetState(title.state.ToBeHidden);
 					GetComponent<Animator> ().SetTrigger ("Dive");
 					OxygenManager.get.DismissRewawrd ();
-					GetComponent<SurfaceSnap>().enabled = false;
+					GetComponent<Water.SurfaceSnap>().SetActive(false);
+					
+					transform.rotation = Quaternion.AngleAxis(GetComponent<Water.SurfaceSnap>()._angleOffset, Vector3.forward);
 					success = true;
 				} else if ( _state == state.Hovering ){
 					GetComponent<Animator> ().ResetTrigger ("Hover");
@@ -164,7 +172,7 @@ public class Diver : BaseManager<Diver> {
 
 	public void Swim(){
 
-		if (_state == state.Surface && DirectionMarker.instance.IsAboveGround ()) {
+		if (_state == state.Surface && DirectionMarker.get.IsCursorAboveGround ()) {
 			SetState(state.SurfaceLeft);	
 			return;
 		}
@@ -203,7 +211,7 @@ public class Diver : BaseManager<Diver> {
 			_treasure = false;
 			SetState(state.Surface);
 #if DIRECTION_CONTROL
-			DirectionMarker.instance.Reset ();
+			DirectionMarker.get.Reset ();
 #endif
 			_maxDepth = 0;
 			return;
@@ -217,7 +225,7 @@ public class Diver : BaseManager<Diver> {
 	void HandleTouch(){
 #if DIRECTION_CONTROL
 
-		float directionAngle_ = (DirectionMarker.instance.GetDiffAngle() + 1) * 0.5f;
+		float directionAngle_ = (DirectionMarker.get.GetDiffAngle() + 1) * 0.5f;
 
 		Interpolate(ref _directionAngleInterpolated, directionAngle_, 0.02f);
 
@@ -292,7 +300,7 @@ public class Diver : BaseManager<Diver> {
 #else 
 		if ( false ){
 #endif 
-			GetComponent<SurfaceSnap>().enabled = false;
+			GetComponent<Water.SurfaceSnap>().SetActive(false);
 			Swim();
 		}
 
