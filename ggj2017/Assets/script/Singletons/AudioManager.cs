@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class audioManager : MonoBehaviour {
+public class AudioManager : BaseManager<AudioManager> {
 
 	public AudioSource[] introAudio;
 	public AudioSource[] divingAudio;
@@ -10,19 +10,19 @@ public class audioManager : MonoBehaviour {
 	public AudioSource[] sounds;
 
 			
-	public void Notify(taskManager.action what, float maxDepth = 0){
+	public void Notify(TaskManager.action what, float maxDepth = 0){
 		switch (what) {
-		case taskManager.action.danger:
+		case TaskManager.action.danger:
 			playAudio (playedBrand.warning);
 			break;
-		case taskManager.action.treasureDiveSuccess:
-		case taskManager.action.diveSuccess:
+		case TaskManager.action.treasureDiveSuccess:
+		case TaskManager.action.diveSuccess:
 			playAudio (playedBrand.intro);
 			break;
-		case taskManager.action.diveStarted:
+		case TaskManager.action.diveStarted:
 			playAudio (playedBrand.diving);
 			break;
-		case taskManager.action.treasureFound:
+		case TaskManager.action.treasureFound:
 			PlaySound ();
 			break;
 		default:

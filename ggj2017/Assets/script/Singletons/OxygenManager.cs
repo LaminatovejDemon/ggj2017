@@ -2,9 +2,84 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Oxygen : MonoBehaviour {
+public class OxygenManager : BaseManager<OxygenManager> {
+	
+	public title _rewardTitle;
+	public TextMesh _meterTemplate;
+	TextMesh[] _meters;
+	bool _doubleXP = false;
 
-	public oxygenManager _oxygenManager;
+
+	public bool IsDoubleXP(){
+		return _doubleXP;
+	}
+
+	public void DoubleXP(){
+		_doubleXP = true;
+	}
+
+	public void Reset(){
+		_rewardTitle.Reset ();
+		_doubleXP = false;
+	}
+
+	public void DismissRewawrd(){
+		_rewardTitle.SetState (title.state.ToBeHidden);
+	}
+
+	public void GotReward(float value){
+		
+		if (value <= 0) {
+			_doubleXP = false;
+			return;
+		}
+
+		if (!_doubleXP) {
+			_rewardTitle.SetTitle ("("+ TaskManager.get.progress +") Maximum oxygen capacity raised by  " + value.ToString ("0.00") + "s");
+		} else {
+			_rewardTitle.SetTitle ("("+ TaskManager.get.progress +") Dangerous dive strenghtened you by " + (value * 0.5f).ToString ("0.00") + "s X2");
+		}
+		_doubleXP = false;
+			
+		_rewardTitle.SetState (title.state.FadeIn);
+	}
+
+	void InitialiseMeters(){
+		if (_meters != null) {
+			return;
+		}
+
+		_meters = new TextMesh[11];
+
+		for (int i = 0; i < _meters.Length; ++i) {
+			_meters [i] = GameObject.Instantiate (_meterTemplate);
+			_meters [i].text = "";
+		}
+	}
+
+	void UpdateMeters(){
+		float oxygenLeft_ = GetOxygenLeft();
+		int oxygenBase_ = (int)(oxygenLeft_);
+		float oxygenRest_ = oxygenLeft_ - oxygenBase_;
+
+		for (int i = 0; i < _meters.Length; ++i) {
+			_meters [i].transform.position = RenderCamera.get.transform.position - Vector3.forward * 0.2f + Vector3.right * (RenderCamera.get.GetComponent<Camera>().aspect * 4.0f)
+				+ Vector3.down * (oxygenRest_ * 1.0f + 7) + Vector3.down * (i) + Vector3.up * ( RenderCamera.get.GetComponent<Camera>().orthographicSize * 2 + 4f);
+			int value_ = oxygenBase_ + 1 - i;
+			_meters [i].text = value_ < 0 ? "" : value_ + "s";
+		}
+	}
+
+	// Update is called once per frame
+	void Update () {
+		InitialiseMeters ();	
+		UpdateMeters ();
+		UpdateOxigen ();
+		UpdateDeath ();
+		UpdateRestart ();
+	}
+
+// OXYGEN PART
 	public GameObject _deathCurtain;
 	public title _deathTitle;
 
@@ -19,13 +94,6 @@ public class Oxygen : MonoBehaviour {
 
 	public float GetOxygenLeft(){
 		return _visibleOxygen;
-	}
-		
-	// Update is called once per frame
-	void Update () {
-		UpdateOxigen ();
-		UpdateDeath ();
-		UpdateRestart ();
 	}
 
 	void UpdateRestart(){
@@ -52,7 +120,7 @@ public class Oxygen : MonoBehaviour {
 		_restartTimeStamp = Time.time;
 		_maxOxigenAmount = _defaultOxigenAmount;
 		_oxigenAmount = _defaultOxigenAmount;
-		_oxygenManager.Reset ();
+		Reset ();
 	}
 
 	void UpdateDeath(){
@@ -68,7 +136,7 @@ public class Oxygen : MonoBehaviour {
 			if (_deathTitle.GetState () == title.state.FadeIn) {
 				_deathTitle.SetState (title.state.ToBeHidden);
 			} else if (_deathTitle.GetState () == title.state.Hidden) {
-				_oxygenManager._taskManager.Notify (taskManager.action.restart);
+				TaskManager.get.Notify (TaskManager.action.restart);
 				Restart ();	
 			}
 		}
@@ -86,13 +154,13 @@ public class Oxygen : MonoBehaviour {
 	}
 
 	void UpdateOxigen () {
-		if (Diver.instance.GetState() == Diver.state.Diving) {
-			if (-Diver.instance.transform.position.y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
-				_oxygenManager._audioManager.Notify (taskManager.action.danger);
-				_oxygenManager.DoubleXP ();
+		if (Diver.get.GetState() == Diver.state.Diving) {
+			if (-Diver.get.transform.position.y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
+				AudioManager.get.Notify (TaskManager.action.danger);
+				DoubleXP ();
 			}
 			if (_oxigenAmount <= 0.0) {
-				Diver.instance.Death ();
+				Diver.get.Death ();
 				_deathTicker = Time.time;
 			} else {
 				_oxigenAmount -= 1.0f * Time.deltaTime;
@@ -113,28 +181,28 @@ public class Oxygen : MonoBehaviour {
 	float CalculateReward(float depth, bool force = false){
 		
 		float reward_ = (!force && depth < 20.0f) ? 0 : Mathf.Pow(depth, 1.5f) * 0.001f;
-		if (_oxygenManager.IsDoubleXP ()) {
+		if (IsDoubleXP ()) {
 			reward_ *= 2.0f;
 		}
 		Debug.Log("Reward is " + reward_);
 		return reward_;
 	}
 
-	public void Notify(taskManager.action what, float maxDepth = 0){
+	public void Notify(TaskManager.action what, float maxDepth = 0){
 
 		float reward_ = 0;
 //		Debug.Log ("Oxigen Notified: " + what.ToString () + "with depth: " + maxDepth);
 		switch (what) {
-		case taskManager.action.treasureDiveSuccess:
+		case TaskManager.action.treasureDiveSuccess:
 //			_maxOxigenAmount += maxDepth / 10) * _baseSecondsReward;
 			reward_ = CalculateReward (maxDepth, true) * 10.0f;
 			_maxOxigenAmount += reward_;
-			_oxygenManager.GotReward (reward_);
+			GotReward (reward_);
 			_oxigenAmount = _maxOxigenAmount;
 			break;
-		case taskManager.action.diveSuccess:
+		case TaskManager.action.diveSuccess:
 			reward_ = CalculateReward(maxDepth);
-			_oxygenManager.GotReward(reward_);
+			GotReward(reward_);
 			_maxOxigenAmount += reward_;
 			_oxigenAmount = _maxOxigenAmount;
 			break;

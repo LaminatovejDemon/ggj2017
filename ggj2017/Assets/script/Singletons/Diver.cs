@@ -3,31 +3,16 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
-public class Diver : MonoBehaviour {
-
-	public cameraLink _cameraLink;
-	public audioManager _audioManager;
-	public taskManager _taskManager;
-	public oxygenManager _oxigenManager;
+public class Diver : BaseManager<Diver> {
 	public ParticleSystem _bubbles;
 	public Vector3 _defaultPosition;
 	public Quaternion _defaultRotation;
 	public float _InitialDelay;
 
 	float _directionAngleInterpolated = 0.5f;
-
-	public static Diver instance{
-		get {
-			return _instance;
-		}
-		private set {
-			_instance = value;
-		}
-	}
-
-	private static Diver _instance;
 
 	public enum state{
 		None,
@@ -39,23 +24,13 @@ public class Diver : MonoBehaviour {
 
 	};
 
-	void RegisterSingleton(){
-		if (_instance != null) {
-			Debug.LogWarning ("You PORK");
-		} 
-		_defaultPosition = transform.position;
-		_defaultRotation = transform.rotation;
-		_instance = this;
-	}
-
 	public Surface _surface;
 	float _swimAngle = 0.5f;
-	Vector3 _defaultVector = Vector3.one;
-	int SurfaceState;
-	bool _keyUpDown = false;
-	bool _keyDownDown = false;
-	public title _title;
-	float _accelThreshold = 0.05f;
+	// Vector3 _defaultVector = Vector3.one;
+	// int SurfaceState;
+	// bool _keyUpDown = false;
+	// bool _keyDownDown = false;
+	// float _accelThreshold = 0.05f;
 	state _state = state.None;
 
 	public void Restart(){
@@ -64,10 +39,11 @@ public class Diver : MonoBehaviour {
 		GetComponent<Animator> ().ResetTrigger ("Dive");
 		transform.position = _defaultPosition;
 		transform.rotation = _defaultRotation;
-		_cameraLink.Reset ();
-		_state = state.Surface;
+		RenderCamera.get.GetComponent<CameraLink>().Reset ();
+		SetState(state.Surface);
+		
 #if DIRECTION_CONTROL
-		directionMarker.instance.Reset();
+		DirectionMarker.instance.Reset();
 		_directionAngleInterpolated = 0.5f;
 #endif
 		_bubbles.Stop ();
@@ -75,16 +51,16 @@ public class Diver : MonoBehaviour {
 		_maxDepth = 0;
 		_swimAngle = 0.5f;
 		GetComponent<Animator> ().speed = 1.0f;
-		_audioManager.Reset ();
+		AudioManager.get.Reset ();
 	}
 
 	public void Death () {
 		if ( _state == state.Dying ){
 			return;
 		}
-		_taskManager.Reset ();
-		GetComponent<Animator> ().speed = 0.15f;
-		_state = state.Dying;
+		
+		SetState(state.Dying);
+		
 	}
 
 	public state GetState(){
@@ -101,7 +77,6 @@ public class Diver : MonoBehaviour {
 		
 	void Start(){
 		_bubbles.Stop ();
-		RegisterSingleton ();
 	}
 
 	void Update () {
@@ -110,24 +85,24 @@ public class Diver : MonoBehaviour {
 		case state.Dying:
 			return;
 		case state.None:
-			NotifyManager (taskManager.action.idle);
-			_state = state.Surface;
+			NotifyManager (TaskManager.action.idle);
+			SetState(state.Surface);
 #if DIRECTION_CONTROL
-			directionMarker.instance.Reset ();
+			DirectionMarker.instance.Reset ();
 #endif
 			break;
 		case state.Surface:
-			_cameraLink._hardness = 0.05f;
+			RenderCamera.get.GetComponent<CameraLink>()._hardness = 0.05f;
 			HandleIdle ();
 			break;
 		case state.Diving:
-			_cameraLink._hardness = 0.5f;
+			RenderCamera.get.GetComponent<CameraLink>()._hardness = 0.5f;
 			HandleSwim ();
 			break;
 		}
-
-		if ( _title.GetState() == title.state.Hidden && _state == state.Surface && _InitialDelay != -1 && Time.time - _InitialDelay > 10.0f ) {
-			NotifyManager (taskManager.action.idle);
+		
+		if ( TaskManager.get._title.GetState() == title.state.Hidden && GetState() == state.Surface && _InitialDelay != -1 && Time.time - _InitialDelay > 10.0f ) {
+			NotifyManager (TaskManager.action.idle);
 			_InitialDelay = -1;
 		}
 
@@ -139,21 +114,63 @@ public class Diver : MonoBehaviour {
 					
 	}
 
+	void SetState(state target){
+		bool success = false;
+		switch ( target ){
+			case state.Dying:
+				TaskManager.get.Reset ();
+				GetComponent<Animator> ().speed = 0.15f;
+				success = true;
+			break;
+			case state.Surface:
+				GetComponent<SurfaceSnap>().enabled = true;
+				success = true;
+			break;
+			case state.SurfaceLeft:
+				GetComponent<Animator> ().SetTrigger ("SurfaceLeft");
+				success = true;
+			break;
+			case state.Diving:
+				if ( _state == state.Surface ){
+					NotifyManager (TaskManager.action.diveStarted);
+					TaskManager.get._title.SetState(title.state.ToBeHidden);
+					GetComponent<Animator> ().SetTrigger ("Dive");
+					OxygenManager.get.DismissRewawrd ();
+					GetComponent<SurfaceSnap>().enabled = false;
+					success = true;
+				} else if ( _state == state.Hovering ){
+					GetComponent<Animator> ().ResetTrigger ("Hover");
+					GetComponent<Animator> ().SetTrigger ("Unhover");
+					success = true;
+				}
+			break;
+			case state.Hovering:
+				GetComponent<Animator> ().ResetTrigger ("Unhover");
+				GetComponent<Animator> ().SetTrigger ("Hover");
+				success = true;
+			break;
+			default:
+				Debug.LogWarning(this.ToString() + ", " + MethodBase.GetCurrentMethod().Name + ": Undefined parameter" );
+			break;
+		}
+
+		if ( success ){
+			_state = target;
+		}
+		else {
+			Debug.LogWarning(this.ToString() + ", " + MethodBase.GetCurrentMethod().Name + ": transition " + _state + " → " + target + " failed.");
+		}
+	}
+
 	public void Swim(){
 
-		if (_state == state.Surface && directionMarker.instance.IsAboveGround ()) {
-			_state = state.SurfaceLeft;
-			GetComponent<Animator> ().SetTrigger ("SurfaceLeft");
+		if (_state == state.Surface && DirectionMarker.instance.IsAboveGround ()) {
+			SetState(state.SurfaceLeft);	
 			return;
 		}
 
 		if (_state == state.Surface) {
-
-			NotifyManager (taskManager.action.diveStarted);
-			_title.SetState (title.state.ToBeHidden);
-			GetComponent<Animator> ().SetTrigger ("Dive");
-			_state = state.Diving;
-			_oxigenManager.DismissRewawrd ();
+			SetState(state.Diving);
 			return;
 		}
 	}
@@ -161,17 +178,14 @@ public class Diver : MonoBehaviour {
 	public void Hover(bool enable){
 		if (_state == state.SurfaceLeft && enable) {
 			GetComponent<Animator> ().SetTrigger ("Hover");
-			_state = state.Surface;
+			SetState(state.Surface);
 		}
 		else if (_state == state.Diving && enable) {
-			GetComponent<Animator> ().ResetTrigger ("Unhover");
-			GetComponent<Animator> ().SetTrigger ("Hover");
-			_state = state.Hovering;
-		} else if (_state == state.Hovering && !enable) {
 			
-			GetComponent<Animator> ().ResetTrigger ("Hover");
-			GetComponent<Animator> ().SetTrigger ("Unhover");
-			_state = state.Diving;
+			SetState(state.Hovering);
+			
+		} else if (_state == state.Hovering && !enable) {
+			SetState(state.Diving);
 		}
 	}
 
@@ -185,11 +199,11 @@ public class Diver : MonoBehaviour {
 			GetComponent<Animator> ().ResetTrigger ("Hover");
 			_InitialDelay = Time.time;
 
-			NotifyManager (_treasure ? taskManager.action.treasureDiveSuccess : taskManager.action.diveSuccess);
+			NotifyManager (_treasure ? TaskManager.action.treasureDiveSuccess : TaskManager.action.diveSuccess);
 			_treasure = false;
-			_state = state.Surface;
+			SetState(state.Surface);
 #if DIRECTION_CONTROL
-			directionMarker.instance.Reset ();
+			DirectionMarker.instance.Reset ();
 #endif
 			_maxDepth = 0;
 			return;
@@ -203,7 +217,7 @@ public class Diver : MonoBehaviour {
 	void HandleTouch(){
 #if DIRECTION_CONTROL
 
-		float directionAngle_ = (directionMarker.instance.GetDiffAngle() + 1) * 0.5f;
+		float directionAngle_ = (DirectionMarker.instance.GetDiffAngle() + 1) * 0.5f;
 
 		Interpolate(ref _directionAngleInterpolated, directionAngle_, 0.02f);
 
@@ -226,9 +240,9 @@ public class Diver : MonoBehaviour {
 		_keyDownDown = false;
 		_keyUpDown = false;
 		for (int i = 0; i < Input.touchCount; ++i) {
-		if (!_keyDownDown && Camera.main.ScreenToViewportPoint (Input.GetTouch (i).position).x > 0.5f) {
+		if (!_keyDownDown && MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint (Input.GetTouch (i).position).x > 0.5f) {
 		_keyDownDown = true;
-		} else if (!_keyUpDown && Camera.main.ScreenToViewportPoint (Input.GetTouch (i).position).x < 0.5f) {
+		} else if (!_keyUpDown && MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint (Input.GetTouch (i).position).x < 0.5f) {
 		_keyUpDown = true;
 		}
 		}
@@ -278,10 +292,11 @@ public class Diver : MonoBehaviour {
 #else 
 		if ( false ){
 #endif 
+			GetComponent<SurfaceSnap>().enabled = false;
 			Swim();
 		}
 
-		if (_defaultVector == Vector3.one) {
+	/*	if (_defaultVector == Vector3.one) {
 			_defaultVector = transform.eulerAngles;
 		}
 
@@ -291,15 +306,15 @@ public class Diver : MonoBehaviour {
 
 		Vector3 posBak_ = transform.position;
 		posBak_.y = (_surface.GetSurfaceZ(transform.position) + Vector3.down * 0.3f).y;
-		transform.position += (posBak_ - transform.position) * Time.deltaTime * 10.0f;
+		transform.position += (posBak_ - transform.position) * Time.deltaTime * 10.0f;*/
 	}
 
 	public float _maxDepth = 0;
 
-	public void NotifyManager(taskManager.action action){
-		_taskManager.Notify(action, _maxDepth);
-		_oxigenManager._oxygen.Notify(action, _maxDepth);
-		_audioManager.Notify(action, _maxDepth);
+	public void NotifyManager(TaskManager.action action){
+		TaskManager.get.Notify(action, _maxDepth);
+		OxygenManager.get.Notify(action, _maxDepth);
+		AudioManager.get.Notify(action, _maxDepth);
 	}
 
 	public bool _treasure = false;
@@ -308,7 +323,7 @@ public class Diver : MonoBehaviour {
 			return;
 		}
 				
-		NotifyManager (taskManager.action.treasureFound);
+		NotifyManager (TaskManager.action.treasureFound);
 		_treasure = true;
 //		Camera.main.GetComponent<audioManager> ().Notify (taskManager.action.treasureFound);
 	}

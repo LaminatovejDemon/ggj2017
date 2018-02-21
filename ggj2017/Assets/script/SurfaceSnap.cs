@@ -14,30 +14,51 @@ public class SurfaceSnap : MonoBehaviour {
 
 	public Surface _surface;
 	public float _width = 0;
-	public float _softness = 0.5f;
+	public float _verticalOffset = 0;
+	public float _roughness = 3.0f;
 	public float _rockingAngle = 15.0f;
+
+	public float _angleOffset = 0;
 
 	Vector3 _leftDepth, _rightDepth;
 	Vector3 _targetPosition;
 
-	void Update () {
 
-		Vector3 leftTest_ = transform.position + Vector3.left * _width * 0.5f;
-		Vector3 rightTest_ = transform.position + Vector3.right * _width * 0.5f;
-		_leftDepth = _surface.GetSurfaceZ (leftTest_);
-		_rightDepth = _surface.GetSurfaceZ (rightTest_);
+	void SetLineSnap(){
+		_targetPosition = transform.position;
 
-		float angle_ = Mathf.Tan ((_rightDepth.y - _leftDepth.y) / (_rightDepth.x - _leftDepth.x));
+		_leftDepth = _surface.GetSurfaceZ (transform.position + Vector3.left * _width * 0.5f);
+		_rightDepth = _surface.GetSurfaceZ (transform.position + Vector3.right * _width * 0.5f);
+
+		float angle_ = Mathf.Tan ((_rightDepth.y - _leftDepth.y) / (_rightDepth.x - _leftDepth.x)) + (_angleOffset * Mathf.PI / 180.0f);
 
 		Quaternion rotation_ = Quaternion.AngleAxis (angle_ * 180.0f / Mathf.PI, Vector3.forward);
-		Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (angle_ + Time.time * 0.5f) * _rockingAngle, Vector3.left);
+		Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
 		transform.rotation = rotation_ * counterRotation_;
 
 		Vector3 finalPosition_ = _targetPosition; 
-		finalPosition_.y = Mathf.Max (_leftDepth.y, _rightDepth.y);
+		finalPosition_.y = (_leftDepth.y + _rightDepth.y) * 0.5f + _verticalOffset;
 		_targetPosition = finalPosition_;
+	}
+	void SetPointSnap(){
+		_targetPosition = transform.position;
 
-		transform.position = transform.position + (_targetPosition - transform.position) * _softness;
+		_leftDepth = _surface.GetSurfaceZ(transform.position);
+		_rightDepth = _leftDepth + Vector3.up * 3.0f;
+		Quaternion rotation_ = Quaternion.AngleAxis(_angleOffset, Vector3.forward);
+		Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
+		transform.rotation = rotation_ * counterRotation_;
+		_targetPosition.y = _leftDepth.y + _verticalOffset;
+	}
+
+	void Update () {
+		if ( _width <= 0 ){
+			SetPointSnap();
+		} else {
+			SetLineSnap();
+		}
+	
+		transform.position += (_targetPosition - transform.position) * Mathf.Min(Time.deltaTime * _roughness, 1.0f);
 	}
 
 	void Start(){
@@ -46,6 +67,6 @@ public class SurfaceSnap : MonoBehaviour {
 
 	void OnDrawGizmos(){
 		Gizmos.color = Color.red;
-		Gizmos.DrawLine (_leftDepth, _rightDepth);
+		Gizmos.DrawLine (_leftDepth, _rightDepth );
 	}
 }

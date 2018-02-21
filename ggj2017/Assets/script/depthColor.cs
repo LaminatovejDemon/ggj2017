@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class depthColor : MonoBehaviour {
 
-	public Camera _renderCamera;
 	public Color[] _Colors;
 	public Color _actualColor;
 	public int _range = 100;
@@ -15,7 +14,7 @@ public class depthColor : MonoBehaviour {
 	void Update () {
 
 
-		float value_ = -_renderCamera.transform.position.y / _range;
+		float value_ = -RenderCamera.get.transform.position.y / _range;
 		indexFrom_ = Mathf.Max (0, (int)(value_ * _Colors.Length));
 		indexTo_ = Mathf.Min (_Colors.Length - 1, (int)(value_ * _Colors.Length) + 1);
 		currentValue_ = (value_ * _Colors.Length) - (int)(value_ * _Colors.Length);

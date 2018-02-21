@@ -145,7 +145,7 @@ public class Surface : MonoBehaviour {
 	public Vector3 GetSurfaceZ(Vector3 position){
 		InitiateSurface ();
 
-		Vector3 _alteredVector = position + Vector3.left * ((GetSurfaceWidth() * 0.5f) * _resolutionX); 
+		Vector3 _alteredVector = position + Vector3.left * ((GetSurfaceWidth() * 0.5f) * _resolutionX) + Vector3.forward; 
 
 		_alteredVector.x -= transform.position.x;
 		_alteredVector.z += transform.position.z;

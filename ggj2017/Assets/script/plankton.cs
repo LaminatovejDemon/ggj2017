@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class plankton : MonoBehaviour {
 
-	planktonManager _manager;
 	float _initTimestamp;
 	float _lifespan;
 	Vector3 _velocity;
@@ -14,9 +13,7 @@ public class plankton : MonoBehaviour {
 	public int _lifespanMultiplier;
 	public float _depthMultiplier = 1;
 
-	public void Initialise(planktonManager manager){
-		_manager = manager;
-
+	public void Initialise(){
 		Vector3 randomViewport_ = new Vector3 ((Random.value) * 1.0f, (Random.value) * 1.0f, Random.Range(10.0f - (7.0f * _depthMultiplier), 10.0f + (7.0f * _depthMultiplier)));
 		GameObject renderCameraObject_ = GameObject.FindGameObjectWithTag ("RenderCamera");
 		Camera renderCamera_ = renderCameraObject_.GetComponent<Camera>();
@@ -40,7 +37,7 @@ public class plankton : MonoBehaviour {
 	void Update () {
 
 		if (Time.time - _initTimestamp > _lifespan) {
-			Initialise (_manager);
+			Initialise ();
 		}
 
 		if (!_tintable) {

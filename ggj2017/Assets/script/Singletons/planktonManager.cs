@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class planktonManager : MonoBehaviour {
+public class PlanktonManager : BaseManager<PlanktonManager> {
 
 	public plankton [] planktonTemplates;
 	plankton[] _planktonInstances;
@@ -16,7 +16,7 @@ public class planktonManager : MonoBehaviour {
 
 		for (int i = 0; i < _planktonCount; ++i) {
 			_planktonInstances [i] = GameObject.Instantiate (planktonTemplates [Random.Range (0, planktonTemplates.Length)]);
-			_planktonInstances [i].Initialise (this);
+			_planktonInstances [i].Initialise ();
 		}
 	}		
 
