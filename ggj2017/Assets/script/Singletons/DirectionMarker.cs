@@ -88,8 +88,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			return false;
 		}
 
-		
-
 		_lastControllerPosition = Input.mousePosition;
 
 		#else
@@ -123,7 +121,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
 
 		transform.position = world_;
-		
 
 		Vector2 viewport2d_ = (Vector2)_lastControllerPosition;
 		Vector2 diverViewport2d_ = (Vector2)diverViewport_;
@@ -134,8 +131,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			Hover (false);
 		}
 	}
-
-
 
 	void Hover( bool state){
 		if ( _hover == state ){

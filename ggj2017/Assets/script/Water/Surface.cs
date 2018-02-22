@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Reflection;
 
 namespace Water{
-public class Surface : MonoBehaviour {
+public class Surface : ListenerHandler<SurfacePlane> {
 
 	public int _surfaceHeight = 20;
 	public int _surfaceWidth = 20;
@@ -25,7 +25,10 @@ public class Surface : MonoBehaviour {
 
 	float[] _heights = null;
 
-	List<SurfacePlane> _animationListeners;
+	protected override void OnNewListener(SurfacePlane source)
+	{
+		StoreIfSurface(source as SurfaceBed);
+	}
 
 	void StoreIfSurface(SurfaceBed target){
 		if ( target == null || _surface != null ){
@@ -52,24 +55,12 @@ public class Surface : MonoBehaviour {
 		return (int)(_surfaceHeight / _resolutionY + 0.99f);
 	}
 
-	public void RegisterAnimationListener(SurfacePlane source)
-	{
-		if (_animationListeners == null) {
-			_animationListeners = new List<SurfacePlane> ();
-		}
-
-		if (_animationListeners.Contains (source)) {
-			return;
-		}
-
-		_animationListeners.Add (source);
-		StoreIfSurface(source as SurfaceBed);
-	}
-
+	delegate void AnimateEdge();
+	
 	void AnimateListeners(){
-		for (int i = 0; i < _animationListeners.Count; ++i) {
-			_animationListeners[i].AnimateEdge();
-		}
+		MethodInfo animateEdge = typeof(SurfacePlane).GetMethod("AnimateEdge");
+		OpenDelegate d = (OpenDelegate) System.Delegate.CreateDelegate(typeof(OpenDelegate), null, animateEdge);
+		NotifyListeners(d);
 	}
 
 	void InitiateSurface(){
@@ -134,6 +125,7 @@ public class Surface : MonoBehaviour {
 
 		_alteredVector.x += transform.position.x;
 		_alteredVector.z += transform.position.z;
+		_alteredVector.y += transform.position.y;
 
 		return _alteredVector;
 	}

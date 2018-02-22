@@ -172,10 +172,10 @@ public class Diver : BaseManager<Diver> {
 
 	public void Swim(){
 
-		if (_state == state.Surface && DirectionMarker.get.IsCursorAboveGround ()) {
+	/*	if (_state == state.Surface && DirectionMarker.get.IsCursorAboveGround ()) {
 			SetState(state.SurfaceLeft);	
 			return;
-		}
+		}*/
 
 		if (_state == state.Surface) {
 			SetState(state.Diving);
