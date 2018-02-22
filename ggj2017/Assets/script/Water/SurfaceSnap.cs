@@ -74,6 +74,7 @@ public class SurfaceSnap : MonoBehaviour {
 	void OnDrawGizmos(){
 		Gizmos.color = Color.red;
 		Gizmos.DrawLine (_leftDepth, _rightDepth );
+		Gizmos.DrawLine (_leftDepth + Vector3.up * 5.0f, _rightDepth + Vector3.up * 5.0f);
 	}
 }
 }

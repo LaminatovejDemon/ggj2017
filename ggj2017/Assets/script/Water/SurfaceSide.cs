@@ -11,33 +11,37 @@ using UnityEngine;
 /// </summary>
 
 namespace Water{
-public class SurfaceSide : SurfaceEdge {
+public class SurfaceSide : SurfacePlane {
 
+	public float _heightOverride = 0f;
+	float _depth;
 
-	void Start(){
-		if (transform.localPosition.z >= _surface._surfaceHeight) {
-			Vector3 bak_ = transform.localPosition;
-			bak_.z = _surface._surfaceHeight;
-			transform.localPosition = bak_;
-		}
-
+	sealed protected override void Construct (){
+		UpdateRelativePosition();
+		_depth = _heightOverride > 0 ? _heightOverride : _surface._depth;
 		_surface.RegisterAnimationListener (this);
 	}
 
-	protected override int GetLength(){
-		return _surface._surfaceHeight;
+	sealed protected override int GetSize(){
+		return _surface.GetTileCountY();
+	}
+
+	void UpdateRelativePosition(){
+		Vector3 position_ = _surface.transform.position + Vector3.forward * _surface.GetMetresY() * 0.5f;
+		position_.x += (_surface.GetMetresX() * 0.5f + _surface._borderExtentionX) * (_relativePosition-0.5f) * 2;
+		transform.position = position_;
 	}
 		
-	public override void AnimateEdge () {
-		InitialiseEdge ();
-		int referenceX_ = (int)((transform.localPosition.x + _surface._surfaceWidth * 0.5f) / _surface._resolutionX);
-		int clamp_ = (int)((_surface._surfaceWidth) / _surface._resolutionX) -1;
+	public sealed override void AnimateEdge () {
+		Initialise ();
+		int referenceX_ = (int)((transform.localPosition.x + _surface.GetMetresX() * 0.5f ) / _surface._resolutionX);
+		int clamp_ = _surface.GetTileCountX() -1;
 		int width_ = Mathf.Clamp (referenceX_, 0, clamp_);
 		int vertexIndex_ = width_ == clamp_ ? 0 : 1;
 		int lastIndex_ = width_ == clamp_ ? 3 : 2;
 			
 		int index_ = 0; 
-		int max_ = _surface._surfaceHeight;
+		int max_ = _surface.GetTileCountY();
 
 		for (int i = 0; i < max_; i++) {
 			Vector3 bak_ = _vertices [index_];
@@ -62,14 +66,14 @@ public class SurfaceSide : SurfaceEdge {
 		GetComponent<MeshFilter> ().mesh.vertices = _vertices;
 	}
 
-	protected override void CalculateUV(int index){
-		_uvs [index * 4 + 0] = new Vector2(_vertices [index * 4 + 0].z * _textureScale, _vertices [index * 4 + 0].y * _textureScale * 2);
-		_uvs [index * 4 + 1] = new Vector2(_vertices [index * 4 + 1].z * _textureScale, _vertices [index * 4 + 1].y * _textureScale * 2);
-		_uvs [index * 4 + 2] = new Vector2(_vertices [index * 4 + 2].z * _textureScale, _vertices [index * 4 + 2].y * _textureScale * 2);
-		_uvs [index * 4 + 3] = new Vector2(_vertices [index * 4 + 3].z * _textureScale, _vertices [index * 4 + 3].y * _textureScale * 2);
+	protected sealed override void CalculateUV(int index){
+		_uvs [index * 4 + 0] = new Vector2(_vertices [index * 4 + 0].z * _surface._textureScale, _vertices [index * 4 + 0].y * _surface._textureScale * 2);
+		_uvs [index * 4 + 1] = new Vector2(_vertices [index * 4 + 1].z * _surface._textureScale, _vertices [index * 4 + 1].y * _surface._textureScale * 2);
+		_uvs [index * 4 + 2] = new Vector2(_vertices [index * 4 + 2].z * _surface._textureScale, _vertices [index * 4 + 2].y * _surface._textureScale * 2);
+		_uvs [index * 4 + 3] = new Vector2(_vertices [index * 4 + 3].z * _surface._textureScale, _vertices [index * 4 + 3].y * _surface._textureScale * 2);
 	}
 
-	protected override void SetVertexChunk(int index){
+	protected sealed override void SetVertexChunk(int index){
 		
 		float yBottom_ = index / _surfaceLength -_depth * 0.5f - transform.localPosition.y - 0.1f;
 		float yTop_ = index / _surfaceLength + 0.1f - transform.localPosition.y - 0.1f;
