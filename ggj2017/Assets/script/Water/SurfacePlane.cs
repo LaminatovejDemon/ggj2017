@@ -14,6 +14,7 @@ public abstract class SurfacePlane : MonoBehaviour {
 	public bool _backSide = true;
 
 	protected Vector3[] _vertices = null;
+	protected Vector3[] _normals = null;
 	int[] _indices = null;
 	protected Vector2[] _uvs = null;
 
@@ -68,6 +69,7 @@ public abstract class SurfacePlane : MonoBehaviour {
 
 		_surfaceLength = GetSize();
 		_vertices = new Vector3[_surfaceLength * 4];
+		_normals = new Vector3[_surfaceLength * 4];
 		_indices = new int[_surfaceLength * _chunkIndiceCount];
 		_uvs = new Vector2[_surfaceLength * 4];
 		
@@ -81,8 +83,11 @@ public abstract class SurfacePlane : MonoBehaviour {
 
 		mesh.vertices = _vertices;
 		mesh.triangles = _indices;
+		mesh.normals = _normals;
 		mesh.uv = _uvs;
 		mesh.RecalculateBounds();
+		mesh.RecalculateNormals();
+		mesh.RecalculateTangents();
 		GetComponent<MeshFilter>().mesh = mesh;
 
 		return true;

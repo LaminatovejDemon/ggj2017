@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 
 public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	public Water.Surface _groundReference;
 	Vector3 _uiVector;
-	Vector3 _diverVector;
+	Vector3 _directionVector;
+	Vector3 _tangentVector;
 	// Vector3 _diffVector;
 	bool _active = true;
 	bool _hover = false;
@@ -21,18 +23,27 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return difference_ < 0;
 	}
 
-	public float GetDiffAngle(){
-		Diver.get.NotifyManager (TaskManager.action.screenTurned);
+
+	void SetUIVector(){
 		_uiVector = -RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.transform.position) 
 					+ RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position);
 		_uiVector.z = 0;
 		_uiVector.Normalize ();
-		_diverVector = Diver.get.transform.rotation * Vector3.down;
-		_diverVector.Normalize ();
+	}
+	public float GetDirectionDot(){
+		SetUIVector();		
+		_directionVector = Diver.get.transform.rotation * Vector3.left;
+		_directionVector.Normalize ();
 
-		// _diffVector = _uiVector - _diverVector;
+		return Vector3.Dot (_uiVector, _directionVector);
+	}
 
-		return Vector3.Dot (_uiVector, _diverVector);
+	public float GetTangentDot(){
+		SetUIVector();
+		_tangentVector = Diver.get.transform.rotation * Vector3.down;
+		_tangentVector.Normalize ();
+
+		return Vector3.Dot (_uiVector, _tangentVector);
 	}
 
 	void Set(){
@@ -63,10 +74,14 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		Vector3 origin_ = Diver.get.transform.position;
 
 		Gizmos.color = Color.magenta;
-		Gizmos.DrawLine (origin_, origin_ + _uiVector * 100.0f);
+		Gizmos.DrawLine (origin_, origin_ + _uiVector * 20.0f);
 
 		Gizmos.color = Color.red;
-		Gizmos.DrawLine (origin_, origin_ + _diverVector * 100.0f);
+		Gizmos.DrawLine (origin_, origin_ + _directionVector * 10.0f);
+		
+		Gizmos.color = Color.green;
+		Gizmos.DrawLine (origin_, origin_ + _tangentVector * 5.0f);
+		
 
 		Gizmos.color = Color.blue;
 		Gizmos.DrawLine(transform.position + Vector3.left, transform.position + Vector3.right );
@@ -128,6 +143,9 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		if ((viewport2d_ - diverViewport2d_).magnitude < 0.05f) {
 			Hover (true);	
 		} else {
+			float rawdirectionAngle_ = DirectionMarker.get.GetTangentDot();
+			Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod() + ": " + rawdirectionAngle_);
+	
 			Hover (false);
 		}
 	}

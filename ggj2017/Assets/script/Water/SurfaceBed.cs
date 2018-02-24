@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 /// <summary>
 /// Helper class to display the animated front or the top and bottom visuals attached to the existing surface.
@@ -15,6 +16,7 @@ public class SurfaceBed : SurfacePlane {
 	bool _simplfiedVersion = false;
 
 	public bool IsAnimated(){
+		Initialise();
 		return !_simplfiedVersion;
 	}
 
@@ -45,6 +47,9 @@ public class SurfaceBed : SurfacePlane {
 		}
 		
 		int index_ = ((y * _surface.GetTileCountX()) + x) * 4 + offset;
+		if ( index_ < 0 || index_ > _vertices.Length ){
+			Debug.LogWarning(this.ToString() + "." + MethodBase.GetCurrentMethod() + ": index out offset range.");
+		}
 		return _vertices[index_]; 
 	}
 
@@ -54,6 +59,11 @@ public class SurfaceBed : SurfacePlane {
 		float yr_ = (index / _width + _quadHeight) * _surface._resolutionY;
 		float xl_ = (index%_width  - _width * 0.5f) * _surface._resolutionX;
 		float xr_ = (index%_width - _width * 0.5f + _quadWidth) * _surface._resolutionX;
+
+		for ( int i = 0; i < 4; ++i){
+			_normals[index*4+i] = Vector3.up;
+		}
+		
 
 		if ( index%_width == _width -1 )
 			_vertices [index*4+0] = new Vector3 (_borderDistance, 0, yl_);				
@@ -74,6 +84,8 @@ public class SurfaceBed : SurfacePlane {
 			_vertices [index*4+3] = new Vector3 (_borderDistance, 0, yr_) ;
 		else
 			_vertices [index*4+3] = new Vector3 (xr_, 0, yr_);
+
+		
 
 	}
 
@@ -125,6 +137,9 @@ public class SurfaceBed : SurfacePlane {
 		}
 		GetComponent<MeshFilter> ().mesh.uv = _uvs;
 		GetComponent<MeshFilter> ().mesh.vertices = _vertices;
+		// GetComponent<MeshFilter> ().mesh.RecalculateNormals();
+		// GetComponent<MeshFilter> ().mesh.RecalculateTangents();
+
 	}
 }
 }

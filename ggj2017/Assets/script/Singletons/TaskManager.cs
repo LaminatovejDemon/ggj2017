@@ -40,12 +40,12 @@ public class TaskManager : BaseManager<TaskManager> {
 	public enum action{
 		idle,
 		diveStarted,
-		screenTurned,
 		diveSuccess,
 		treasureDiveSuccess,
 		treasureFound,
 		restart,
 		danger,
+		flipFinished,
 	};
 
 	public void Notify(action what, float maxDepth = 0){
@@ -62,9 +62,6 @@ public class TaskManager : BaseManager<TaskManager> {
 				_tutorial2Happened = true;
 			}
 
-			break;
-		case action.screenTurned:
-			
 			break;
 		case action.diveSuccess:
 			if (_tutorial2Happened) {

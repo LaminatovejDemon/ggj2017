@@ -18,6 +18,7 @@ public class Diver : BaseManager<Diver> {
 		None,
 		Diving,
 		Surface,
+		Flip,
 		Hovering,
 		SurfaceLeft,
 		Dying,
@@ -115,8 +116,13 @@ public class Diver : BaseManager<Diver> {
 					
 	}
 
-	void SetState(state target){
+	public void SetState(state target){
 		bool success = false;
+		
+		if (_state == state.Hovering ){
+			return; //DEBUG
+		}
+
 		switch ( target ){
 			case state.Dying:
 				TaskManager.get.Reset ();
@@ -134,6 +140,12 @@ public class Diver : BaseManager<Diver> {
 				GetComponent<Animator> ().SetTrigger ("SurfaceLeft");
 				success = true;
 			break;
+			case state.Flip:
+				if ( _state == state.Diving || _state == state.Hovering ){
+					GetComponent<Animator>().SetTrigger("Flip");
+					success = true;
+				}
+				break;
 			case state.Diving:
 				if ( _state == state.Surface ){
 					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
@@ -146,7 +158,7 @@ public class Diver : BaseManager<Diver> {
 					
 					transform.rotation = Quaternion.AngleAxis(GetComponent<Water.SurfaceSnap>()._angleOffset, Vector3.forward);
 					success = true;
-				} else if ( _state == state.Hovering ){
+				} else if ( _state == state.Hovering || _state == state.Flip ){
 					GetComponent<Animator> ().ResetTrigger ("Hover");
 					GetComponent<Animator> ().SetTrigger ("Unhover");
 					success = true;
@@ -223,71 +235,22 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	void HandleTouch(){
-#if DIRECTION_CONTROL
+// #if DIRECTION_CONTROL
 
-		float directionAngle_ = (DirectionMarker.get.GetDiffAngle() + 1) * 0.5f;
+		float directionDot_ = DirectionMarker.get.GetDirectionDot();
 
-		Interpolate(ref _directionAngleInterpolated, directionAngle_, 0.02f);
+		if ( directionDot_ < -0.75f && !GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("turnDown")){
+			SetState(state.Flip);
+			return;	
+		} 
+
+		float tangentDot_ = (DirectionMarker.get.GetTangentDot() + 1) * 0.5f;
+
+		Interpolate(ref _directionAngleInterpolated, tangentDot_, 1.0f);
 
 		GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
 
 		return;
-
-#elif UNITY_EDITOR
-		if (Input.GetKeyDown (KeyCode.A)) {
-			_keyUpDown = true;
-		} else if (Input.GetKeyUp (KeyCode.A)) {
-			_keyUpDown = false;
-		}
-		if (Input.GetKeyDown (KeyCode.D)) {
-			_keyDownDown = true;
-		} else if (Input.GetKeyUp (KeyCode.D)) {
-			_keyDownDown = false;
-		}
-#elif TOUCH_CONTROL
-		_keyDownDown = false;
-		_keyUpDown = false;
-		for (int i = 0; i < Input.touchCount; ++i) {
-		if (!_keyDownDown && MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint (Input.GetTouch (i).position).x > 0.5f) {
-		_keyDownDown = true;
-		} else if (!_keyUpDown && MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint (Input.GetTouch (i).position).x < 0.5f) {
-		_keyUpDown = true;
-		}
-		}
-#else
-		if ( Input.acceleration.x > _accelThreshold ){
-		_keyUpDown = true;
-		} else if (Input.acceleration.x < -_accelThreshold){
-		_keyDownDown = true;
-		} else {
-		_keyUpDown = false;
-		_keyDownDown = false;
-		}
-#endif
-
-#if TOUCH_CONTROL || (UNITY_EDITOR && !DIRECTION_CONTROL)
-		if (_keyUpDown) {
-			_swimAngle -= Time.deltaTime * 2.0f;
-		}
-
-		if (_keyDownDown) {
-			_swimAngle += Time.deltaTime * 2.0f;
-		}
-
-		if (!(_keyDownDown || _keyUpDown)) {
-
-			_swimAngle += (0.5f - _swimAngle) * Time.deltaTime * 3.0f; 
-		} else {
-			NotifyManager (taskManager.action.screenTurned);
-			_swimAngle = Mathf.Clamp (_swimAngle, 0, 1);
-		}
-
-		GetComponent<Animator> ().SetFloat ("SwimDirection", _swimAngle);
-#endif 
-
-#if !DIRECTION_CONTROL
-		GetComponent<Animator> ().SetFloat ("SwimDirection", -Input.acceleration.x + 0.5f);
-#endif
 	}
 
 
@@ -303,6 +266,7 @@ public class Diver : BaseManager<Diver> {
 			GetComponent<Water.SurfaceSnap>().SetActive(false);
 			Swim();
 		}
+				
 
 	/*	if (_defaultVector == Vector3.one) {
 			_defaultVector = transform.eulerAngles;
