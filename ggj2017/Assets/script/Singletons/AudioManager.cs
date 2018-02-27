@@ -56,14 +56,15 @@ public class AudioManager : BaseManager<AudioManager> {
 		if (_oldBrand != playedBrand.none) {
 			GetBrand (_oldBrand) [_oldIndex].Stop ();
 		}
-		GetBrand (_playedBrand) [_playedIndex].Stop ();
+		if ( _playedIndex != -1 ){
+			GetBrand (_playedBrand) [_playedIndex].Stop ();
+			_playedBrand = playedBrand.none;
+			_playedIndex = -1;
 
-		_playedBrand = playedBrand.none;
-		_playedIndex = -1;
-
-		_oldBrand = playedBrand.none;
-		_oldIndex = -1;
-		_oldTrackTimestamp = -1;
+			_oldBrand = playedBrand.none;
+			_oldIndex = -1;
+			_oldTrackTimestamp = -1;
+		}
 		playAudio (playedBrand.intro);
 	}
 
