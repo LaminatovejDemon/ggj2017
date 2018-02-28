@@ -224,7 +224,6 @@ public class Diver : BaseManager<Diver> {
 						
 						GetComponent<Water.SurfaceSnap>().SetActive(false);
 						GameObject.Destroy(GetComponent<Rigidbody2D>());
-						// GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
 
 						float dot_ = DirectionMarker.get.GetTangentDot();
 						if ( dot_ < 0 ){
@@ -331,8 +330,8 @@ public class Diver : BaseManager<Diver> {
 		float directionDot_ = DirectionMarker.get.GetDirectionDot();
 
 		if ( directionDot_ < -0.75f && !IsCurrentClip(clips.diverSubmerge) && !IsCurrentClip(clips.diverIdleTwist) ){
-		//	SetState(state.Flip);
-		//	return;	
+			SetState(state.Flip);
+			return;	
 		} 
 
 		float tangentDot_ = (DirectionMarker.get.GetTangentDot() + 1) * 0.5f;
