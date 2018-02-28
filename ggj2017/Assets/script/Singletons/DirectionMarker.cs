@@ -16,12 +16,12 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	public bool IsCursorAboveGround(){
 		UpdateViewportPosition();
-		float difference_ = _groundReference.GetSurfaceZ(Diver.get.transform.position).y - RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition).y;
+		float difference_ = _groundReference.GetSurfaceZ(Diver.get.GetPosition()).y - RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition).y;
 		return difference_ < 0;
 	}
 
 	void SetUIVector(){
-		uiVector = -RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.transform.position) 
+		uiVector = -RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.GetPosition()) 
 					+ RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position);
 		uiVector.z = 0;
 		uiVector.Normalize ();
@@ -29,7 +29,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	public float GetCollisionDot(Collision2D collision){
 		Vector3 collision_ = collision.contacts[0].point;
-		Vector3 diver_ = Diver.get.transform.position;
+		Vector3 diver_ = Diver.get.GetPosition();
 		collision_.z = diver_.z;
 		Vector3 diverDifference_ = (collision_ - diver_).normalized;
 		return Vector3.Dot(uiVector, diverDifference_);
@@ -61,13 +61,13 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 	}
 
 	void OnDrawGizmos(){
-		Vector3 origin = Diver.get.transform.position;
+		Vector3 origin = Diver.get.GetPosition();
 		
 		if (!Diver.Exists()) {
 			return;
 		}
 
-		Vector3 origin_ = Diver.get.transform.position;
+		Vector3 origin_ = Diver.get.GetPosition();
 
 		Gizmos.color = Color.magenta;
 		Gizmos.DrawLine (origin_, origin_ + uiVector * 20.0f);
@@ -112,7 +112,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		_lastControllerPosition /= Input.touchCount;
 		#endif
 
-		_lastControllerPosition += Vector3.forward * (RenderCamera.get.transform.position - Diver.get.transform.position).magnitude;
+		_lastControllerPosition += Vector3.forward * (RenderCamera.get.transform.position - Diver.get.GetPosition()).magnitude;
 		_lastControllerPosition = MainCamera.get.GetComponent<Camera>().ScreenToViewportPoint(_lastControllerPosition);
 	
 		return true;
@@ -125,7 +125,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			return;
 		}
 
-		// Vector3 diverViewport_ = RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint (Diver.get.transform.position);		
+		// Vector3 diverViewport_ = RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint (Diver.get.GetPosition());		
 		Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
 
 		transform.position = world_;

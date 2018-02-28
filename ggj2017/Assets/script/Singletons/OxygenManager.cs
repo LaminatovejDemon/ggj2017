@@ -155,7 +155,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 
 	void UpdateOxigen () {
 		if (Diver.get.GetState() == Diver.state.Diving) {
-			if (-Diver.get.transform.position.y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
+			if (-Diver.get.GetPosition().y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
 				AudioManager.get.Notify (TaskManager.action.danger);
 				DoubleXP ();
 			}

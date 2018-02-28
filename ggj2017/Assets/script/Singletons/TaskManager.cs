@@ -112,7 +112,7 @@ public class TaskManager : BaseManager<TaskManager> {
 			return;
 		}
 		
-		Vector3 direction_ = _treasureStatus == treasureStatus.found ? Vector3.up * 2.0f : _taskInstance.transform.position - Diver.get.transform.position;
+		Vector3 direction_ = _treasureStatus == treasureStatus.found ? Vector3.up * 2.0f : _taskInstance.transform.position - Diver.get.GetPosition();
 		direction_.z = 0;
 
 		if (direction_.magnitude > 3.0f) {
@@ -122,7 +122,7 @@ public class TaskManager : BaseManager<TaskManager> {
 
 		Quaternion turn_ = Quaternion.LookRotation (direction_);
 		for (int i = 0; i < _taskMarkerInstance.Length; ++i) {
-			_taskMarkerInstance[i].transform.position = Diver.get.transform.position + Vector3.back * (1.0f) + (turn_ * Vector3.forward * (direction_.magnitude - (0.3f * i )));
+			_taskMarkerInstance[i].transform.position = Diver.get.GetPosition() + Vector3.back * (1.0f) + (turn_ * Vector3.forward * (direction_.magnitude - (0.3f * i )));
 		}
 
 	}

@@ -52,6 +52,10 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\script\Tools\Editor\UVRotateEditor.cs" />
+     <Compile Include="Assets\script\Tools\HierarchyHelper\Editor\CustomEditor\Monitor4AnimationCurve\Monitor4AnimationCurve.cs" />
+     <Compile Include="Assets\script\Tools\HierarchyHelper\Editor\Utility\HierarchyChangedDetecter.cs" />
+     <Compile Include="Assets\script\Tools\HierarchyHelper\Editor\Window\BuiltInResourcesWindow\BuiltInResourcesWindow.cs" />
+     <Compile Include="Assets\script\Tools\HierarchyHelper\MethodCaller\Editor\MethodCallerEditor.cs" />
  <Reference Include="UnityEngine.UIAutomation">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UIAutomation/UnityEngine.UIAutomation.dll</HintPath>
  </Reference>

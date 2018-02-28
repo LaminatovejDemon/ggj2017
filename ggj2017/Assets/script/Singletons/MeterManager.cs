@@ -29,10 +29,7 @@ public class MeterManager : BaseManager<MeterManager> {
 	}
 		
 	void UpdateMeters(){
-
-		Vector3 diverPos_ = Diver.get.transform.position;
-
-		float depth_ = RenderCamera.get.transform.position.y -Diver.get._surface.GetSurfaceZ(diverPos_).y;
+		float depth_ = RenderCamera.get.transform.position.y -Diver.get._surface.GetSurfaceZ(Diver.get.GetPosition()).y;
 		float depthMajor_ = (int)(depth_ / step_) * step_;
 		float depthMinor_ = depth_ - depthMajor_;
 

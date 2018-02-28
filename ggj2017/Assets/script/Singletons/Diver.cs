@@ -12,6 +12,14 @@ public class Diver : BaseManager<Diver> {
 	float _directionAngleInterpolated = 0.5f;
 
 	AnimationClip _currentClip = null;
+
+
+	bool _twistedDiver = false;
+
+	public void Twist(){
+		_twistedDiver = !_twistedDiver;
+	}
+
 	void PrepareCallbacks(){
 		RuntimeAnimatorController controller_ = GetComponent<Animator>().runtimeAnimatorController;
 		AnimationClip[] clips_ = controller_.animationClips;
@@ -44,7 +52,8 @@ public class Diver : BaseManager<Diver> {
 		diverSubmerge,
 		diverIdleUp,
 		diverHover,
-		diverIdleTurn,
+		diverIdleTwist,
+		diverSwim,
 	}
 
 	public enum state{
@@ -66,8 +75,13 @@ public class Diver : BaseManager<Diver> {
 	// float _accelThreshold = 0.05f;
 	
 	state _state = state.None;
+	public Rigidbody2D _rigidBody;
 
 	float _currentCollisionDot = -1;
+
+	public Vector3 GetPosition(){
+		return _rigidBody.transform.position;
+	}
 
 	public void Restart(){
 		GetComponent<Animator> ().Rebind();
@@ -150,8 +164,11 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void OnCollisionStay2D(Collision2D source){
+		_rigidBody.transform.parent = null;
+		this.transform.position = _rigidBody.transform.position;
+		_rigidBody.transform.parent = transform;
+
 		_currentCollisionDot = DirectionMarker.get.GetCollisionDot(source);
-		Debug.Log("[" + Time.time + "] " + this.ToString() + "." + MethodBase.GetCurrentMethod() + ": " + _currentCollisionDot);
 		if ( _state != state.Hovering && IsSteepCollision() ){
 			SetState(state.Hovering);	
 		}		
@@ -204,10 +221,18 @@ public class Diver : BaseManager<Diver> {
 						RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
 						NotifyManager (TaskManager.action.diveStarted);
 						TaskManager.get._title.SetState(title.state.ToBeHidden);
-						float dot_ = DirectionMarker.get.GetTangentDot();
+						
 						GetComponent<Water.SurfaceSnap>().SetActive(false);
-						GetComponent<Animator> ().SetTrigger ( dot_ > 0 ? "Dive" : "SurfaceFlip" );
-						// GetComponent<Animator> ().SetTrigger ("Dive");
+						GameObject.Destroy(GetComponent<Rigidbody2D>());
+						// GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+
+						float dot_ = DirectionMarker.get.GetTangentDot();
+						if ( dot_ < 0 ){
+							GetComponent<Animator> ().SetTrigger ( "SurfaceFlip" );
+						} else {
+							GetComponent<Animator> ().SetTrigger ("Dive");
+						}
+						
 						OxygenManager.get.DismissRewawrd ();
 						
 						
@@ -282,7 +307,7 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	void UpdateDive(){	
-		if (IsAboveSurface() && !IsCurrentClip(clips.diverSubmerge) && !IsCurrentClip(clips.diverIdleTurn)) {
+		if (IsAboveSurface() && !IsCurrentClip(clips.diverSubmerge) && !IsCurrentClip(clips.diverIdleTwist)) {
 			SetState(state.Surface);
 			
 			DirectionMarker.get.Reset ();
@@ -305,9 +330,9 @@ public class Diver : BaseManager<Diver> {
 	void HandleTouch(){
 		float directionDot_ = DirectionMarker.get.GetDirectionDot();
 
-		if ( directionDot_ < -0.75f && !IsCurrentClip(clips.diverSubmerge) ){
-			SetState(state.Flip);
-			return;	
+		if ( directionDot_ < -0.75f && !IsCurrentClip(clips.diverSubmerge) && !IsCurrentClip(clips.diverIdleTwist) ){
+		//	SetState(state.Flip);
+		//	return;	
 		} 
 
 		float tangentDot_ = (DirectionMarker.get.GetTangentDot() + 1) * 0.5f;
