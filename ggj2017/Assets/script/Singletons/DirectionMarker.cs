@@ -6,18 +6,24 @@ using System.Reflection;
 
 public class DirectionMarker : BaseManager<DirectionMarker> {
 
+	public GameObject _directionHolder;
+	public GameObject _directionArrow;
+	public GameObject _diverArrow;
+	public GameObject _cursor;
 	public Water.Surface _groundReference;
 	Vector3 uiVector;
 	Vector3 directionVector;
 	Vector3 tangentVector;
 	// Vector3 _diffVector;		
+#if UNITY_EDITOR || UNITY_STANDALONE
 	bool _mouseDown = false;
+#endif
 	Vector3 _lastControllerPosition = Vector3.zero;
 
 	public bool IsCursorAboveGround(){
 		UpdateViewportPosition();
 		float difference_ = _groundReference.GetSurfaceZ(Diver.get.GetPosition()).y - RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition).y;
-		return difference_ < 0;
+		return difference_ < 1.0f;
 	}
 
 	void SetUIVector(){
@@ -27,7 +33,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		uiVector.Normalize ();
 	}
 
-	public float GetCollisionDot(Collision2D collision){
+	public float GetCollisionUIDot(Collision2D collision){
 		Vector3 collision_ = collision.contacts[0].point;
 		Vector3 diver_ = Diver.get.GetPosition();
 		collision_.z = diver_.z;
@@ -51,18 +57,31 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return Vector3.Dot (uiVector, tangentVector);
 	}
 
+	public float GetUIAngle(){
+		Vector3 diff_ = Diver.get.GetPosition() - transform.position;
+		return Mathf.Atan2(diff_.x, diff_.y) * 180.0f / Mathf.PI;
+	}
+	public float GetDiverAngle(){
+		Vector3 diff_ = Diver.get.transform.rotation * Vector3.right;
+		return Mathf.Atan2(diff_.x, diff_.y) * 180.0f / Mathf.PI;
+	}
+
 	void Set(){
-		Diver.get.DoSwim ();
-		GetComponent<Renderer> ().enabled = true;
+		Vector3 diff_ = (transform.position - Diver.get.GetPosition());
+		diff_.z = 0;
+		if ( diff_.magnitude < 1.0f ){
+			Diver.get.DoHover();	
+			_directionHolder.SetActive(false);
+		}else{
+			Diver.get.DoSwim ();
+		}		
 	}
 
 	public void Reset(){
-		GetComponent<Renderer> ().enabled = false;
+		_directionHolder.SetActive(false);
 	}
 
-	void OnDrawGizmos(){
-		Vector3 origin = Diver.get.GetPosition();
-		
+	void OnDrawGizmos(){		
 		if (!Diver.Exists()) {
 			return;
 		}
@@ -86,7 +105,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	bool UpdateViewportPosition(){
 		
-		#if UNITY_EDITOR
+		#if UNITY_EDITOR || UNITY_STANDALONE
 		if ( Input.GetMouseButtonDown(0) ){
 			_mouseDown = true;
 		}
@@ -106,7 +125,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		}
 
 		for (int i = 0; i < Input.touchCount; ++i) {
-			_lastControllerPosition += (Input.GetTouch (i).position);
+			_lastControllerPosition += (Vector3)(Input.GetTouch(i).position);
 		}
 
 		_lastControllerPosition /= Input.touchCount;
@@ -118,22 +137,36 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return true;
 	}	
 
+	void UpdateDirectionHolder(){
+		Vector3 cameraWorldPos_ =  MainCamera.get.GetComponent<Camera>().ViewportToWorldPoint(RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.GetPosition()));
+		cameraWorldPos_.z = MainCamera.get.transform.position.z;
+		_directionHolder.transform.position = cameraWorldPos_;
+		_directionArrow.transform.rotation = Quaternion.AngleAxis(GetUIAngle(), Vector3.back);
+	}
+
+	void UpdateCursor(){
+		_cursor.SetActive(true);
+		Vector3 cameraWorldPos_ =  MainCamera.get.GetComponent<Camera>().ViewportToWorldPoint(RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position));
+		cameraWorldPos_.z = MainCamera.get.transform.position.z;
+		_cursor.transform.position = cameraWorldPos_;
+		_diverArrow.transform.rotation = Quaternion.AngleAxis(GetDiverAngle(), Vector3.back);
+	}
+
 	void Update () {
 		transform.eulerAngles += Vector3.forward * Time.deltaTime * 60.0f;
-
-		if (! UpdateViewportPosition() ){
-			return;
+		
+		if ( UpdateViewportPosition() ){
+			UpdateDirectionHolder();
+			Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
+			transform.position = world_;
+			SetUIVector();	
+			Set();	
+		}
+		else {
+			_cursor.SetActive(false);
 		}
 
-		// Vector3 diverViewport_ = RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint (Diver.get.GetPosition());		
-		Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
-
-		transform.position = world_;
+		UpdateCursor();
 		
-		SetUIVector();	
-		Set();
-		
-		// Vector2 viewport2d_ = (Vector2)_lastControllerPosition;
-		// Vector2 diverViewport2d_ = (Vector2)diverViewport_;
 	}
 }

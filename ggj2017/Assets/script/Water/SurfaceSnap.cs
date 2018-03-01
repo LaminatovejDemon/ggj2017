@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 /// <summary>
 /// Component used to snap an object to the surface. 
@@ -21,15 +22,22 @@ public class SurfaceSnap : MonoBehaviour {
 	public float _rockingAngle = 15.0f;
 
 	public float _angleOffset = 0;
+	public bool snapAngle = true;
 
 	Vector3 _leftDepth, _rightDepth;
 	Vector3 _targetPosition;
 
 	public bool _active;
+
+	public void SetSnapAngle(bool active){
+		snapAngle = active;
+	}
+
 	public void SetActive(bool state){
 		_active = state;
 	}
 	void SetLineSnap(){
+		Debug.Assert(snapAngle == true, this.ToString() + "." + MethodBase.GetCurrentMethod() + ": snapAngle is not supported." );
 		_targetPosition = transform.position;
 
 		_leftDepth = _surface.GetSurfaceZ (transform.position + Vector3.left * _width * 0.5f);
@@ -37,10 +45,10 @@ public class SurfaceSnap : MonoBehaviour {
 
 		float angle_ = Mathf.Tan ((_rightDepth.y - _leftDepth.y) / (_rightDepth.x - _leftDepth.x));
 
-		Quaternion rotation_ = Quaternion.AngleAxis (angle_ * 180.0f / Mathf.PI, Vector3.forward);
-		Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
-		Quaternion offset_ = Quaternion.AngleAxis (_angleOffset * 180.0f / Mathf.PI, Vector3.forward);
-		transform.rotation =  rotation_ * counterRotation_ * offset_;
+		 Quaternion rotation_ = Quaternion.AngleAxis (angle_ * 180.0f / Mathf.PI, Vector3.forward);
+		 Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
+		 Quaternion offset_ = Quaternion.AngleAxis (_angleOffset * 180.0f / Mathf.PI, Vector3.forward);
+		 transform.rotation =  rotation_ * counterRotation_ * offset_;
 
 		Vector3 finalPosition_ = _targetPosition; 
 		finalPosition_.y = (_leftDepth.y + _rightDepth.y) * 0.5f + _verticalOffset;
@@ -51,9 +59,21 @@ public class SurfaceSnap : MonoBehaviour {
 
 		_leftDepth = _surface.GetSurfaceZ(transform.position);
 		_rightDepth = _leftDepth + Vector3.up * 3.0f;
-		Quaternion rotation_ = Quaternion.AngleAxis(_angleOffset, Vector3.forward);
-		Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
-		transform.rotation = counterRotation_ * rotation_;
+		
+		if ( snapAngle ) {
+			// float angle_ = DirectionMarker.get.GetDiverAngle();
+			// Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod() + ": " + angle_ );
+			// float targetAngle_ = (Diver.get.IsTwist() ? 180-angle_ : 180+angle_ );
+			Quaternion base_ = transform.rotation;
+			// Quaternion rotation_ =  Quaternion.AngleAxis( targetAngle_ * Time.deltaTime, Vector3.forward);
+			Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
+			transform.rotation = base_ * counterRotation_ /** rotation_*/;
+			
+			Vector3 bak_ = transform.eulerAngles;
+			bak_.z = -90;
+			transform.eulerAngles = bak_;
+			
+		}
 		_targetPosition.y = _leftDepth.y + _verticalOffset;
 	}
 

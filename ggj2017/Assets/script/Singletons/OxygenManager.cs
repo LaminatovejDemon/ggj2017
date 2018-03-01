@@ -19,6 +19,15 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	}
 
 	public void Reset(){
+		_deathCurtain.SetActive(true);
+		_baseOxygenAmount = baseOxygenAmuount;
+		_visibleOxygen = 0f;
+		_deathTicker = -1;
+		_deathTitle.Reset ();
+		_restartTimeStamp = Time.time;
+		_maxOxygenAmount = _baseOxygenAmount;
+		_oxigenAmount = _baseOxygenAmount;
+		
 		_rewardTitle.Reset ();
 		_doubleXP = false;
 	}
@@ -82,12 +91,12 @@ public class OxygenManager : BaseManager<OxygenManager> {
 // OXYGEN PART
 	public GameObject _deathCurtain;
 	public title _deathTitle;
-
-	public float _maxOxigenAmount;
-
-	float _oxigenAmount;
+	public float baseOxygenAmuount;
+	float _maxOxygenAmount;
+	float _baseOxygenAmount;
+	public float _oxigenAmount;
 	// float _baseSecondsReward = 0.25f;
-	float _defaultOxigenAmount = 25f;
+	
 	float _deathTicker = -1;
 	float _restartTimeStamp = -1;
 	float _visibleOxygen = 0f;
@@ -101,26 +110,16 @@ public class OxygenManager : BaseManager<OxygenManager> {
 			return;
 		}
 
+		float duration_ = 0.6f;
+
 		Color bak_ = _deathCurtain.GetComponent<MeshRenderer> ().material.GetColor ("_TintColor");
-		bak_.a = 1.0f - ((Time.time - _restartTimeStamp) * 0.5f);
+		bak_.a = 1.0f - ((Time.time - _restartTimeStamp) /  duration_);
 		_deathCurtain.GetComponent<MeshRenderer> ().material.SetColor ("_TintColor", bak_);
 
 
-		if (Time.time - _restartTimeStamp > 2.0f) {
+		if (Time.time - _restartTimeStamp > duration_) {
 			_restartTimeStamp = -1;
 		}
-	}
-
-	void Restart(){
-		// _baseSecondsReward = 0.25f;
-		_defaultOxigenAmount = 25f;
-		_visibleOxygen = 0f;
-		_deathTicker = -1;
-		_deathTitle.Reset ();
-		_restartTimeStamp = Time.time;
-		_maxOxigenAmount = _defaultOxigenAmount;
-		_oxigenAmount = _defaultOxigenAmount;
-		Reset ();
 	}
 
 	void UpdateDeath(){
@@ -137,7 +136,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 				_deathTitle.SetState (title.state.ToBeHidden);
 			} else if (_deathTitle.GetState () == title.state.Hidden) {
 				TaskManager.get.Notify (TaskManager.action.restart);
-				Restart ();	
+				Reset ();	
 			}
 		}
 		else if ( Time.time - _deathTicker > 1.5f ) {
@@ -149,8 +148,8 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	}
 
 	void Start () {
-		_maxOxigenAmount = _defaultOxigenAmount;
-		_oxigenAmount = _defaultOxigenAmount;
+		_maxOxygenAmount = _baseOxygenAmount;
+		_oxigenAmount = _baseOxygenAmount;
 	}
 
 	void UpdateOxigen () {
@@ -196,15 +195,15 @@ public class OxygenManager : BaseManager<OxygenManager> {
 		case TaskManager.action.treasureDiveSuccess:
 //			_maxOxigenAmount += maxDepth / 10) * _baseSecondsReward;
 			reward_ = CalculateReward (maxDepth, true) * 10.0f;
-			_maxOxigenAmount += reward_;
+			_maxOxygenAmount += reward_;
 			GotReward (reward_);
-			_oxigenAmount = _maxOxigenAmount;
+			_oxigenAmount = _maxOxygenAmount;
 			break;
 		case TaskManager.action.diveSuccess:
 			reward_ = CalculateReward(maxDepth);
 			GotReward(reward_);
-			_maxOxigenAmount += reward_;
-			_oxigenAmount = _maxOxigenAmount;
+			_maxOxygenAmount += reward_;
+			_oxigenAmount = _maxOxygenAmount;
 			break;
 		default:
 			break;

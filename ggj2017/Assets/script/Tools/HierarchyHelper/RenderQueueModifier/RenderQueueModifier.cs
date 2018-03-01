@@ -12,12 +12,12 @@ public class RenderQueueModifier : MonoBehaviour
 	// public UIWidget m_target = null;
 	public RenderType m_type = RenderType.FRONT;
 
-	Renderer[] _renderers;
-	int _lastQueue = 0;
+	// Renderer[] _renderers;
+	// int _lastQueue = 0;
 
 	void Start ()
 	{
-	 	_renderers = GetComponentsInChildren<Renderer>();
+	 	// _renderers = GetComponentsInChildren<Renderer>();
 	}
 	
 	/*void FixedUpdate() {
