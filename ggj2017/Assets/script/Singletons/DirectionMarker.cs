@@ -41,7 +41,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return Vector3.Dot(uiVector, diverDifference_);
 	}
 
-	public float GetDirectionDot(){	
+	public float GetDirectionUIDot(){	
 		directionVector = Diver.get.transform.rotation * Vector3.left;
 		directionVector.z = 0;
 		directionVector.Normalize ();
@@ -71,8 +71,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		diff_.z = 0;
 		if ( diff_.magnitude < 1.0f ){
 			Diver.get.DoHover();	
-			_directionHolder.SetActive(false);
-		}else{
+		}else {
 			Diver.get.DoSwim ();
 		}		
 	}

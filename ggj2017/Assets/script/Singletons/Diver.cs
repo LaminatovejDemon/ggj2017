@@ -9,8 +9,11 @@ public class Diver : BaseManager<Diver> {
 	public Quaternion _defaultRotation;
 	public float _obsoleteInitialDelay;
 
+	public float _surfaceIdleSnapAngle = 270f;
+	public float _surfaceSwimmingAngle = 113.6f;
 	float _directionAngleInterpolated = 0.5f;
 
+	float _surfaceIgnoreThresholdDegrees = 160;
 	AnimationClip _currentClip = null;
 
 
@@ -43,9 +46,14 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void OnClipStarted(AnimationClip clip){
+		Debug.Log("[" +Time.time + "]" + this.ToString() + "." + MethodBase.GetCurrentMethod() + ": " + clip.name);
 		_currentClip = clip;
 		if ( IsCurrentClip(clips.diverIdleUp) ){
-			GetComponent<Water.SurfaceSnap>().SetSnapAngle(true);
+			GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(true);
+			GetComponent<Water.SurfaceSnap>().SetSnapAngle(_surfaceIdleSnapAngle);
+		} else if ( IsCurrentClip(clips.diverSurfaceSwim) ){
+			GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(true);
+			GetComponent<Water.SurfaceSnap>().SetSnapAngle(_surfaceSwimmingAngle);
 		}
 		// Debug.Log("[" +Time.time + "] " + this.ToString() + "." + MethodBase.GetCurrentMethod() + " called by " + clip.ToString());
 	}
@@ -62,7 +70,9 @@ public class Diver : BaseManager<Diver> {
 		diverSubmerge,
 		diverIdleUp,
 		diverHover,
-		diverIdleTwist
+		diverIdleTwist,
+		diverSurfaceDive,
+		diverSurfaceSwim,
 	}
 
 	public enum state{
@@ -98,6 +108,7 @@ public class Diver : BaseManager<Diver> {
 		transform.position = _defaultPosition;
 		transform.rotation = _defaultRotation;
 		RenderCamera.get.GetComponent<PositionLink>().Reset ();
+		GetComponent<Water.SurfaceSnap>().Reset();
 		SetState(state.Surface);
 
 		DirectionMarker.get.Reset();
@@ -153,6 +164,9 @@ public class Diver : BaseManager<Diver> {
 		case state.Diving:
 			UpdateDive ();
 			break;
+		case state.SurfaceSwim:
+			UpdateSurface();
+			break;
 		}
 		
 		if ( TaskManager.get._title.GetState() == title.state.Hidden && GetState() == state.Surface && _obsoleteInitialDelay != -1 && Time.time - _obsoleteInitialDelay > 10.0f ) {
@@ -178,6 +192,7 @@ public class Diver : BaseManager<Diver> {
 
 		_currentCollisionDot = DirectionMarker.get.GetCollisionUIDot(source);
 		if ( _state == state.SurfaceSwim && !IsCurrentClip(clips.diverIdleTwist) && IsSteepCollision()){
+
 			SetState(state.Surface );	
 		}
 		else if ( _state != state.Collision && _state != state.Surface && IsSteepCollision() ){
@@ -214,15 +229,16 @@ public class Diver : BaseManager<Diver> {
 					if ( _state == state.None || _state == state.Diving || _state == state.SurfaceSwim ){
 						
 						if (  _state == state.SurfaceSwim ){
+							
 							GetComponent<Animator> ().SetTrigger ("SurfaceCollision");
 						} else {
-							GetComponent<Water.SurfaceSnap>().SetSnapAngle(true);		
+							// GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(true);		
 							if ( !IsCurrentClip(clips.diverIdleUp) && _state != state.None ){
 								GetComponent<Animator> ().SetTrigger ("Surface");
 							} 
 						}
 						GetComponent<Water.SurfaceSnap>().SetActive(true);
-						
+						DirectionMarker.get._directionHolder.SetActive(false);
 						// 
 						_defaultPosition = transform.position;
 						
@@ -234,8 +250,11 @@ public class Diver : BaseManager<Diver> {
 					}
 				break;
 				case state.SurfaceSwim:
-					GetComponent<Water.SurfaceSnap>().SetSnapAngle(false);
-
+					// GetComponent<Water.SurfaceSnap>().SetSnapAngle(false);
+					
+					GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(false);
+					GetComponent<Water.SurfaceSnap>().SetActive(true);
+					DirectionMarker.get._directionHolder.SetActive(true);
 					TwistTest( "SurfaceSwim", "SurfaceTwist", "TwistSwim");
 					
 					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
@@ -250,7 +269,9 @@ public class Diver : BaseManager<Diver> {
 					}
 					break;
 				case state.Diving:
-					if ( _state == state.Surface && IsCurrentClip(clips.diverIdleUp) ){
+					if ((_state == state.Surface && (IsCurrentClip(clips.diverIdleUp) || IsCurrentClip(clips.diverIdleTwist))) || 
+					   	(_state == state.SurfaceSwim) ){
+						GetComponent<Water.SurfaceSnap>().SetActive(false);
 						DirectionMarker.get._directionHolder.SetActive(true);
 						RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
 						RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(0);
@@ -258,9 +279,6 @@ public class Diver : BaseManager<Diver> {
 						NotifyManager (TaskManager.action.diveStarted);
 						TaskManager.get._title.SetState(title.state.ToBeHidden);
 						
-						GetComponent<Water.SurfaceSnap>().SetActive(false);
-						GameObject.Destroy(GetComponent<Rigidbody2D>());
-
 						TwistTest("Dive", "SurfaceTwist", "TwistDive");
 						
 						OxygenManager.get.DismissRewawrd ();
@@ -278,6 +296,7 @@ public class Diver : BaseManager<Diver> {
 					success = true;
 				break;
 				case state.Collision:
+					GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(false);
 					GetComponent<Animator> ().SetTrigger ("Collision");
 					success = true;
 				break;
@@ -288,10 +307,11 @@ public class Diver : BaseManager<Diver> {
 		}
 
 		if ( success ){
+			Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ": " + _state + " → " + target);
 			_state = target;
 		}
 		else {
-			Debug.LogWarning(this.ToString() + ", " + MethodBase.GetCurrentMethod().Name + ": transition " + _state + " → " + target + " failed.");
+			Debug.LogWarning(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ": transition " + _state + " → " + target + " FAILED (clip: " + _currentClip.name + ")");
 		}
 	}
 
@@ -299,7 +319,14 @@ public class Diver : BaseManager<Diver> {
 
 		switch ( _state ){
 			case state.Surface:
-			 	SetState(DirectionMarker.get.IsCursorAboveGround () ? state.SurfaceSwim : state.Diving );
+				if ( DirectionMarker.get.IsCursorAboveGround() ){
+					if ( Mathf.Abs(DirectionMarker.get.GetUIAngle()) <= _surfaceIgnoreThresholdDegrees ){
+						SetState(state.SurfaceSwim);
+					} 
+				}else {
+					SetState(state.Diving );
+				}
+			 	
 				break;
 			case state.Hovering:
 			case state.Collision:
@@ -307,16 +334,19 @@ public class Diver : BaseManager<Diver> {
 					SetState(FlipTest() ? state.Flip : state.Diving);
 				}
 				break;
-		}
-
-		if (_state == state.Surface) {
-			SetState(state.Diving);
-			return;
+			case state.SurfaceSwim:
+				if ( DirectionMarker.get.IsCursorAboveGround() && Mathf.Abs(DirectionMarker.get.GetUIAngle()) > _surfaceIgnoreThresholdDegrees){
+					SetState(state.Surface);
+				}
+				break;
 		}
 	}
 
 	public void DoHover(){
 		switch (_state ){
+			case state.SurfaceSwim:
+				SetState(state.Surface);
+			break;
 			case state.Diving:
 				SetState(state.Hovering);
 			break;	
@@ -328,11 +358,35 @@ public class Diver : BaseManager<Diver> {
 		return (_surface.GetSurfaceZ (transform.position) + Vector3.down * 0.3f).y < transform.position.y;
 	}
 
-	void UpdateDive(){	
-		if (IsAboveSurface() && !IsCurrentClip(clips.diverSubmerge) && !IsCurrentClip(clips.diverIdleTwist)) {
-			SetState(state.Surface);
+	void UpdateSurface(){
+		if ( !DirectionMarker.get.IsCursorAboveGround() ){
+			SetState(state.Diving);
+		}
+	}
+
+	bool TestSurfaceSwimAngle(float reference){
+		return (reference < _surfaceIgnoreThresholdDegrees && reference > 90 && !IsTwist()) || (reference > -_surfaceIgnoreThresholdDegrees && reference < -90 && IsTwist());
+	}
+
+	void UpdateDive(){
+		if (IsCurrentClip(clips.diverIdleUp) 
+		|| IsCurrentClip(clips.diverSubmerge)
+		|| IsCurrentClip(clips.diverIdleTwist) 
+		|| IsCurrentClip(clips.diverSurfaceDive)){
+			// Still in the old state
+			return;
+		}
+
+		if (IsAboveSurface() ) {
 			
-			DirectionMarker.get.Reset ();
+			if ( TestSurfaceSwimAngle(DirectionMarker.get.GetDiverAngle()) ){
+				SetState(state.SurfaceSwim);
+			}
+			else {
+				SetState(state.Surface);
+				DirectionMarker.get.Reset ();
+			}
+			
 			if (_maxDepth != 0) {
 				_obsoleteInitialDelay = Time.time;
 
@@ -350,7 +404,7 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	bool FlipTest(){
-		return DirectionMarker.get.GetDirectionDot() < -0.75f;
+		return DirectionMarker.get.GetDirectionUIDot() < -0.75f;
 	}
 
 	void HandleTouch(){
@@ -365,7 +419,7 @@ public class Diver : BaseManager<Diver> {
 
 		float tangentDot_ = (DirectionMarker.get.GetTangentDot() + 1) * 0.5f;
 
-		Interpolate(ref _directionAngleInterpolated, tangentDot_, 0.1f);
+		Water.SurfaceSnap.Interpolate(ref _directionAngleInterpolated, tangentDot_, 3f);
 
 		GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
 
@@ -391,27 +445,5 @@ public class Diver : BaseManager<Diver> {
 //		Camera.main.GetComponent<audioManager> ().Notify (taskManager.action.treasureFound);
 	}
 
-	void Interpolate(ref float source, float target, float speed){
-		if (target == source) {
-			return;
-		}
-
-		float delta_ = target - source;
-
-		if (delta_ > 0) {
-			if (target < source + speed) {
-				source = target;
-			} else {
-				source += speed;
-			}
-		} else {
-			if (target > source - speed) {
-				source = target;
-			} else {	
-				source -= speed;
-			}
-		}
-
-		return;
-	}
+	
 }
