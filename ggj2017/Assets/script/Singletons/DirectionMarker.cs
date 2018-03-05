@@ -148,7 +148,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 	}
 
 	void UpdateCursor(){
-		_cursor.SetActive(true);
 		Vector3 cameraWorldPos_ =  MainCamera.get.GetComponent<Camera>().ViewportToWorldPoint(RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position));
 		cameraWorldPos_.z = MainCamera.get.transform.position.z;
 		_cursor.transform.position = cameraWorldPos_;
@@ -164,9 +163,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			transform.position = world_;
 			SetUIVector();	
 			Set();	
-		}
-		else {
-			_cursor.SetActive(false);
 		}
 
 		UpdateCursor();

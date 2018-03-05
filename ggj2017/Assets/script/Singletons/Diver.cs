@@ -22,7 +22,9 @@ public class Diver : BaseManager<Diver> {
 	public Vector3 _defaultPosition;
 	public float _surfaceIdleSnapAngle = 270f;
 	public float _surfaceSwimmingAngle = 113.6f;
+	public float _idleThreshold = 5.0f;
 
+	float _lastTouchTimestamp = 0;
 	float _currentCollisionDot = -1;
 	state _state = state.None;
 	bool _stateChanging = false;
@@ -90,9 +92,12 @@ public class Diver : BaseManager<Diver> {
 		switch (_state) {
 		case state.Dying:
 			return;
+		case state.SurfaceSwim:
+			UpdateSurfaceSwim();
+			break;
 		case state.Diving:
 			UpdateDive();
-			return;
+			break;
 		case state.SurfaceSwimTwist:
 			UpdateSurfaceSwimTwist();
 			break;
@@ -244,6 +249,7 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void DoSwim(){
+		_lastTouchTimestamp = Time.time;
 
 		switch ( _state ){
 			case state.Surface:
@@ -266,7 +272,11 @@ public class Diver : BaseManager<Diver> {
 
 			case state.Hovering:
 				if ( !IsSteepCollision () ){
-					TryState( state.Diving );
+					if ( FlipTest() ){
+						TryState( state.Flip );
+					} else {
+						TryState( state.Diving );
+					}		
 				}
 				break;
 
@@ -327,6 +337,12 @@ public class Diver : BaseManager<Diver> {
 		}
 	}
 
+	public void UpdateSurfaceSwim(){
+		if ( Time.time - _lastTouchTimestamp > _idleThreshold ){
+			TryState(state.Surface);
+		}
+	}
+
 	public void UpdateDive(){
 		
 		if (IsAboveSurface() ) {
@@ -342,10 +358,14 @@ public class Diver : BaseManager<Diver> {
 
 		} else {
 			float tangentDot_ = (DirectionMarker.get.GetTangentUIDot() + 1) * 0.5f;
-			Water.SurfaceSnap.Interpolate(ref _directionAngleInterpolated, tangentDot_, 3f);
+			Water.SurfaceSnap.Interpolate360(ref _directionAngleInterpolated, tangentDot_, 3f);
 			GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
 
 			_maxDepth = Mathf.Max (_maxDepth, -transform.position.y);
+		}
+
+		if ( Time.time - _lastTouchTimestamp > _idleThreshold ){
+			TryState(state.Hovering);
 		}
 
 		if ( FlipTest() ){

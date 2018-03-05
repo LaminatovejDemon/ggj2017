@@ -39,7 +39,7 @@ public class SurfaceSnap : MonoBehaviour {
 		} else {
 			SetLineSnap();
 		}
-		
+
 		transform.position = _targetPosition;
 	}
 
@@ -86,17 +86,25 @@ public class SurfaceSnap : MonoBehaviour {
 			transform.rotation = base_ * counterRotation_;
 			
 			Vector3 bak_ = transform.eulerAngles;
-			Interpolate(ref bak_.z, _snapAngleValue, 60f);
+			Interpolate360(ref bak_.z, _snapAngleValue, 60f);
 			transform.eulerAngles = bak_;
 			
 		}
 		_targetPosition.y = _leftDepth.y + _verticalOffset;
 	}
 
-	public static void Interpolate(ref float source, float target, float speed){
+	public static void Interpolate360(ref float source, float target, float speed){
+		// it's cheap, but it works for my case
+		if ( target >= 90 && source < -90 ){
+			target -= 360;
+		} else if ( target < -90 && source >= 180 ){
+			target += 360;
+		}
+
 		if (target == source) {
 			return;
 		}
+		Debug.Log("Interp" + target + " → " + source);
 
 		float delta_ = target - source;
 
