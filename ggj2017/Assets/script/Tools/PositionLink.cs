@@ -31,6 +31,7 @@ public class PositionLink : MonoBehaviour {
 		}
 
 		this.transform.position = _target.transform.position + _offset;
+		_targetValue = this.transform.position;
 	}
 
 	// Use this for initialization

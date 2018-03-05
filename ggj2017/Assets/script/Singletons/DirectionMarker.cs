@@ -71,11 +71,9 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 	}
 
 	void Set(){
-		Vector3 diff_ = (transform.position - Diver.get.GetPosition());
-		diff_.z = 0;
-		if ( diff_.magnitude < 1.0f ){
+		if ( Diver.get.HoverTest() ) {
 			Diver.get.DoHover();	
-		}else {
+		} else {
 			Diver.get.DoSwim ();
 		}		
 	}

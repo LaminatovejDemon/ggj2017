@@ -26,7 +26,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 		_deathTitle.Reset ();
 		_restartTimeStamp = Time.time;
 		_maxOxygenAmount = _baseOxygenAmount;
-		_oxigenAmount = _baseOxygenAmount;
+		_oxygenAmount = _baseOxygenAmount;
 		
 		_rewardTitle.Reset ();
 		_doubleXP = false;
@@ -83,7 +83,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	void Update () {
 		InitialiseMeters ();	
 		UpdateMeters ();
-		UpdateOxigen ();
+		UpdateOxygen ();
 		UpdateDeath ();
 		UpdateRestart ();
 	}
@@ -94,7 +94,7 @@ public class OxygenManager : BaseManager<OxygenManager> {
 	public float baseOxygenAmuount;
 	float _maxOxygenAmount;
 	float _baseOxygenAmount;
-	public float _oxigenAmount;
+	public float _oxygenAmount;
 	// float _baseSecondsReward = 0.25f;
 	
 	float _deathTicker = -1;
@@ -149,28 +149,32 @@ public class OxygenManager : BaseManager<OxygenManager> {
 
 	void Start () {
 		_maxOxygenAmount = _baseOxygenAmount;
-		_oxigenAmount = _baseOxygenAmount;
+		_oxygenAmount = _baseOxygenAmount;
 	}
 
-	void UpdateOxigen () {
-		if (Diver.get.GetState() == Diver.state.Diving) {
-			if (-Diver.get.GetPosition().y * 0.7f > _oxigenAmount && _oxigenAmount > 13) {
+	void UpdateOxygen () {
+		if ( Diver.get.GetState() == Diver.state.Dying ){
+			return;
+		}
+
+		if (!Diver.get.IsAboveSurface()) {
+			if (-Diver.get.GetPosition().y * 0.7f > _oxygenAmount && _oxygenAmount > 13) {
 				AudioManager.get.Notify (TaskManager.action.danger);
 				DoubleXP ();
 			}
-			if (_oxigenAmount <= 0.0) {
+			if (_oxygenAmount <= 0.0) {
 				Diver.get.Death ();
 				_deathTicker = Time.time;
 			} else {
-				_oxigenAmount -= 1.0f * Time.deltaTime;
+				_oxygenAmount -= 1.0f * Time.deltaTime;
 			}
 		}
 
-		if (_oxigenAmount != _visibleOxygen) {
-			float addition_ = (_oxigenAmount - _visibleOxygen) * 0.8f * Time.deltaTime;
-			if ((_visibleOxygen < _oxigenAmount && _visibleOxygen + addition_ > _oxigenAmount) ||
-			    (_visibleOxygen > _oxigenAmount && _visibleOxygen + addition_ < _oxigenAmount)) {
-				_visibleOxygen = _oxigenAmount;
+		if (_oxygenAmount != _visibleOxygen) {
+			float addition_ = (_oxygenAmount - _visibleOxygen) * 0.8f * Time.deltaTime;
+			if ((_visibleOxygen < _oxygenAmount && _visibleOxygen + addition_ > _oxygenAmount) ||
+			    (_visibleOxygen > _oxygenAmount && _visibleOxygen + addition_ < _oxygenAmount)) {
+				_visibleOxygen = _oxygenAmount;
 			} else {
 				_visibleOxygen = _visibleOxygen + addition_;
 			}
@@ -197,13 +201,13 @@ public class OxygenManager : BaseManager<OxygenManager> {
 			reward_ = CalculateReward (maxDepth, true) * 10.0f;
 			_maxOxygenAmount += reward_;
 			GotReward (reward_);
-			_oxigenAmount = _maxOxygenAmount;
+			_oxygenAmount = _maxOxygenAmount;
 			break;
 		case TaskManager.action.diveSuccess:
 			reward_ = CalculateReward(maxDepth);
 			GotReward(reward_);
 			_maxOxygenAmount += reward_;
-			_oxigenAmount = _maxOxygenAmount;
+			_oxygenAmount = _maxOxygenAmount;
 			break;
 		default:
 			break;

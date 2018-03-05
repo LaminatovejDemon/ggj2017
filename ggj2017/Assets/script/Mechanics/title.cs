@@ -141,6 +141,7 @@ public class title : MonoBehaviour {
 		if (target == state.ToBeHidden && _state == state.Hidden) {
 			return;
 		}
+		gameObject.SetActive(true);
 		_state = target;
 		_stateTimeStamp = Time.time;
 	}

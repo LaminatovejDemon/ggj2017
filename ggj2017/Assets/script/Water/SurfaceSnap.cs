@@ -33,6 +33,14 @@ public class SurfaceSnap : MonoBehaviour {
 		Vector3 bak_ = transform.eulerAngles;
 		bak_.z = _snapAngleValue;
 		transform.eulerAngles = bak_;
+
+		if ( _width <= 0 ){
+			SetPointSnap();
+		} else {
+			SetLineSnap();
+		}
+		
+		transform.position = _targetPosition;
 	}
 
 	public void SetSnapAngle(float value){
@@ -44,12 +52,10 @@ public class SurfaceSnap : MonoBehaviour {
 	}
 
 	public void SetActive(bool state){
-		if ( !state ){
-			 Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " while playing " + Diver.get.GetCurrentClip() + " in " + Diver.get.GetState() );	
-			
-		} 
+	//  Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " in " + Diver.get.GetState() );	
 		_active = state;
 	}
+
 	void SetLineSnap(){
 		Debug.Assert(_snapAngleActive == true, this.ToString() + "." + MethodBase.GetCurrentMethod() + ": snapAngle is not supported." );
 		_targetPosition = transform.position;
