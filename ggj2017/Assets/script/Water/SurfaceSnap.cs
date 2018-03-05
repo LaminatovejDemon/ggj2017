@@ -22,7 +22,7 @@ public class SurfaceSnap : MonoBehaviour {
 	public float _rockingAngle = 15.0f;
 
 	public float _snapAngleValue = 0;
-	public bool _snapAngleActive = true;
+	public bool _snapAngleActive = false;
 
 	Vector3 _leftDepth, _rightDepth;
 	Vector3 _targetPosition;
@@ -44,11 +44,7 @@ public class SurfaceSnap : MonoBehaviour {
 	}
 
 	public void SetActive(bool state){
-		Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " while playing " + Diver.get.GetCurrentClip() + " in " + Diver.get.GetState() );
-		if ( Diver.get.GetState() == Diver.state.Diving ){
-			// Debug.LogAssertion(this.ToString() + "." + MethodBase.GetCurrentMethod() + ": Locking surface while diving.");
-		}
-		
+		// Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " while playing " + Diver.get.GetCurrentClip() + " in " + Diver.get.GetState() );	
 		_active = state;
 	}
 	void SetLineSnap(){
@@ -76,16 +72,12 @@ public class SurfaceSnap : MonoBehaviour {
 		_rightDepth = _leftDepth + Vector3.up * 3.0f;
 		
 		if ( _snapAngleActive ) {
-			// float angle_ = DirectionMarker.get.GetDiverAngle();
-			// Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod() + ": " + angle_ );
-			// float targetAngle_ = (Diver.get.IsTwist() ? 180-angle_ : 180+angle_ );
 			Quaternion base_ = transform.rotation;
-			// Quaternion rotation_ =  Quaternion.AngleAxis( targetAngle_ * Time.deltaTime, Vector3.forward);
 			Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
-			transform.rotation = base_ * counterRotation_ /** rotation_*/;
+			transform.rotation = base_ * counterRotation_;
 			
 			Vector3 bak_ = transform.eulerAngles;
-			Interpolate(ref bak_.z, _snapAngleValue, 100f);
+			Interpolate(ref bak_.z, _snapAngleValue, 60f);
 			transform.eulerAngles = bak_;
 			
 		}

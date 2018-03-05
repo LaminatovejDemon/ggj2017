@@ -18,10 +18,10 @@ public class PoolBoundary : MonoBehaviour {
 		_bottomPanel.transform.localScale = new Vector3(
 			_pool._surfaceWidth + _thickness * 2.0f + _spacer * 2.0f,
 		 	_thickness, 
-			_pool._surfaceHeight + _spacer + _thickness );
+			_pool._surfaceHeight + _spacer );
 		_bottomPanel.transform.position = _pool.transform.position + 
 			Vector3.down * (_pool._depth + _spacer + _bottomPanel.transform.localScale.y * 0.5f) + 
-			Vector3.forward * ((_pool._surfaceHeight + _spacer + _thickness) * 0.5f );
+			Vector3.forward * ((_pool._surfaceHeight + _spacer ) * 0.5f );
 
 		_backPanel.transform.localScale = new Vector3(
 			_bottomPanel.transform.localScale.x,

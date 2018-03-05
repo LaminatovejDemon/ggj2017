@@ -49,12 +49,16 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return Vector3.Dot (uiVector, directionVector);
 	}
 
-	public float GetTangentDot(){		
+	public float GetTangentUIDot(){		
 		tangentVector = Diver.get.transform.rotation * Vector3.down;
 		tangentVector.z = 0;
 		tangentVector.Normalize ();
 
 		return Vector3.Dot (uiVector, tangentVector);
+	}
+
+	public float GetGlobalUIDot(){
+		return Vector3.Dot(uiVector, Diver.get.IsTwist() ? Vector3.right : Vector3.left );
 	}
 
 	public float GetUIAngle(){
@@ -122,6 +126,8 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		if (Input.touchCount == 0) {
 			return false;
 		}
+
+		_lastControllerPosition = Vector3.zero;
 
 		for (int i = 0; i < Input.touchCount; ++i) {
 			_lastControllerPosition += (Vector3)(Input.GetTouch(i).position);
