@@ -12,6 +12,7 @@ public class Diver : BaseManager<Diver> {
 		SurfaceSwim,
 		SurfaceTwist,
 		SurfaceSwimTwist,
+		SurfaceSwimLazyStop,
 		Dying,
 		Flip,
 	};
@@ -22,9 +23,9 @@ public class Diver : BaseManager<Diver> {
 	public Vector3 _defaultPosition;
 	public float _surfaceIdleSnapAngle = 270f;
 	public float _surfaceSwimmingAngle = 113.6f;
-	public float _idleThreshold = 5.0f;
+	public float _lazyThreshold = 5.0f;
 
-	float _lastTouchTimestamp = 0;
+	float _lazyTimestamp = 0;
 	float _currentCollisionDot = -1;
 	state _state = state.None;
 	bool _stateChanging = false;
@@ -184,9 +185,9 @@ public class Diver : BaseManager<Diver> {
 					success = true;
 				break;
 				case state.Surface:
-					if ( _state == state.None || _state == state.Diving || _state == state.SurfaceSwim || _state == state.Hovering ){
-						successTrigger = "Surface";							
-					}
+					// if ( _state == state.None || _state == state.Diving || _state == state.SurfaceSwim || _state == state.Hovering ){						
+						successTrigger = "Surface";	
+					// }
 				break;
 
 				case state.SurfaceSwimTwist:
@@ -209,11 +210,16 @@ public class Diver : BaseManager<Diver> {
 					successTrigger = "SurfaceSwim";
 				break;
 
+				case state.SurfaceSwimLazyStop:
+					
+					successTrigger = "SurfaceLazy";
+				break;
+
 				case state.Diving:
 					if ( _state == state.Hovering ){
 						successTrigger = IsSteepCollision() ? "Flip" : "Unhover";
 					} else {
-						GetComponent<Water.SurfaceSnap>().SetActive(false);
+						
 						RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
 						RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(0);
 						RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
@@ -249,10 +255,15 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void DoSwim(){
-		_lastTouchTimestamp = Time.time;
+		_lazyTimestamp = Time.time;
 
 		switch ( _state ){
+			case state.SurfaceSwimLazyStop:
 			case state.Surface:
+				if ( _state == state.SurfaceSwimLazyStop ){
+					GetComponent<Animator>().SetTrigger("LazyStopInterruption");
+				}
+
 				if ( IsSteepCollision() ){
 					break;
 				}
@@ -338,8 +349,8 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void UpdateSurfaceSwim(){
-		if ( Time.time - _lastTouchTimestamp > _idleThreshold ){
-			TryState(state.Surface);
+		if ( LazyTest() ){
+			TryState(state.SurfaceSwimLazyStop);
 		}
 	}
 
@@ -364,13 +375,17 @@ public class Diver : BaseManager<Diver> {
 			_maxDepth = Mathf.Max (_maxDepth, -transform.position.y);
 		}
 
-		if ( Time.time - _lastTouchTimestamp > _idleThreshold ){
+		if ( LazyTest() ){
 			TryState(state.Hovering);
 		}
 
 		if ( FlipTest() ){
 			Diver.get.TryState(Diver.state.Flip);
 		} 
+	}
+
+	bool LazyTest(){
+		return Time.time - _lazyTimestamp > _lazyThreshold;
 	}
 
 	public bool HoverTest(){

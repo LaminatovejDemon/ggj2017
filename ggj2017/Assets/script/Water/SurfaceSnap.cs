@@ -104,7 +104,6 @@ public class SurfaceSnap : MonoBehaviour {
 		if (target == source) {
 			return;
 		}
-		Debug.Log("Interp" + target + " → " + source);
 
 		float delta_ = target - source;
 
