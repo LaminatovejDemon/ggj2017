@@ -44,7 +44,10 @@ public class SurfaceSnap : MonoBehaviour {
 	}
 
 	public void SetActive(bool state){
-		// Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " while playing " + Diver.get.GetCurrentClip() + " in " + Diver.get.GetState() );	
+		if ( !state ){
+			 Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " while playing " + Diver.get.GetCurrentClip() + " in " + Diver.get.GetState() );	
+			
+		} 
 		_active = state;
 	}
 	void SetLineSnap(){
