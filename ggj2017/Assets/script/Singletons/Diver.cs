@@ -260,7 +260,7 @@ public class Diver : BaseManager<Diver> {
 				if ( _state == state.SurfaceSwimLazyStop ){
 					GetComponent<Animator>().SetTrigger("LazyStopInterruption");
 				}
-
+				
 				if ( SnapManager.get.IsSnap() ){
 					TryState(state.Sit);
 					break;
@@ -272,6 +272,7 @@ public class Diver : BaseManager<Diver> {
 				}
 
 				if ( _physics.IsSteepCollision() ){	
+					
 					break;
 				}
 

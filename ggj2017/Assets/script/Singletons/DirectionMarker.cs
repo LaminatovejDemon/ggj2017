@@ -61,6 +61,10 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 		return Vector3.Dot(uiVector, Diver.get.IsTwist() ? Vector3.right : Vector3.left );
 	}
 
+	public float GetSnapUIDot(Snap source){
+		return Vector3.Dot(uiVector, (Diver.get.GetPosition() - source.transform.position).normalized );
+	}
+
 	public float GetUIAngle(){
 		Vector3 diff_ = Diver.get.GetPosition() - transform.position;
 		

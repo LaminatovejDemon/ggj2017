@@ -45,6 +45,11 @@ public class SnapManager : BaseManager<SnapManager> {
 		if ((!fromLeft_ && !_lastSnap.fromRight) || (fromLeft_ && !_lastSnap.fromLeft)) {
 			return false;
 		}
+
+		if ( DirectionMarker.get.GetSnapUIDot(_lastSnap) > 0 ){
+			return false;
+		}
+
 		return true;
 	}
 
