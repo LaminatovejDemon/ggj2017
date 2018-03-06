@@ -30,6 +30,7 @@ public class UVRotateEditor : Editor{
 		if (instance._propertyCount == 0 ){
 			instance._propertyCount = ShaderUtil.GetPropertyCount(_shader);
 		}
+		instance.Initialise();
 		if ( instance._propertyNames.Count != instance._propertyCount ){
 			instance._propertyNames.Clear();
 			
@@ -69,7 +70,7 @@ public class UVRotateEditor : Editor{
 		}
 
 		EditorGUILayout.EndHorizontal();
-		instance.Initialise();
+		
 
 		if (_texFold.Count == 0){
 			while ( _texFold.Count < instance._propertyCount ){

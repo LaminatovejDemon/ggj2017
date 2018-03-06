@@ -9,16 +9,18 @@ public class Diver : BaseManager<Diver> {
 		Diving,
 		Surface,
 		Hovering,
+		SurfaceStart,
 		SurfaceSwim,
 		SurfaceTwist,
 		SurfaceSwimTwist,
 		SurfaceSwimLazyStop,
 		Dying,
+		Sit,
 		Flip,
 	};
 
 	public Water.Surface _surface;
-	public Rigidbody2D _rigidBody;
+	public DiverPhysics _physics;
 	public ParticleSystem _bubbles;
 	public Vector3 _defaultPosition;
 	public float _surfaceIdleSnapAngle = 270f;
@@ -26,12 +28,12 @@ public class Diver : BaseManager<Diver> {
 	public float _lazyThreshold = 5.0f;
 
 	float _lazyTimestamp = 0;
-	float _currentCollisionDot = -1;
+
 	state _state = state.None;
 	bool _stateChanging = false;
 	float _directionAngleInterpolated = 0.5f;
 	float _surfaceIgnoreThresholdDegrees = 160;
-	bool _twistedDiver = false;
+	public bool _twistedDiver = false;
 
 	public bool IsTwist(){
 		return _twistedDiver;
@@ -41,7 +43,16 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public Vector3 GetPosition(){
-		return _rigidBody.transform.position;
+		return _physics.transform.position;
+	}
+
+	public void InCollision(){
+		if ( _state == state.SurfaceSwim || _state == state.SurfaceSwimLazyStop ){
+			TryState(state.Surface);	
+		}
+		else if ( _state == state.Diving && _physics.IsSteepCollision() ){
+			TryState(state.Hovering);	
+		}		
 	}
 
 	public void Restart(){
@@ -55,7 +66,7 @@ public class Diver : BaseManager<Diver> {
 		_directionAngleInterpolated = 0.5f;
 		_bubbles.Stop ();
 		_maxDepth = 0;
-		_currentCollisionDot = -1;
+		_physics.Reset();
 		GetComponent<Animator> ().speed = 1.0f;
 		OxygenManager.get.Reset();
 		AudioManager.get.Reset ();
@@ -89,7 +100,7 @@ public class Diver : BaseManager<Diver> {
 		Restart();
 	}
 	
-	void Update () {		
+	void Update() {		
 		switch (_state) {
 		case state.Dying:
 			return;
@@ -122,28 +133,6 @@ public class Diver : BaseManager<Diver> {
 		 transform.position = pos_;
 	}
 
-	public bool IsSteepCollision(){
-		return  _currentCollisionDot > 0.6f;
-	}
-
-	public void OnCollisionStay2D(Collision2D source){
-		_rigidBody.transform.parent = null;
-		this.transform.position = _rigidBody.transform.position;
-		_rigidBody.transform.parent = transform;
-
-		_currentCollisionDot = DirectionMarker.get.GetCollisionUIDot(source);
-		if ( _state == state.SurfaceSwim ){
-
-			TryState(state.Surface);	
-		}
-		else if ( _state != state.Hovering && _state != state.Surface && IsSteepCollision() ){
-			TryState(state.Hovering);	
-		}		
-	}
-
-	public void OnCollisionExit2D(Collision2D source){
-		_currentCollisionDot = -1;
-	}
 
 	bool TwistTest(){
 		float dot_ = DirectionMarker.get.GetGlobalUIDot();
@@ -184,10 +173,14 @@ public class Diver : BaseManager<Diver> {
 					GetComponent<Animator> ().speed = 0.15f;
 					success = true;
 				break;
+
+				case state.Sit:
+					Twist();
+					successTrigger = "ClimbSit";
+				break;
+
 				case state.Surface:
-					// if ( _state == state.None || _state == state.Diving || _state == state.SurfaceSwim || _state == state.Hovering ){						
-						successTrigger = "Surface";	
-					// }
+					successTrigger = "Surface";	
 				break;
 
 				case state.SurfaceSwimTwist:
@@ -200,7 +193,7 @@ public class Diver : BaseManager<Diver> {
 					successTrigger = "SurfaceTwist";
 				break;
 
-				case state.SurfaceSwim:		
+				case state.SurfaceSwim:	
 					DirectionMarker.get._directionHolder.SetActive(true);
 					Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(false);
 					Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);
@@ -217,7 +210,7 @@ public class Diver : BaseManager<Diver> {
 
 				case state.Diving:
 					if ( _state == state.Hovering ){
-						successTrigger = IsSteepCollision() ? "Flip" : "Unhover";
+						successTrigger = _physics.IsSteepCollision() ? "Flip" : "Unhover";
 					} else {
 						
 						RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
@@ -258,19 +251,31 @@ public class Diver : BaseManager<Diver> {
 		_lazyTimestamp = Time.time;
 
 		switch ( _state ){
+			case state.Sit:
+				TryState(state.Surface);
+			break;
+
 			case state.SurfaceSwimLazyStop:
 			case state.Surface:
 				if ( _state == state.SurfaceSwimLazyStop ){
 					GetComponent<Animator>().SetTrigger("LazyStopInterruption");
 				}
 
-				if ( IsSteepCollision() ){
+				if ( SnapManager.get.IsSnap() ){
+					TryState(state.Sit);
 					break;
 				}
 				
 				if ( TwistTest() ){
 					TryState(state.SurfaceTwist);
-				} else if ( !DirectionMarker.get.IsCursorAboveGround() ){
+					break;
+				}
+
+				if ( _physics.IsSteepCollision() ){	
+					break;
+				}
+
+				if ( !DirectionMarker.get.IsCursorAboveGround() ){
 					TryState(state.Diving );
 					break;
 				}
@@ -278,11 +283,10 @@ public class Diver : BaseManager<Diver> {
 				if ( Mathf.Abs(DirectionMarker.get.GetUIAngle()) <= _surfaceIgnoreThresholdDegrees ){
 					TryState(state.SurfaceSwim);
 				}
-			
 				break;
 
 			case state.Hovering:
-				if ( !IsSteepCollision () ){
+				if ( !_physics.IsSteepCollision () ){
 					if ( FlipTest() ){
 						TryState( state.Flip );
 					} else {
@@ -343,14 +347,18 @@ public class Diver : BaseManager<Diver> {
 	public void UpdateSurfaceTwist(){
 		if ( !DirectionMarker.get.IsCursorAboveGround() ){
 			TryState(state.Diving);
-		} else {
+		} else if ( !_physics.IsSteepCollision() ) {
 			TryState(state.SurfaceSwim);
+		} else {
+			TryState(state.Surface);
 		}
 	}
 
 	public void UpdateSurfaceSwim(){
 		if ( LazyTest() ){
 			TryState(state.SurfaceSwimLazyStop);
+		} else if (_physics.IsSteepCollision()){
+			TryState(state.Surface);
 		}
 	}
 

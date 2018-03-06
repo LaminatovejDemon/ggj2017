@@ -131,8 +131,12 @@ public class Surface : ListenerHandler<SurfacePlane> {
 	}
 		
 	Vector3 GetGridPosition(int x, int y, int offset = 0){
-		Debug.Assert(_surface != null, this.ToString() + ", " + MethodBase.GetCurrentMethod().ToString() + ": No surface found, height map is not available." );
 		
+		if ( _surface == null ){
+			Debug.LogWarning(this.ToString() + ", " + MethodBase.GetCurrentMethod().ToString() + ": No surface found, height map is not available." );
+			return Vector3.zero;
+		}
+
 		return _surface.GetGridPosition(x, y, offset);
 	}
 

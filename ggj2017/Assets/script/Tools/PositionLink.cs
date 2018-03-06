@@ -35,7 +35,7 @@ public class PositionLink : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {	
+	void Awake () {	
 		_targetValue = this.transform.position;
 		_offset = _target == null ? Vector3.zero : this.transform.position - _target.transform.position;
 	}

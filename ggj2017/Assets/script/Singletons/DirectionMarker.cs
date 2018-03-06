@@ -63,11 +63,18 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	public float GetUIAngle(){
 		Vector3 diff_ = Diver.get.GetPosition() - transform.position;
+		
 		return Mathf.Atan2(diff_.x, diff_.y) * 180.0f / Mathf.PI;
 	}
+
 	public float GetDiverAngle(){
 		Vector3 diff_ = Diver.get.transform.rotation * Vector3.right;
+		
 		return Mathf.Atan2(diff_.x, diff_.y) * 180.0f / Mathf.PI;
+	}
+
+	public bool IsDiverFacingLeft(){
+		return !Diver.get.IsTwist();
 	}
 
 	void Set(){
