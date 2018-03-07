@@ -24,7 +24,8 @@ public class RenderTarget : MonoBehaviour {
 
 		int sizeY = _resolutionY;
 		int sizeX = (int)(_resolutionY * MainCamera.get.GetComponent<Camera>().aspect);
-		RenderTexture newTexture_ = new RenderTexture (sizeX, sizeY, 8);
+		RenderTexture newTexture_ = new RenderTexture (sizeX, sizeY, 32);
+		
 		newTexture_.useMipMap = false;
 		newTexture_.filterMode = FilterMode.Point;
 		RenderCamera.get.GetComponent<Camera>().targetTexture = newTexture_;

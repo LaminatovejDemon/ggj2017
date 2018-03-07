@@ -1,29 +1,43 @@
 fileFormatVersion: 2
-guid: a53051382c5044f5a9dd02c134d64399
-timeCreated: 1516316130
+guid: 4ed8f92e3f2ee4fddad01e60029af67e
+timeCreated: 1520427791
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Camera
+    100004: Cube.001
+    100006: Lamp
+    100008: Lamp.001
+    100010: Lamp.002
     400000: //RootNode
-    2100000: Paper
-    2100002: direction
+    400002: Camera
+    400004: Cube.001
+    400006: Lamp
+    400008: Lamp.001
+    400010: Lamp.002
+    2000000: Camera
+    2100000: direction
     2300000: //RootNode
+    2300002: Cube.001
     3300000: //RootNode
-    4300000: Cube
-    4300002: Cube.001
+    3300002: Cube.001
+    4300000: Cube.001
+    10800000: Lamp
+    10800002: Lamp.001
+    10800004: Lamp.002
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Paper
-    second: {fileID: 2100000, guid: 61bbf07acd5cd4c87b1c28c5c95d6ada, type: 2}
+      name: Material
+    second: {fileID: 2100000, guid: cb47e141d9a64405f9b13e83e522cea5, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -45,22 +59,22 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
     addColliders: 0
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
     optimizeMeshForGPU: 1
     keepQuads: 0
-    weldVertices: 0
+    weldVertices: 1
     preserveHierarchy: 0
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -71,7 +85,7 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 0
+    tangentImportMode: 3
     normalCalculationMode: 4
   importAnimation: 1
   copyAvatar: 0

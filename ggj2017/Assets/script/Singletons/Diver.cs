@@ -58,13 +58,12 @@ public class Diver : BaseManager<Diver> {
 	public void Restart(){
 		GetComponent<Animator> ().Rebind();
 		ApplyDefaultPosition();
-		
+		MainCamera.get.gameObject.SetActive(true);
 		GetComponent<Water.SurfaceSnap>().SetSnapAngle(_surfaceIdleSnapAngle);
 		GetComponent<Water.SurfaceSnap>().Reset();
 		NotifyManager (TaskManager.action.idle);
 		DirectionMarker.get.Reset();
 		_directionAngleInterpolated = 0.5f;
-		_bubbles.Stop ();
 		_maxDepth = 0;
 		_physics.Reset();
 		GetComponent<Animator> ().speed = 1.0f;
@@ -78,7 +77,7 @@ public class Diver : BaseManager<Diver> {
 		if ( _state == state.Dying ){
 			return;
 		}
-		
+		_bubbles.Stop();
 		TryState(state.Dying);	
 	}
 
@@ -95,7 +94,7 @@ public class Diver : BaseManager<Diver> {
 	}
 		
 	void Start(){
-		_bubbles.Stop ();
+		_bubbles.Play();
 		StoreDefaultPosition();
 		Restart();
 	}
@@ -117,13 +116,7 @@ public class Diver : BaseManager<Diver> {
 			UpdateSurfaceTwist();
 			break;
 		}
-		
-		if (transform.position.y > -5.0f && !_bubbles.isStopped) {
-			_bubbles.Stop();
-		} else if (transform.position.y < -5.0f & _bubbles.isStopped) {
-			_bubbles.Play ();
-		}
-
+	
 		Restrict2D();				
 	}
 
@@ -180,6 +173,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Surface:
+					DirectionMarker.get._directionArrow.SetActive(false);
 					successTrigger = "Surface";	
 				break;
 
@@ -194,7 +188,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.SurfaceSwim:	
-					DirectionMarker.get._directionHolder.SetActive(true);
+					DirectionMarker.get._directionArrow.SetActive(true);
 					Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(false);
 					Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);
 					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
@@ -209,6 +203,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Diving:
+					DirectionMarker.get._directionArrow.SetActive(true);
 					if ( _state == state.Hovering ){
 						successTrigger = _physics.IsSteepCollision() ? "Flip" : "Unhover";
 					} else {
@@ -221,9 +216,11 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Flip:
+					DirectionMarker.get._directionArrow.SetActive(true);
 					successTrigger = "Flip";
 				break;
 				case state.Hovering:
+					DirectionMarker.get._directionArrow.SetActive(false);
 					successTrigger = "Hover";
 				break;
 				default:
@@ -256,11 +253,14 @@ public class Diver : BaseManager<Diver> {
 			break;
 
 			case state.SurfaceSwimLazyStop:
-			case state.Surface:
-				if ( _state == state.SurfaceSwimLazyStop ){
-					GetComponent<Animator>().SetTrigger("LazyStopInterruption");
+				if ( Mathf.Abs(DirectionMarker.get.GetUIAngle()) > _surfaceIgnoreThresholdDegrees ){
+					TryState(state.Surface);
+				} else {
+					TryState(state.SurfaceSwim);
 				}
 				
+				break;
+			case state.Surface:
 				if ( SnapManager.get.IsSnap() ){
 					TryState(state.Sit);
 					break;
@@ -271,8 +271,7 @@ public class Diver : BaseManager<Diver> {
 					break;
 				}
 
-				if ( _physics.IsSteepCollision() ){	
-					
+				if ( _physics.IsSteepCollision() ){		
 					break;
 				}
 
@@ -301,9 +300,7 @@ public class Diver : BaseManager<Diver> {
 					TryState(state.Surface);
 				}else if ( (DirectionMarker.get.GetUIAngle() > 0 == IsTwist()) ){
 					TryState(state.SurfaceSwimTwist);
-				} else if ( DirectionMarker.get.IsCursorAboveGround() ){
-					TryState(state.SurfaceSwim);
-				} else {
+				} else if ( !DirectionMarker.get.IsCursorAboveGround() ){
 					TryState(state.Diving);
 				}
 				break;

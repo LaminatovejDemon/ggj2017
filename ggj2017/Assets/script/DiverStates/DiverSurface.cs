@@ -9,9 +9,7 @@ public class DiverSurface : StateMachineBehaviour {
 			return;
 		}
 
-		
-		DirectionMarker.get._directionHolder.SetActive(false);
-		
+				
 		Diver.get.StoreDefaultPosition();
 		Diver.get.ApplyDefaultPosition();
 		

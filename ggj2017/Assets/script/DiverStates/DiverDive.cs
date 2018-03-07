@@ -9,7 +9,6 @@ public class DiverDive : StateMachineBehaviour {
 			return;
 		}
 
-		DirectionMarker.get._directionHolder.SetActive(true);
 		Diver.get.NotifyManager (TaskManager.action.diveStarted);
 		TaskManager.get._title.SetState(title.state.ToBeHidden);
 		OxygenManager.get.DismissRewawrd ();

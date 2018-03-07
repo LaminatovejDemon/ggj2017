@@ -8,10 +8,7 @@ public class SnapManager : BaseManager<SnapManager> {
 
 	public void ActivateSnap(Snap target){
 		if ( target!= null ){
-			Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ": adding " + target);
 			_lastSnap = target;
-		} else {
-			Debug.LogWarning(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ": adding FAILED");
 		}
 	}
 
@@ -21,7 +18,6 @@ public class SnapManager : BaseManager<SnapManager> {
 
 	public void DisableSnap(Snap target){
 		if ( _lastSnap == target ){
-			Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ": removing " + target); 
 			_lastSnap = null;
 		}
 	}

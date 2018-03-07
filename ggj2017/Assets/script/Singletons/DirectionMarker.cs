@@ -6,10 +6,7 @@ using System.Reflection;
 
 public class DirectionMarker : BaseManager<DirectionMarker> {
 
-	public GameObject _directionHolder;
 	public GameObject _directionArrow;
-	public GameObject _diverArrow;
-	public GameObject _cursor;
 	public Water.Surface _groundReference;
 	Vector3 uiVector;
 	Vector3 directionVector;
@@ -90,7 +87,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 	}
 
 	public void Reset(){
-		_directionHolder.SetActive(false);
 	}
 
 	void OnDrawGizmos(){		
@@ -152,17 +148,10 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 	}	
 
 	void UpdateDirectionHolder(){
-		Vector3 cameraWorldPos_ =  MainCamera.get.GetComponent<Camera>().ViewportToWorldPoint(RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(Diver.get.GetPosition()));
-		cameraWorldPos_.z = MainCamera.get.transform.position.z;
-		_directionHolder.transform.position = cameraWorldPos_;
-		_directionArrow.transform.rotation = Quaternion.AngleAxis(GetUIAngle(), Vector3.back);
-	}
+		Vector3 cameraDirection_ = (RenderCamera.get.transform.position - Diver.get.transform.position).normalized;
 
-	void UpdateCursor(){
-		Vector3 cameraWorldPos_ =  MainCamera.get.GetComponent<Camera>().ViewportToWorldPoint(RenderCamera.get.GetComponent<Camera>().WorldToViewportPoint(transform.position));
-		cameraWorldPos_.z = MainCamera.get.transform.position.z;
-		_cursor.transform.position = cameraWorldPos_;
-		_diverArrow.transform.rotation = Quaternion.AngleAxis(GetDiverAngle(), Vector3.back);
+		_directionArrow.transform.position = Diver.get.transform.position + cameraDirection_ * 2.0f;
+		_directionArrow.transform.rotation = Quaternion.AngleAxis(GetUIAngle(), Vector3.back);
 	}
 
 	void Update () {
@@ -174,9 +163,6 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 			transform.position = world_;
 			SetUIVector();	
 			Set();	
-		}
-
-		UpdateCursor();
-		
+		}		
 	}
 }
