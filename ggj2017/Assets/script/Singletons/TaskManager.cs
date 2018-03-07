@@ -90,6 +90,8 @@ public class TaskManager : BaseManager<TaskManager> {
 	}
 
 	void PrepareTask(){
+		return; // TEMPORARY
+		
 		if (_treasureStatus == treasureStatus.hidden) {
 			return;
 		}

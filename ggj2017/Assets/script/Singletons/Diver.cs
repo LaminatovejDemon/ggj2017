@@ -220,7 +220,6 @@ public class Diver : BaseManager<Diver> {
 					successTrigger = "Flip";
 				break;
 				case state.Hovering:
-					DirectionMarker.get._directionArrow.SetActive(false);
 					successTrigger = "Hover";
 				break;
 				default:

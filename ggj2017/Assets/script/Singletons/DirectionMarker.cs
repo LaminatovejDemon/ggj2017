@@ -80,6 +80,7 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	void Set(){
 		if ( Diver.get.HoverTest() ) {
+			_directionArrow.SetActive(false);
 			Diver.get.DoHover();	
 		} else {
 			Diver.get.DoSwim ();
@@ -149,16 +150,25 @@ public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	void UpdateDirectionHolder(){
 		Vector3 cameraDirection_ = (RenderCamera.get.transform.position - Diver.get.transform.position).normalized;
+		
 
-		_directionArrow.transform.position = Diver.get.transform.position + cameraDirection_ * 2.0f;
 		_directionArrow.transform.rotation = Quaternion.AngleAxis(GetUIAngle(), Vector3.back);
+		_directionArrow.transform.position = Diver.get.transform.position + cameraDirection_ * 1.0f;
+		
+		RaycastHit2D hit_ = Physics2D.Raycast(_directionArrow.transform.position, _directionArrow.transform.rotation * Vector3.down, 3.0f, 1<<LayerMask.NameToLayer("Boundary"));
+		float distance_ = 3.0f;
+		if ( hit_.collider != null ){
+			distance_ = ((Vector2)(_directionArrow.transform.position) - hit_.point).magnitude;
+		}
+
+		_directionArrow.transform.GetChild(0).transform.localPosition = Vector3.down * distance_;
 	}
 
 	void Update () {
 		transform.eulerAngles += Vector3.forward * Time.deltaTime * 60.0f;
-		
-		if ( UpdateViewportPosition() ){
-			UpdateDirectionHolder();
+		UpdateDirectionHolder(); 
+
+		if ( UpdateViewportPosition() ){	
 			Vector3 world_ = RenderCamera.get.GetComponent<Camera>().ViewportToWorldPoint(_lastControllerPosition);
 			transform.position = world_;
 			SetUIVector();	
