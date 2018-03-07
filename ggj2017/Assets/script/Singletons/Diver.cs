@@ -353,6 +353,7 @@ public class Diver : BaseManager<Diver> {
 
 	public void UpdateSurfaceSwim(){
 		if ( LazyTest() ){
+			DirectionMarker.get._directionArrow.SetActive(false);
 			TryState(state.SurfaceSwimLazyStop);
 		} else if (_physics.IsSteepCollision()){
 			TryState(state.Surface);
@@ -381,6 +382,7 @@ public class Diver : BaseManager<Diver> {
 		}
 
 		if ( LazyTest() ){
+			DirectionMarker.get._directionArrow.SetActive(false);
 			TryState(state.Hovering);
 		}
 
