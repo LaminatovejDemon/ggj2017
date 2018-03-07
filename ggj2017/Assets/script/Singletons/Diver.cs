@@ -17,18 +17,27 @@ public class Diver : BaseManager<Diver> {
 		Dying,
 		Sit,
 		Flip,
+		Stand,
 	};
+
+	public enum angles{
+		Idle,
+		Swim,
+		Count,
+	}
+
+	[SerializeField]
+	public List<float> _angles;
 
 	public Water.Surface _surface;
 	public DiverPhysics _physics;
 	public ParticleSystem _bubbles;
-	public Vector3 _defaultPosition;
 	public float _surfaceIdleSnapAngle = 270f;
 	public float _surfaceSwimmingAngle = 113.6f;
 	public float _lazyThreshold = 5.0f;
 
 	float _lazyTimestamp = 0;
-
+	Vector3 _defaultPosition;
 	state _state = state.None;
 	bool _stateChanging = false;
 	float _directionAngleInterpolated = 0.5f;
@@ -167,6 +176,10 @@ public class Diver : BaseManager<Diver> {
 					success = true;
 				break;
 
+				case state.Stand:
+					successTrigger = "Stand";
+					break;
+
 				case state.Sit:
 					Twist();
 					successTrigger = "ClimbSit";
@@ -248,7 +261,11 @@ public class Diver : BaseManager<Diver> {
 
 		switch ( _state ){
 			case state.Sit:
-				TryState(state.Surface);
+				if ( SnapManager.get.IsSnap() ){
+					TryState(state.Surface);
+				} else {
+					TryState(state.Stand);
+				}
 			break;
 
 			case state.SurfaceSwimLazyStop:

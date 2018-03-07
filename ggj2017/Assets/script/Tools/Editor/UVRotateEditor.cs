@@ -5,14 +5,11 @@ using UnityEngine;
 
 
 [CustomEditor(typeof(UVRotate))]
-public class UVRotateEditor : Editor{
+public class UVRotateEditor : BaseEditor<UVRotate>{
 	List<bool> _texFold;
-	UVRotate instance;
 	Shader _shader = null;
-	void Initialise(){
-		if ( instance == null ){
-			instance = (UVRotate)target;
-		}
+
+	protected override void Initialise(){
 		if ( _texFold == null ){
 			_texFold = new List<bool>();
 		}
@@ -46,7 +43,7 @@ public class UVRotateEditor : Editor{
 
 	GUIStyle _toggleButtonNormal = null, _toggleButtonToggled = null;
 
-	public override void OnInspectorGUI(){
+	public override void OnInspector(){
 		Initialise();
 
 		EditorGUILayout.BeginHorizontal();
