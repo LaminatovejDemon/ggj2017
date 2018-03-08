@@ -3,8 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
+
+
 public class SnapManager : BaseManager<SnapManager> {
 	Snap _lastSnap = null;
+	public enum SnapType{
+		None,
+		SurfaceSit,
+		StandJump,
+		SitSuface,
+		SitStand,
+	};
 
 	public void ActivateSnap(Snap target){
 		if ( target!= null ){
@@ -26,23 +35,28 @@ public class SnapManager : BaseManager<SnapManager> {
 		_lastSnap = null;
 	}
 	
-	public bool IsSnap(){
-		if (_lastSnap == null){
+	public bool IsSnap(SnapType type){
+		if (_lastSnap == null ){
+			return false;
+		}
+		SnapPoint point_ = _lastSnap.GetSnap(type);
+		if ( point_ == null ){
 			return false;
 		}
 
 		bool fromLeft_ = Diver.get.transform.position.x < _lastSnap.transform.position.x;
 		bool facingLeft_ = DirectionMarker.get.IsDiverFacingLeft();
 		bool facing_ = (fromLeft_ == !facingLeft_);
+		
 
-		if ((facing_ && !_lastSnap.facing) || !(facing_ || _lastSnap.backwards) ){
+		if ((facing_ && !point_.facing) || !(facing_ || point_.backwards) ){
 			return false;
 		}
-		if ((!fromLeft_ && !_lastSnap.fromRight) || (fromLeft_ && !_lastSnap.fromLeft)) {
+		if ((!fromLeft_ && !point_.fromRight) || (fromLeft_ && !point_.fromLeft)) {
 			return false;
 		}
 
-		if ( DirectionMarker.get.GetSnapUIDot(_lastSnap) > 0 ){
+		if ( DirectionMarker.get.GetSnapUIDot(_lastSnap, point_.lookAt) > 0 ){
 			return false;
 		}
 

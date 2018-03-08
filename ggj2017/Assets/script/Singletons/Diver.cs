@@ -177,6 +177,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Stand:
+					Twist();
 					successTrigger = "Stand";
 					break;
 
@@ -261,7 +262,7 @@ public class Diver : BaseManager<Diver> {
 
 		switch ( _state ){
 			case state.Sit:
-				if ( SnapManager.get.IsSnap() ){
+				if ( SnapManager.get.IsSnap(SnapManager.SnapType.SitSuface) ){
 					TryState(state.Surface);
 				} else {
 					TryState(state.Stand);
@@ -277,7 +278,7 @@ public class Diver : BaseManager<Diver> {
 				
 				break;
 			case state.Surface:
-				if ( SnapManager.get.IsSnap() ){
+				if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
 					TryState(state.Sit);
 					break;
 				}

@@ -51,6 +51,7 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 			EditorGUILayout.BeginVertical();
 			instance.twistAngle = (Diver.angles)EditorGUILayout.EnumPopup("Angle", instance.twistAngle);
 			instance._snapPointPosition = EditorGUILayout.Toggle("Snap Point Position", instance._snapPointPosition);
+			instance._snapPointType = (SnapManager.SnapType)EditorGUILayout.EnumPopup("Snap Point Type", instance._snapPointType);
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField(instance._matchMin.ToString("0.00"), GUILayout.MaxWidth(30));
 			EditorGUILayout.MinMaxSlider(ref instance._matchMin, ref instance._matchMax, 0, 1f);
