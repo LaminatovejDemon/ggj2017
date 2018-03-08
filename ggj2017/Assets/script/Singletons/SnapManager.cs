@@ -12,7 +12,7 @@ public class SnapManager : BaseManager<SnapManager> {
 		SurfaceSit,
 		StandJump,
 		SitSuface,
-		SitStand,
+		Stand,
 	};
 
 	public void ActivateSnap(Snap target){

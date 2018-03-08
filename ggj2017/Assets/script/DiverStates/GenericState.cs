@@ -8,8 +8,9 @@ public class GenericState : StateMachineBehaviour {
 	public bool _matchTarget = false;
 	public float _matchMin = 0f;
 	public float _matchMax = 1f;
-	public Diver.angles twistAngle;
-
+	
+	public Diver.angles turnAngle = Diver.angles.Idle;
+	public Diver.gangles twistAngle = Diver.gangles._0;
 	public bool _snapPointPosition = false;
 	public SnapManager.SnapType _snapPointType = SnapManager.SnapType.None;
 
@@ -21,7 +22,6 @@ public class GenericState : StateMachineBehaviour {
 	public bool _surfaceAngleSnapValue = false;
 	public bool _surfaceAngleSnapDataModifier = false;
 	public Diver.angles _surfaceAngleSnapDataValue;
-	
 
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 		if (  (state != Diver.state.None && !Diver.get.SetState(state))){
@@ -45,7 +45,9 @@ public class GenericState : StateMachineBehaviour {
 	
 	override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 		if ( _matchTarget ){
-			Quaternion targetRotation_ = Quaternion.Euler(0, Diver.get.IsTwist() ? 180 : 0, Diver.get._angles[(int)twistAngle]);
+
+			Quaternion targetRotation_ = Quaternion.Euler(0, Diver.get.IsTwist() ? 180+(int)twistAngle : (int)twistAngle, Diver.get._angles[(int)turnAngle]);
+
 			Vector3 position_ = animator.targetPosition;
 			if (_snapPointPosition ){
 				SetPositionToSnap(ref position_);

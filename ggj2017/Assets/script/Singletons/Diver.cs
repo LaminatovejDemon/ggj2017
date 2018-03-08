@@ -21,6 +21,10 @@ public class Diver : BaseManager<Diver> {
 		StandTwist,
 	};
 
+	public enum gangles{
+		_0 = 0,
+		_270 = 270,
+	};
 	public enum angles{
 		Idle,
 		Swim,
@@ -119,12 +123,6 @@ public class Diver : BaseManager<Diver> {
 		case state.Diving:
 			UpdateDive();
 			break;
-		case state.SurfaceSwimTwist:
-			UpdateSurfaceSwimTwist();
-			break;
-		case state.SurfaceTwist:
-			UpdateSurfaceTwist();
-			break;
 		}
 	
 		Restrict2D();				
@@ -178,7 +176,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Stand:
-					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.1f;
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
 					successTrigger = "Stand";
 					break;
 
@@ -200,13 +198,8 @@ public class Diver : BaseManager<Diver> {
 					successTrigger = "Surface";	
 				break;
 
-				case state.SurfaceSwimTwist:
-					
-					successTrigger = "SurfaceTwist";
-				break;
-
 				case state.SurfaceTwist:
-					
+				case state.SurfaceSwimTwist:	
 					successTrigger = "SurfaceTwist";
 				break;
 
@@ -296,13 +289,15 @@ public class Diver : BaseManager<Diver> {
 				
 				break;
 			case state.Surface:
-				if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
-					TryState(state.Sit);
-					break;
-				}
+				
 				
 				if ( TwistTest() ){
 					TryState(state.SurfaceTwist);
+					break;
+				}
+
+				if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
+					TryState(state.Sit);
 					break;
 				}
 
@@ -369,27 +364,9 @@ public class Diver : BaseManager<Diver> {
 		}
 	}
 
-	public void UpdateSurfaceSwimTwist(){
-		if ( !DirectionMarker.get.IsCursorAboveGround() ){
-			TryState(state.Diving);
-		} else {
-			TryState(state.SurfaceSwim);
-		}
-	}
-
-	public void UpdateSurfaceTwist(){
-		if ( !DirectionMarker.get.IsCursorAboveGround() ){
-			TryState(state.Diving);
-		} else if ( !_physics.IsSteepCollision() ) {
-			TryState(state.SurfaceSwim);
-		} else {
-			TryState(state.Surface);
-		}
-	}
-
 	public void UpdateSurfaceSwim(){
 		if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
-			TryState(state.Sit);	
+			TryState(state.Surface);	
 		} else if ( LazyTest() ){
 			DirectionMarker.get._directionArrow.SetActive(false);
 			TryState(state.SurfaceSwimLazyStop);

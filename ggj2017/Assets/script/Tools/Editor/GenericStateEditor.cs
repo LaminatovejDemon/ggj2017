@@ -50,7 +50,11 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 		instance._matchTarget = EditorGUILayout.Toggle("MatchTarget", instance._matchTarget);
 		if ( instance._matchTarget ){
 			EditorGUILayout.BeginVertical();
-			instance.twistAngle = (Diver.angles)EditorGUILayout.EnumPopup("Angle", instance.twistAngle);
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Angles", GUILayout.MaxWidth(34));
+			instance.twistAngle = (Diver.gangles)EditorGUILayout.EnumPopup(instance.twistAngle);
+			instance.turnAngle = (Diver.angles)EditorGUILayout.EnumPopup(instance.turnAngle);
+			EditorGUILayout.EndHorizontal();
 			instance._snapPointPosition = EditorGUILayout.Toggle("Snap Point Position", instance._snapPointPosition);
 			instance._snapPointType = (SnapManager.SnapType)EditorGUILayout.EnumPopup("Snap Point Type", instance._snapPointType);
 			EditorGUILayout.BeginHorizontal();
