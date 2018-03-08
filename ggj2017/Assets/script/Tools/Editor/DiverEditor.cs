@@ -40,8 +40,9 @@ public class DiverEditor : BaseEditor<Diver> {
 		GUILayout.FlexibleSpace();
 		EditorGUILayout.BeginVertical();
 		EditorGUILayout.LabelField("Stats");
-		EditorGUILayout.LabelField("Twisted Diver:\t" + (instance._twistedDiver ? "YES" : "NO") );
-		EditorGUILayout.LabelField("Max Depth:\t" + instance._maxDepth );
+		EditorGUILayout.LabelField("State:         \t" + instance.GetState().ToString() );
+		EditorGUILayout.LabelField("Twisted Diver: \t" + (instance._twistedDiver ? "YES" : "NO") );
+		EditorGUILayout.LabelField("Max Depth:     \t" + instance._maxDepth );
 		EditorGUILayout.LabelField("Treasure Found:\t" + (instance._treasure ? "YES" : "NO") );
 		EditorGUILayout.EndVertical();
 		EditorGUILayout.EndHorizontal();

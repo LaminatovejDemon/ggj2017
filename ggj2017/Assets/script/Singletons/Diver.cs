@@ -18,6 +18,7 @@ public class Diver : BaseManager<Diver> {
 		Sit,
 		Flip,
 		Stand,
+		StandTwist,
 	};
 
 	public enum angles{
@@ -177,13 +178,21 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Stand:
-					Twist();
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.1f;
 					successTrigger = "Stand";
 					break;
 
+				case state.StandTwist:
+					successTrigger = "StandTwist";
+					break;
+
 				case state.Sit:
-					Twist();
-					successTrigger = "ClimbSit";
+					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
+					RenderCamera.get.GetComponent<PositionLink>()._yAxis = false;
+					RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(3.9f, true);
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
+					
+					successTrigger = "Sit";
 				break;
 
 				case state.Surface:
@@ -192,12 +201,12 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.SurfaceSwimTwist:
-					Twist();
+					
 					successTrigger = "SurfaceTwist";
 				break;
 
 				case state.SurfaceTwist:
-					Twist();
+					
 					successTrigger = "SurfaceTwist";
 				break;
 
@@ -222,9 +231,10 @@ public class Diver : BaseManager<Diver> {
 						successTrigger = _physics.IsSteepCollision() ? "Flip" : "Unhover";
 					} else {
 						
+						RenderCamera.get.GetComponent<PositionLink>()._yAxis = true;
 						RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
 						RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(0);
-						RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
+						
 						successTrigger = "Dive";						
 					} 
 				break;
@@ -261,6 +271,14 @@ public class Diver : BaseManager<Diver> {
 		_lazyTimestamp = Time.time;
 
 		switch ( _state ){
+			case state.Stand:
+				if ( TwistTest() ){
+					TryState(state.StandTwist);
+				} else if ( SnapManager.get.IsSnap(SnapManager.SnapType.StandJump)){
+					TryState(state.Diving);
+				}
+			break;
+
 			case state.Sit:
 				if ( SnapManager.get.IsSnap(SnapManager.SnapType.SitSuface) ){
 					TryState(state.Surface);
@@ -370,7 +388,9 @@ public class Diver : BaseManager<Diver> {
 	}
 
 	public void UpdateSurfaceSwim(){
-		if ( LazyTest() ){
+		if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
+			TryState(state.Sit);	
+		} else if ( LazyTest() ){
 			DirectionMarker.get._directionArrow.SetActive(false);
 			TryState(state.SurfaceSwimLazyStop);
 		} else if (_physics.IsSteepCollision()){

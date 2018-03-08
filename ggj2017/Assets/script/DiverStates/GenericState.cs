@@ -13,6 +13,8 @@ public class GenericState : StateMachineBehaviour {
 	public bool _snapPointPosition = false;
 	public SnapManager.SnapType _snapPointType = SnapManager.SnapType.None;
 
+	public bool _doTwist = false;
+
 	public bool _surfaceSnapModifier = false;
 	public bool _surfaceSnapValue = false;
 	public bool _surfaceAngleSnapModifier = false;
@@ -24,6 +26,10 @@ public class GenericState : StateMachineBehaviour {
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 		if (  (state != Diver.state.None && !Diver.get.SetState(state))){
 			return;
+		}
+		if ( _doTwist )
+		{
+			Diver.get.Twist();
 		}
 		
 		if ( _surfaceSnapModifier ){

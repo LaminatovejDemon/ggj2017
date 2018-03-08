@@ -9,6 +9,7 @@ public class DiverDive : StateMachineBehaviour {
 			return;
 		}
 
+		RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.2f;
 		Diver.get.NotifyManager (TaskManager.action.diveStarted);
 		TaskManager.get._title.SetState(title.state.ToBeHidden);
 		OxygenManager.get.DismissRewawrd ();

@@ -25,6 +25,7 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 			instance._surfaceSnapValue = (TF)(EditorGUILayout.EnumPopup((TF)(instance._surfaceSnapValue? 1 : 0))) == TF.False ? false : true;
 		}
 		EditorGUILayout.EndHorizontal();
+		instance._doTwist = EditorGUILayout.Toggle("Do Twist", instance._doTwist);
 
 		EditorGUILayout.BeginHorizontal();
 		instance._surfaceAngleSnapModifier = EditorGUILayout.Toggle("Surface Angle Snap", instance._surfaceAngleSnapModifier);

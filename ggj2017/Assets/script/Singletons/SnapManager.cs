@@ -44,7 +44,7 @@ public class SnapManager : BaseManager<SnapManager> {
 			return false;
 		}
 
-		bool fromLeft_ = Diver.get.transform.position.x < _lastSnap.transform.position.x;
+		bool fromLeft_ = Diver.get.transform.position.x < (_lastSnap.transform.position.x + point_.lookAt.x);
 		bool facingLeft_ = DirectionMarker.get.IsDiverFacingLeft();
 		bool facing_ = (fromLeft_ == !facingLeft_);
 		
