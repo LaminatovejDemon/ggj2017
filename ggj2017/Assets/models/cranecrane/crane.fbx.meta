@@ -1,0 +1,160 @@
+fileFormatVersion: 2
+guid: 4b2b6a89e10fc488cb79c7824abb7a82
+timeCreated: 1520721858
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: craneArm
+    100004: craneArmBase
+    100006: craneArmBase.001
+    100008: craneMiddle
+    100010: cranePillarFrame
+    100012: craneRail
+    100014: craneSkywalk
+    400000: //RootNode
+    400002: craneArm
+    400004: craneArmBase
+    400006: craneArmBase.001
+    400008: craneMiddle
+    400010: cranePillarFrame
+    400012: craneRail
+    400014: craneSkywalk
+    2100000: craneRailMat
+    2100002: craneSkywalkRaiMat
+    2100004: craneFrameMat
+    2100006: craneSkywalkMiddleMat
+    2100008: craneBaseMat
+    2100010: craneSkywalkMat
+    2300000: craneArm
+    2300002: craneArmBase
+    2300004: craneArmBase.001
+    2300006: craneMiddle
+    2300008: cranePillarFrame
+    2300010: craneRail
+    2300012: craneSkywalk
+    3300000: craneArm
+    3300002: craneArmBase
+    3300004: craneArmBase.001
+    3300006: craneMiddle
+    3300008: cranePillarFrame
+    3300010: craneRail
+    3300012: craneSkywalk
+    4300000: craneRail
+    4300002: craneSkywalk
+    4300004: cranePillarFrame
+    4300006: craneMiddle
+    4300008: craneArmBase
+    4300010: craneArm
+    4300012: craneArmBase.001
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneBaseMat
+    second: {fileID: 2100000, guid: 90cc466a5a0d340a1901895b688b2b7c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneFrameMat
+    second: {fileID: 2100000, guid: 68958609afc574490959c3487942fc53, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneRailMat
+    second: {fileID: 2100000, guid: 4c2d941707748443d8fc9ce2d0570dbc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneSkywalkMat
+    second: {fileID: 2100000, guid: 85f66a1d23d904bf2ba50a9a488da4e4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneSkywalkMiddleMat
+    second: {fileID: 2100000, guid: 61bafe9258f924428aa014db362ea4f2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: craneSkywalkRaiMat
+    second: {fileID: 2100000, guid: 747a43f1b2fbb47e0b7cf7bfdeedc296, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
