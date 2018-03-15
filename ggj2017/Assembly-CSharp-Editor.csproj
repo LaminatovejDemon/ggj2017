@@ -51,9 +51,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\script\Tools\Editor\BaseEditModeEditor.cs" />
      <Compile Include="Assets\script\Tools\Editor\BaseEditor.cs" />
      <Compile Include="Assets\script\Tools\Editor\DiverEditor.cs" />
      <Compile Include="Assets\script\Tools\Editor\GenericStateEditor.cs" />
+     <Compile Include="Assets\script\Tools\Editor\HierarchyPrefabEditor.cs" />
+     <Compile Include="Assets\script\Tools\Editor\RecalculateBoundsEditor.cs" />
      <Compile Include="Assets\script\Tools\Editor\SnapPointEditor.cs" />
      <Compile Include="Assets\script\Tools\Editor\UVRotateEditor.cs" />
      <Compile Include="Assets\script\Tools\HierarchyHelper\Editor\CustomEditor\Monitor4AnimationCurve\Monitor4AnimationCurve.cs" />

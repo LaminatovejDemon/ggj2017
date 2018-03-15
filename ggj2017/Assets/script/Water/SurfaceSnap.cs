@@ -86,7 +86,7 @@ public class SurfaceSnap : MonoBehaviour {
 			transform.rotation = base_ * counterRotation_;
 			
 			Vector3 bak_ = transform.eulerAngles;
-			Interpolate360(ref bak_.z, _snapAngleValue, 60f);
+			Interpolate360(ref bak_.z, _snapAngleValue, 160f);
 			transform.eulerAngles = bak_;
 			
 		}

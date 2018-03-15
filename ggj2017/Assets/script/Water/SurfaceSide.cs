@@ -98,6 +98,10 @@ public class SurfaceSide : SurfacePlane {
 				_vertices [index*4+3] = new Vector3 (0, yTop_, xOffset_);
 			else
 				_vertices [index*4+3] = new Vector3 (0, yTop_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)+1f) * _surface._resolutionY);
+
+			GetComponent<MeshFilter>().mesh.RecalculateBounds();
+			GetComponent<MeshFilter>().mesh.RecalculateNormals();
+			GetComponent<MeshFilter>().mesh.RecalculateTangents();
 	}
 }
 }

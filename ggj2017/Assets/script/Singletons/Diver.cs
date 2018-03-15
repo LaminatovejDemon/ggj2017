@@ -40,6 +40,7 @@ public class Diver : BaseManager<Diver> {
 	public float _surfaceIdleSnapAngle = 270f;
 	public float _surfaceSwimmingAngle = 113.6f;
 	public float _lazyThreshold = 5.0f;
+	public float _zeroDepth_ = 10.0f;
 
 	float _lazyTimestamp = 0;
 	Vector3 _defaultPosition;
@@ -48,6 +49,8 @@ public class Diver : BaseManager<Diver> {
 	float _directionAngleInterpolated = 0.5f;
 	float _surfaceIgnoreThresholdDegrees = 160;
 	public bool _twistedDiver = false;
+
+	Vector3 _liftVector = Vector3.zero;
 
 	public bool IsTwist(){
 		return _twistedDiver;
@@ -83,6 +86,7 @@ public class Diver : BaseManager<Diver> {
 		GetComponent<Animator> ().speed = 1.0f;
 		OxygenManager.get.Reset();
 		AudioManager.get.Reset ();
+		_liftVector = Vector3.zero;
 
 		RenderCamera.get.GetComponent<PositionLink>().Reset ();
 	}
@@ -115,6 +119,9 @@ public class Diver : BaseManager<Diver> {
 	
 	void Update() {		
 		switch (_state) {
+		case state.Hovering:
+			UpdateHover();
+		break;
 		case state.Dying:
 			return;
 		case state.SurfaceSwim:
@@ -125,15 +132,48 @@ public class Diver : BaseManager<Diver> {
 			break;
 		}
 	
-		Restrict2D();				
+		UpdatePosition();				
 	}
 
-	void Restrict2D(){
+	Vector3 GetBuyoancy(){
+		float diff_ = (_surface.GetSurfaceZ(transform.position).y - transform.position.y);
+		float zero_ = Mathf.Max(0, diff_ + GetComponent<Water.SurfaceSnap>()._verticalOffset);
+		float lift_ = (_zeroDepth_ - diff_) * zero_;
+		lift_ *= (lift_ < 0 ? 0.3f : 0.2f);
+		float downDot_ = Mathf.Max(0, Vector3.Dot(transform.rotation * Vector3.left, Vector3.down)) * 1.1f;
+		
+		lift_ = Mathf.Clamp(lift_, -downDot_, _state == state.Hovering ? 2f : 1.5f);
+		_liftVector = Vector3.up * (lift_ * Time.deltaTime);
+		
+		return _liftVector;
+	}
+
+	void UpdatePosition(){
 		 Vector3 pos_ = transform.position;
+		 pos_ += GetBuyoancy();
 		 pos_.z = 0;
 		 transform.position = pos_;
 	}
 
+	void UpdateHover(){
+		if ( transform.position.y < -_zeroDepth_ ){
+			GetComponent<Animator> ().SetFloat ("HoverDirection", 0.5f);
+			return;
+		}
+
+		float liftDot_ = Vector3.Dot(transform.rotation * Vector3.up, _liftVector.normalized);
+		float tangentDot_ = Vector3.Dot(transform.rotation * Vector3.left, _liftVector.normalized);
+		if ( tangentDot_ < 0 ){
+			liftDot_ = (liftDot_ < 0 ? 0f : 1f);
+		} else {
+			liftDot_ = ((liftDot_ + 1f) * 0.5f);;
+		}
+		// float diff_ = Mathf.Pow(Mathf.Min(1.0f - (_surface.GetSurfaceZ(transform.position).y - transform.position.y) * 0.1f, 1.0f), 2.0f);
+		// liftDot_ *= diff_;
+		// Debug.Log(diff_ + ", " + liftDot_);
+			
+		GetComponent<Animator> ().SetFloat ("HoverDirection", liftDot_);
+	}
 
 	bool TwistTest(){
 		float dot_ = DirectionMarker.get.GetGlobalUIDot();
@@ -237,6 +277,7 @@ public class Diver : BaseManager<Diver> {
 					successTrigger = "Flip";
 				break;
 				case state.Hovering:
+					GetComponent<Animator> ().SetFloat ("HoverDirection", 0.5f);
 					successTrigger = "Hover";
 				break;
 				default:

@@ -37,10 +37,13 @@ public class UVRotate : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {	
+		Vector2 textureOffset_ = new Vector2();
 		for ( int i = 0; i < _propertyCount; ++i ){
 			if ( _uvSettings[i].SpeedX != 0 || _uvSettings[i].SpeedY != 0 ){ 
-			 	GetComponent<MeshRenderer>().sharedMaterial.SetTextureOffset(_propertyNames[i], Vector2.up * Mathf.Sin(Time.time * _uvSettings[i].SpeedX) * _uvSettings[i].OffsetX 
-					 + Vector2.left * Mathf.Cos(Time.time * _uvSettings[i].SpeedY) * _uvSettings[i].OffsetY);
+				Vector2 textureScale_ = GetComponent<MeshRenderer>().sharedMaterial.GetTextureScale(_propertyNames[i]);
+;				textureOffset_.x = Mathf.Sin(Time.time * _uvSettings[i].SpeedX) * _uvSettings[i].OffsetX + transform.position.x * textureScale_.x;
+				textureOffset_.y = Mathf.Cos(Time.time * _uvSettings[i].SpeedY) * _uvSettings[i].OffsetY + transform.position.y * textureScale_.y;
+			 	GetComponent<MeshRenderer>().sharedMaterial.SetTextureOffset(_propertyNames[i], textureOffset_);
 			}
 		}
 	}

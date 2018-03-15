@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 [CustomEditor(typeof(UVRotate))]
-public class UVRotateEditor : BaseEditor<UVRotate>{
+public class UVRotateEditor : BaseEditModeEditor<UVRotate>{
 	List<bool> _texFold;
 	Shader _shader = null;
 
@@ -41,11 +41,7 @@ public class UVRotateEditor : BaseEditor<UVRotate>{
 		}
 	}
 
-	GUIStyle _toggleButtonNormal = null, _toggleButtonToggled = null;
-
 	public override void OnInspector(){
-		Initialise();
-
 		EditorGUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 		if ( GUILayout.Button(new GUIContent("R", "Rescan shader properties"), GUILayout.ExpandWidth(false) )){
@@ -53,18 +49,7 @@ public class UVRotateEditor : BaseEditor<UVRotate>{
 			instance._propertyNames.Clear();
 		}
 
-		if ( _toggleButtonNormal == null ){
-			_toggleButtonNormal = "Button";
-			_toggleButtonToggled = new GUIStyle(_toggleButtonNormal);
-			_toggleButtonToggled.normal.background = _toggleButtonToggled.active.background;
-		}
-
-		if ( GUILayout.Button(new GUIContent("E", "Run in edit mode"), (instance.runInEditMode ? _toggleButtonToggled : _toggleButtonNormal) )){
-			instance.runInEditMode = !instance.runInEditMode;
-		}
-		if ( instance.runInEditMode ){
-			EditorUtility.SetDirty(instance);
-		}
+		EditModeToggle();
 
 		EditorGUILayout.EndHorizontal();
 		

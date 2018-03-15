@@ -33,6 +33,7 @@ public class DiverEditor : BaseEditor<Diver> {
 
 		EditorGUILayout.Separator();
 		instance._lazyThreshold = EditorGUILayout.FloatField("Lazy Threshold [s]", instance._lazyThreshold);
+		instance._zeroDepth_ = EditorGUILayout.FloatField("Zero Lift Depth [m]", instance._zeroDepth_);
 
 		EditorGUILayout.Separator();
 		

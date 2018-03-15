@@ -97,6 +97,9 @@ public class SurfaceFace : SurfacePlane {
 		}
 
 		GetComponent<MeshFilter> ().mesh.vertices = _vertices;
+		GetComponent<MeshFilter>().mesh.RecalculateBounds();
+		GetComponent<MeshFilter>().mesh.RecalculateNormals();
+		GetComponent<MeshFilter>().mesh.RecalculateTangents();
 	}
 }
 }
