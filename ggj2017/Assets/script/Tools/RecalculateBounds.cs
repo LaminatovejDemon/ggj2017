@@ -20,8 +20,21 @@ public class RecalculateBounds : MonoBehaviour {
 		FetchRenderers();
 		for ( int i = 0; i < renderers_.Length; ++i ){
 			renderers_[i].sharedMesh.RecalculateBounds();
+			renderers_[i].sharedMesh.RecalculateNormals();
+			renderers_[i].sharedMesh.RecalculateTangents();
+			renderers_[i].updateWhenOffscreen = true;
 		}
 		Debug.Log(this.name + ": " + renderers_.Length + " skinned mesh renderes recalculated");
+	}
+
+	public void OnDrawGizmos(){
+		if ( renderers_ == null ){
+			return;
+		}
+		Gizmos.color = Color.red;
+		for ( int i = 0; i < renderers_.Length; ++i ){
+			Gizmos.DrawWireCube(renderers_[i].sharedMesh.bounds.center, renderers_[i].sharedMesh.bounds.size);
+		}
 	}
 
 	void Update(){

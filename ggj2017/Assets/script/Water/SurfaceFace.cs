@@ -58,10 +58,10 @@ public class SurfaceFace : SurfacePlane {
 	}
 
 	protected sealed override void CalculateUV(int index){
-		_uvs [index * 4 + 0] = new Vector2(_vertices [index * 4 + 0].x * _surface._textureScale, _vertices [index * 4 + 0].y * _surface._textureScale * 2);
-		_uvs [index * 4 + 1] = new Vector2(_vertices [index * 4 + 1].x * _surface._textureScale, _vertices [index * 4 + 1].y * _surface._textureScale * 2);
-		_uvs [index * 4 + 2] = new Vector2(_vertices [index * 4 + 2].x * _surface._textureScale, _vertices [index * 4 + 2].y * _surface._textureScale * 2);
-		_uvs [index * 4 + 3] = new Vector2(_vertices [index * 4 + 3].x * _surface._textureScale, _vertices [index * 4 + 3].y * _surface._textureScale * 2);
+		_uvs [index * 4 + 0] = new Vector2(_vertices [index * 4 + 0].x, _vertices [index * 4 + 0].y * 2);
+		_uvs [index * 4 + 1] = new Vector2(_vertices [index * 4 + 1].x, _vertices [index * 4 + 1].y * 2);
+		_uvs [index * 4 + 2] = new Vector2(_vertices [index * 4 + 2].x, _vertices [index * 4 + 2].y * 2);
+		_uvs [index * 4 + 3] = new Vector2(_vertices [index * 4 + 3].x, _vertices [index * 4 + 3].y * 2);
 	}
 
 	public sealed override void AnimateEdge () {

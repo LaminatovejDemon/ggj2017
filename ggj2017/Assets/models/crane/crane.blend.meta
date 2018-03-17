@@ -1,0 +1,209 @@
+fileFormatVersion: 2
+guid: e60d13c20377446d181af7e4981f3a19
+timeCreated: 1521216419
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: arm
+    100002: baseL
+    100004: baseR
+    100006: //RootNode
+    100008: craneArmB
+    100010: craneArmBaseB
+    100012: craneArmBaseF
+    100014: craneArmF
+    100016: craneArmMiddle
+    100018: craneBaseLB
+    100020: craneBaseLF
+    100022: craneBaseRB
+    100024: craneBaseRF
+    100026: craneFrameLB
+    100028: craneFrameLF
+    100030: craneFrameRB
+    100032: craneFrameRF
+    100034: craneRailL
+    100036: craneRailR
+    100038: craneRig
+    100040: craneSkywalkB
+    100042: craneSkywalkF
+    100044: pillarBottomL
+    100046: pillarBottomR
+    100048: pillarHeightLB
+    100050: pillarHeightLF
+    100052: pillarHeightRB
+    100054: pillarHeightRF
+    100056: pillarTopL
+    100058: pillarTopR
+    100060: railLengthL
+    100062: railLengthR
+    100064: reference
+    100066: width
+    400000: arm
+    400002: baseL
+    400004: baseR
+    400006: //RootNode
+    400008: craneArmB
+    400010: craneArmBaseB
+    400012: craneArmBaseF
+    400014: craneArmF
+    400016: craneArmMiddle
+    400018: craneBaseLB
+    400020: craneBaseLF
+    400022: craneBaseRB
+    400024: craneBaseRF
+    400026: craneFrameLB
+    400028: craneFrameLF
+    400030: craneFrameRB
+    400032: craneFrameRF
+    400034: craneRailL
+    400036: craneRailR
+    400038: craneRig
+    400040: craneSkywalkB
+    400042: craneSkywalkF
+    400044: pillarBottomL
+    400046: pillarBottomR
+    400048: pillarHeightLB
+    400050: pillarHeightLF
+    400052: pillarHeightRB
+    400054: pillarHeightRF
+    400056: pillarTopL
+    400058: pillarTopR
+    400060: railLengthL
+    400062: railLengthR
+    400064: reference
+    400066: width
+    2100000: pillarBottomMat__pillarBottomTex
+    2100002: pillarTopMat__pillarTopTex
+    2100004: craneArmMat__craneArmTex
+    2100006: craneArmMiddleMat__craneArmMiddleTex
+    2100008: craneSkywalkMat__craneSkywalkTex
+    2100010: craneBaseMat__craneBaseTex
+    2100012: craneFrameMat__craneFrameTex
+    2100014: craneRailMat__craneRail
+    2100016: pillarTopMat__pillarTopTex_001
+    2100018: pillarBottomMat__pillarBottomTex_001
+    4300000: pillarBottomR
+    4300002: pillarTopR
+    4300004: craneArmB
+    4300006: craneArmMiddle
+    4300008: craneSkywalkF
+    4300010: craneBaseLF
+    4300012: craneArmF
+    4300014: craneFrameLF
+    4300016: craneRailL
+    4300018: craneArmBaseF
+    4300020: craneBaseLB
+    4300022: craneFrameLB
+    4300024: craneSkywalkB
+    4300026: craneArmBaseB
+    4300028: craneBaseRB
+    4300030: craneBaseRF
+    4300032: craneFrameRF
+    4300034: craneFrameRB
+    4300036: craneRailR
+    4300038: pillarTopL
+    4300040: pillarBottomL
+    7400000: Default Take
+    9500000: //RootNode
+    13700000: craneArmB
+    13700002: craneArmBaseB
+    13700004: craneArmBaseF
+    13700006: craneArmF
+    13700008: craneArmMiddle
+    13700010: craneBaseLB
+    13700012: craneBaseLF
+    13700014: craneBaseRB
+    13700016: craneBaseRF
+    13700018: craneFrameLB
+    13700020: craneFrameLF
+    13700022: craneFrameRB
+    13700024: craneFrameRF
+    13700026: craneRailL
+    13700028: craneRailR
+    13700030: craneSkywalkB
+    13700032: craneSkywalkF
+    13700034: pillarBottomL
+    13700036: pillarBottomR
+    13700038: pillarTopL
+    13700040: pillarTopR
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

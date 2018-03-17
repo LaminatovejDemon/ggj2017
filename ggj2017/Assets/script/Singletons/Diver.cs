@@ -164,7 +164,7 @@ public class Diver : BaseManager<Diver> {
 		float liftDot_ = Vector3.Dot(transform.rotation * Vector3.up, _liftVector.normalized);
 		float tangentDot_ = Vector3.Dot(transform.rotation * Vector3.left, _liftVector.normalized);
 		if ( tangentDot_ < 0 ){
-			liftDot_ = (liftDot_ < 0 ? 0f : 1f);
+			liftDot_ = (liftDot_ < 0f ? 0f : 1f);
 		} else {
 			liftDot_ = ((liftDot_ + 1f) * 0.5f);;
 		}

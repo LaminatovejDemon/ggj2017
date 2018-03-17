@@ -29,7 +29,11 @@ public class HierarchyPrefab : MonoBehaviour {
 			if (FindTransform(_prefabs[i].prefab.name, node_) != null){
 				continue;
 			}
-			GameObject.Instantiate(_prefabs[i].prefab, node_).name = _prefabs[i].prefab.name;
+			GameObject instance_ = GameObject.Instantiate(_prefabs[i].prefab, node_);
+			instance_.name = _prefabs[i].prefab.name;
+			instance_.transform.localPosition = _prefabs[i].prefab.transform.localPosition;
+			instance_.transform.localRotation = _prefabs[i].prefab.transform.localRotation;
+			instance_.transform.localScale = _prefabs[i].prefab.transform.localScale;
 		}
 	}
 

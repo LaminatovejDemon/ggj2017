@@ -95,7 +95,7 @@ public class SurfaceBed : SurfacePlane {
 		float yShift_ = 0;
 
 		for ( int i = 0; i < 4; ++i ){
-			_uvs [index * 4 + i] = new Vector2((_vertices [index * 4 + i].x + xShift_) * _surface._textureScale, (_vertices [index * 4 + i].z + yShift_) * _surface._textureScale);
+			_uvs [index * 4 + i] = new Vector2((_vertices [index * 4 + i].x + xShift_), (_vertices [index * 4 + i].z + yShift_));
 		}
 
 	}

@@ -11,7 +11,6 @@ public class Surface : ListenerHandler<SurfacePlane> {
 	public int _depth = 10;
 	public bool _animatedBottom = false;
 
-	public float _textureScale = 0.1f;
 	public float _resolutionX = 1.0f;
 	public  float _resolutionY = 1.0f;
 
