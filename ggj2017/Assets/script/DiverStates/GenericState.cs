@@ -18,11 +18,6 @@ public class GenericState : StateMachineBehaviour {
 
 	public bool _surfaceSnapModifier = false;
 	public bool _surfaceSnapValue = false;
-	public bool _surfaceAngleSnapModifier = false;
-	public bool _surfaceAngleSnapValue = false;
-	public bool _surfaceAngleSnapDataModifier = false;
-	public Diver.angles _surfaceAngleSnapDataValue;
-
 
 	Quaternion _enterRotation;
 	Vector3 _enterPosition;
@@ -52,11 +47,11 @@ public class GenericState : StateMachineBehaviour {
 		if ( _surfaceSnapModifier ){
 			Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(_surfaceSnapValue);
 		}
-		if ( _surfaceAngleSnapModifier ){
-			if ( _surfaceAngleSnapDataModifier ){
-				Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngle(Diver.get._angles[(int)_surfaceAngleSnapDataValue]);
-			}
-		}
+		// if ( _surfaceAngleSnapModifier ){
+			// if ( _surfaceAngleSnapDataModifier ){
+				// Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngle(Diver.get._angles[(int)_surfaceAngleSnapDataValue]);
+			// }
+		// }
 	}
 	
     override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex, UnityEngine.Animations.AnimatorControllerPlayable controller){

@@ -30,23 +30,6 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 		}
 		EditorGUILayout.EndHorizontal();
 		instance._doTwist = EditorGUILayout.Toggle("Do Twist", instance._doTwist);
-
-		EditorGUILayout.BeginHorizontal();
-		instance._surfaceAngleSnapModifier = EditorGUILayout.Toggle("Surface Angle Snap", instance._surfaceAngleSnapModifier);
-		if ( instance._surfaceAngleSnapModifier ){
-			instance._surfaceAngleSnapValue = (TF)(EditorGUILayout.EnumPopup((TF)(instance._surfaceAngleSnapValue? 1 : 0))) == TF.False ? false : true;
-		}
-		EditorGUILayout.EndHorizontal();
-
-		if (instance._surfaceAngleSnapValue){
-			EditorGUILayout.BeginHorizontal();
-			instance._surfaceAngleSnapDataModifier = EditorGUILayout.Toggle("Angle Snap Value", instance._surfaceAngleSnapDataModifier);
-			if ( instance._surfaceAngleSnapDataModifier ){
-				instance._surfaceAngleSnapDataValue = (Diver.angles)(EditorGUILayout.EnumPopup(instance._surfaceAngleSnapDataValue));
-			}
-			EditorGUILayout.EndHorizontal();
-		}
-
 		EditorGUILayout.Separator();
 
 		EditorGUILayout.LabelField("During Animation");

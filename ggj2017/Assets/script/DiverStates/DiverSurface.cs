@@ -9,9 +9,6 @@ public class DiverSurface : StateMachineBehaviour {
 			return;
 		}
 
-		Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);
-
-		
-						
+		Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);					
 	}
 }

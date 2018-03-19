@@ -21,7 +21,6 @@ public class SurfaceSnap : MonoBehaviour {
 	public float _roughness = 3.0f;
 	public float _rockingAngle = 0f;
 
-	public float _snapAngleValue = 0;
 	Vector3 _leftDepth, _rightDepth;
 	Vector3 _targetPosition;
 
@@ -29,7 +28,7 @@ public class SurfaceSnap : MonoBehaviour {
 
 	public void Reset(){
 		Vector3 bak_ = transform.eulerAngles;
-		bak_.z = _snapAngleValue;
+		bak_.z = 0;
 		transform.eulerAngles = bak_;
 
 		if ( _width <= 0 ){
@@ -39,10 +38,6 @@ public class SurfaceSnap : MonoBehaviour {
 		}
 
 		transform.position = _targetPosition;
-	}
-
-	public void SetSnapAngle(float value){
-		_snapAngleValue = value;
 	}
 
 	public void SetActive(bool state){
@@ -60,8 +55,7 @@ public class SurfaceSnap : MonoBehaviour {
 
 		 Quaternion rotation_ = Quaternion.AngleAxis (angle_ * 180.0f / Mathf.PI, Vector3.forward);
 		 Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
-		 Quaternion offset_ = Quaternion.AngleAxis (_snapAngleValue * 180.0f / Mathf.PI, Vector3.forward);
-		 transform.rotation =  rotation_ * counterRotation_ * offset_;
+		 transform.rotation =  rotation_ * counterRotation_;
 
 		Vector3 finalPosition_ = _targetPosition; 
 		finalPosition_.y = (_leftDepth.y + _rightDepth.y) * 0.5f + _verticalOffset;
@@ -118,7 +112,8 @@ public class SurfaceSnap : MonoBehaviour {
 			SetLineSnap();
 		}
 	
-		transform.position += (_targetPosition - transform.position) * Mathf.Min(Time.deltaTime * _roughness, 1.0f);
+		// transform.position += (_targetPosition - transform.position) * Mathf.Min(Time.deltaTime * _roughness, 1.0f);
+		transform.position = _targetPosition;
 	}
 
 	void OnDrawGizmos(){
