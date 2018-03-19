@@ -5,13 +5,13 @@ using UnityEngine;
 public class GenericState : StateMachineBehaviour {
 
 	public Diver.state state = Diver.state.None;
-	public bool _matchTarget = false;
+	public bool _matchTargetPosition = false;
+	public bool _matchTargetAngle = false;
 	public float _matchMin = 0f;
 	public float _matchMax = 1f;
 	
 	public Diver.angles turnAngle = Diver.angles.Idle;
 	public Diver.gangles twistAngle = Diver.gangles._0;
-	public bool _snapPointPosition = false;
 	public SnapManager.SnapType _snapPointType = SnapManager.SnapType.None;
 
 	public bool _doTwist = false;
@@ -23,7 +23,24 @@ public class GenericState : StateMachineBehaviour {
 	public bool _surfaceAngleSnapDataModifier = false;
 	public Diver.angles _surfaceAngleSnapDataValue;
 
+
+	Quaternion _enterRotation;
+	Vector3 _enterPosition;
+	Vector3 _snapPosition;
+	bool _snapX = false, _snapY = false;
+	float _enterTime;
+
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
+		_enterRotation = animator.rootRotation;
+		_enterPosition = animator.rootPosition;
+		_snapPosition = animator.rootPosition;
+		_snapX = false;
+		_snapY = false;
+		_enterTime = Time.time;
+		if ( _matchTargetPosition ){
+			SetPositionToSnap();
+		}
+		
 		if (  (state != Diver.state.None && !Diver.get.SetState(state))){
 			return;
 		}
@@ -36,40 +53,57 @@ public class GenericState : StateMachineBehaviour {
 			Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(_surfaceSnapValue);
 		}
 		if ( _surfaceAngleSnapModifier ){
-			Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(_surfaceAngleSnapValue);
 			if ( _surfaceAngleSnapDataModifier ){
 				Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngle(Diver.get._angles[(int)_surfaceAngleSnapDataValue]);
 			}
 		}
 	}
 	
-	override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
-		if ( _matchTarget ){
+    override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex, UnityEngine.Animations.AnimatorControllerPlayable controller){
+		float normalizedTime_ = Mathf.Clamp(stateInfo.loop ? (Time.time - _enterTime) * 3.0f : (stateInfo.normalizedTime - _matchMin) / (_matchMax - _matchMin), 0f, 1f);
+		
+		Quaternion targetRotation_ = animator.rootRotation;
+		if ( _matchTargetAngle && normalizedTime_ > 0 ){
+			Quaternion snappedRotation_ = Quaternion.Euler(0, Diver.get.IsTwist() ? 180+(int)twistAngle : (int)twistAngle, Diver.get._angles[(int)turnAngle]);
+			
+			targetRotation_ = Quaternion.Lerp(_enterRotation, snappedRotation_, normalizedTime_);
+		}
 
-			Quaternion targetRotation_ = Quaternion.Euler(0, Diver.get.IsTwist() ? 180+(int)twistAngle : (int)twistAngle, Diver.get._angles[(int)turnAngle]);
-
-			Vector3 position_ = animator.targetPosition;
-			if (_snapPointPosition ){
-				SetPositionToSnap(ref position_);
+		Vector3 targetPosition_ = animator.rootPosition;
+		if ( _matchTargetPosition && normalizedTime_ > 0 ){
+			Vector3 alteredPosition_ = Vector3.Lerp(_enterPosition, _snapPosition, normalizedTime_);
+			if ( _snapX ){
+				targetPosition_.x = alteredPosition_.x;	
 			}
-			animator.MatchTarget(position_, targetRotation_, AvatarTarget.Root, new MatchTargetWeightMask(Vector3.one, 1f), _matchMin, _matchMax);
+			if ( _snapY ){
+				targetPosition_.y = alteredPosition_.y;	
+			}
+		}
+
+		if ( !_matchTargetPosition && !_matchTargetAngle ){
+			animator.ApplyBuiltinRootMotion();
+		} else {
+			animator.transform.position = targetPosition_;
+			animator.transform.rotation = targetRotation_;
 		}
 	}
 
-	void SetPositionToSnap(ref Vector3 position){
-		Snap snap_ = SnapManager.get.GetSnap();
+	void SetPositionToSnap(){
+		SnapTrigger snap_ = SnapManager.get.GetSnapTrigger(_snapPointType);
 		if ( snap_ == null ){
 			Debug.LogWarning(this.ToString() + "." + state.ToString() + ": Snap not around.");
 			return;
 		}
 
 		SnapPoint point_ = snap_.GetSnap(_snapPointType);
-		if ( point_ == null ){
+		if ( point_ == null || !(point_.snapX || point_.snapY) ){
 			Debug.LogWarning(this.ToString() + "." + state.ToString() + ": Snap point type " + _snapPointType + " not present.");
 			return;
 		}
-		
-		position = snap_.transform.position + point_.offset;
+
+		_snapPosition = (point_.snapObject != null ? point_.snapObject.transform.position : snap_.transform.position) + point_.offset;
+		_snapX = point_.snapX;
+		_snapY = point_.snapY;
 	}
 }
 

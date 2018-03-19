@@ -30,7 +30,7 @@ public abstract class SurfacePlane : MonoBehaviour {
 	int _chunkIndiceCount = 0;
 
  	void Start(){
-		_surface.RegisterAnimationListener (this);
+		_surface.RegisterListener (this);
 	}
 
 	void SetIndiceChunk(int index){

@@ -6,7 +6,7 @@ public class PositionLink : MonoBehaviour {
 
 	public GameObject _target;
 	public float _hardness = 0.6f;
-	Vector3 _offset;
+	public Vector3 _offset;
 	Vector3 _targetValue;
 	public bool _yAxis = true;
 	public bool _enabled = true;

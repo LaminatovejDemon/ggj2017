@@ -2,34 +2,49 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ListenerHandler<T> : MonoBehaviour {
+public class ListenerHandler<T> : MonoBehaviour{
 
-	List<T> _animationListeners;
-	public void RegisterAnimationListener(T source)
+	List<T> _listeners;
+	public void RegisterListener(T source)
 	{
-		if ( _animationListeners == null ){
-			_animationListeners = new List<T>();
+		if ( _listeners == null ){
+			_listeners = new List<T>();
 		}
 
-		if (_animationListeners == null) {
-			_animationListeners = new List<T> ();
+		if (_listeners == null) {
+			_listeners = new List<T> ();
 		}
 
-		if (_animationListeners.Contains (source)) {
+		if (_listeners.Contains (source)) {
 			return;
 		}
 
-		_animationListeners.Add (source);
-		OnNewListener(source);
+		_listeners.Add (source);
+		NewListener(source);
 	}
 
 	protected delegate void OpenDelegate(T explicitThis);
 	protected void NotifyListeners(OpenDelegate openDelegate){
 		
-		for (int i = 0; i < _animationListeners.Count; ++i) {
-			openDelegate(_animationListeners[i]);
+		for (int i = 0; i < _listeners.Count; ++i) {
+			openDelegate(_listeners[i]);
 		}
 	}
 
-	protected abstract void OnNewListener(T source);
+	NewListenerListener _newListener = null;
+	public delegate void NewListenerListener(T source);
+
+	public void RegisterNewListenerListener(NewListenerListener newListener){
+		_newListener = newListener;
+	}
+
+	protected virtual void OnNewListener(T source){}
+	
+	void NewListener(T source){
+		if ( _newListener != null ){
+			_newListener(source);
+		} else {
+			OnNewListener(source);
+		}
+	}
 }

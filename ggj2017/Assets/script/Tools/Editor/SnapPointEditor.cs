@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(Snap))]
-public class SnapPointEditor : BaseEditor<Snap> {
+[CustomEditor(typeof(SnapTrigger))]
+public class SnapPointEditor : BaseEditor<SnapTrigger> {
 
 	protected override void Initialise(){
 		if ( instance._snapPoints == null ){
@@ -21,27 +21,31 @@ public class SnapPointEditor : BaseEditor<Snap> {
 			}
 			EditorGUILayout.EndHorizontal();
 			
+			instance._snapPoints[i].snapObject = EditorGUILayout.ObjectField("Snap Object", instance._snapPoints[i].snapObject, typeof(GameObject)) as GameObject;
 			instance._snapPoints[i].offset = EditorGUILayout.Vector2Field("Relative Offset", instance._snapPoints[i].offset);
-			instance._snapPoints[i].lookAt = EditorGUILayout.Vector2Field("Relative LookAt", instance._snapPoints[i].lookAt);
-			
+			EditorGUILayout.BeginHorizontal();
+			instance._snapPoints[i].snapX = EditorGUILayout.Toggle("Snap Axis", instance._snapPoints[i].snapX);
+			EditorGUILayout.LabelField("X", GUILayout.MaxWidth(40));
+			instance._snapPoints[i].snapY = EditorGUILayout.Toggle(instance._snapPoints[i].snapY, GUILayout.MaxWidth(12));
+			EditorGUILayout.LabelField("Y");
+			EditorGUILayout.EndHorizontal();		
+
 			EditorGUILayout.Separator();
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			EditorGUILayout.LabelField("Player is");
-			EditorGUILayout.LabelField("Facing", GUILayout.MaxWidth(40));
-			instance._snapPoints[i].facing = EditorGUILayout.Toggle(instance._snapPoints[i].facing, GUILayout.MaxWidth(20));
-			instance._snapPoints[i].backwards = EditorGUILayout.ToggleLeft("Backwards", instance._snapPoints[i].backwards);
-			EditorGUILayout.EndHorizontal();
-
+			instance._snapPoints[i].fromLeft = EditorGUILayout.Toggle("Accessible from", instance._snapPoints[i].fromLeft);
+			EditorGUILayout.LabelField("Left", GUILayout.MaxWidth(40));
+			instance._snapPoints[i].fromRight = EditorGUILayout.Toggle(instance._snapPoints[i].fromRight, GUILayout.MaxWidth(12));
+			EditorGUILayout.LabelField("Right");
+			EditorGUILayout.EndHorizontal();	
 			
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			EditorGUILayout.LabelField("Accessible from");
-			EditorGUILayout.LabelField("Left", GUILayout.MaxWidth(40));
-			instance._snapPoints[i].fromLeft = EditorGUILayout.Toggle(instance._snapPoints[i].fromLeft, GUILayout.MaxWidth(20));
-			instance._snapPoints[i].fromRight = EditorGUILayout.ToggleLeft("Right", instance._snapPoints[i].fromRight);
+			instance._snapPoints[i].facing = EditorGUILayout.Toggle("Player is ", instance._snapPoints[i].facing);
+			EditorGUILayout.LabelField("Facing", GUILayout.MaxWidth(40));
+			instance._snapPoints[i].backwards = EditorGUILayout.Toggle(instance._snapPoints[i].backwards, GUILayout.MaxWidth(12));
+			EditorGUILayout.LabelField("Backwards");
 			EditorGUILayout.EndHorizontal();
-			
+			instance._snapPoints[i].facingOffsetX = EditorGUILayout.FloatField("Facing Horizontal Offset", instance._snapPoints[i].facingOffsetX);
+		
 			EditorGUILayout.Separator();
 		}
 

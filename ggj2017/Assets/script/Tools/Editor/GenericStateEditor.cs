@@ -11,6 +11,10 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 		True = 1,
 	};
 
+	protected override void Initialise(){
+		// Animation currentAnimation_ = instance.gameObject;
+	}
+
 	public override void OnInspector(){
 		EditorGUILayout.BeginHorizontal();		
 		instance.state = (Diver.state)EditorGUILayout.EnumPopup("Set State", instance.state);
@@ -47,25 +51,31 @@ public class GenericStateEditor : BaseEditor<GenericState> {
 
 		EditorGUILayout.LabelField("During Animation");
 		EditorGUILayout.BeginHorizontal();
-		instance._matchTarget = EditorGUILayout.Toggle("MatchTarget", instance._matchTarget);
-		if ( instance._matchTarget ){
-			EditorGUILayout.BeginVertical();
+		instance._matchTargetAngle = EditorGUILayout.Toggle("Match Target Angle", instance._matchTargetAngle);
+		if ( instance._matchTargetAngle ){
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("Angles", GUILayout.MaxWidth(34));
 			instance.twistAngle = (Diver.gangles)EditorGUILayout.EnumPopup(instance.twistAngle);
 			instance.turnAngle = (Diver.angles)EditorGUILayout.EnumPopup(instance.turnAngle);
 			EditorGUILayout.EndHorizontal();
-			instance._snapPointPosition = EditorGUILayout.Toggle("Snap Point Position", instance._snapPointPosition);
-			instance._snapPointType = (SnapManager.SnapType)EditorGUILayout.EnumPopup("Snap Point Type", instance._snapPointType);
+		} 
+		EditorGUILayout.EndHorizontal();
+
+		EditorGUILayout.BeginHorizontal();
+		instance._matchTargetPosition = EditorGUILayout.Toggle("Match Target Position", instance._matchTargetPosition);
+		if ( instance._matchTargetPosition ){
+			instance._snapPointType = (SnapManager.SnapType)EditorGUILayout.EnumPopup("Snap Type", instance._snapPointType);
+			GUILayout.FlexibleSpace();
+		} 
+		EditorGUILayout.EndHorizontal();
+
+		if ( instance._matchTargetPosition || instance._matchTargetAngle ){
 			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Match Range");
 			EditorGUILayout.LabelField(instance._matchMin.ToString("0.00"), GUILayout.MaxWidth(30));
 			EditorGUILayout.MinMaxSlider(ref instance._matchMin, ref instance._matchMax, 0, 1f);
 			EditorGUILayout.LabelField(instance._matchMax.ToString("0.00"), GUILayout.MaxWidth(30));
 			EditorGUILayout.EndHorizontal();
-			EditorGUILayout.EndVertical();
-		} 
-		EditorGUILayout.EndHorizontal();
-
-
+		}
 	}
 }

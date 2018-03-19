@@ -1,37 +1,20 @@
 fileFormatVersion: 2
-guid: 2f242dc3a12b04a50a52441bf7c57a07
-timeCreated: 1521208735
+guid: 1e55003fa20e64cea9e54309c05f18fb
+timeCreated: 1521294058
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: Material_001__ReefTex
-    2100002: ReefMat__ReefTex
-    2100004: ReefFront__ReefTex
-    2100006: ReefMat
-    2100008: ReefMat_001__ReefTex
-    2100010: ReefFront_001__ReefTex
-    2100012: unnamed
-    2100014: ReefTopMat__ReefTex
-    2100016: ReefSideMat__ReefTex
+    2100000: ReefMat.001
+    2100002: ReefFront.001
+    2100004: ReefMat
+    2100006: ReefFront
     2300000: //RootNode
     3300000: //RootNode
     4300000: Reef
-    7400000: Default Take
-    9500000: //RootNode
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: ReefSideMat__ReefTex
-    second: {fileID: 2100000, guid: ed208921d0a424b8e9deeb8bb521c9bd, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: ReefTopMat__ReefTex
-    second: {fileID: 2100000, guid: 91b46a51dbe9a4faf9fd606e9e03fcf4, type: 2}
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
@@ -105,7 +88,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   additionalBone: 0
   userData: 

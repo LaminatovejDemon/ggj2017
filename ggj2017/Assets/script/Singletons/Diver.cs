@@ -89,6 +89,7 @@ public class Diver : BaseManager<Diver> {
 		_liftVector = Vector3.zero;
 
 		RenderCamera.get.GetComponent<PositionLink>().Reset ();
+		AboveSurface();
 	}
 
 	public void Death () {
@@ -122,6 +123,9 @@ public class Diver : BaseManager<Diver> {
 		case state.Hovering:
 			UpdateHover();
 		break;
+		case state.Surface:
+			UpdateSurface();
+		break;
 		case state.Dying:
 			return;
 		case state.SurfaceSwim:
@@ -153,6 +157,12 @@ public class Diver : BaseManager<Diver> {
 		 pos_ += GetBuyoancy();
 		 pos_.z = 0;
 		 transform.position = pos_;
+	}
+
+	void UpdateSurface(){
+		if ( SnapManager.get.IsSnap(SnapManager.SnapType.SurfaceSit) ){
+			TryState(state.Sit);
+		}
 	}
 
 	void UpdateHover(){
@@ -199,6 +209,12 @@ public class Diver : BaseManager<Diver> {
 		transform.position = _defaultPosition;
 	}
 
+	public void AboveSurface(){
+		RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(3.9f, true);
+		Diver.get.StoreDefaultPosition();
+		Diver.get.ApplyDefaultPosition();
+	}
+
 	public void TryState(state target){
 		bool success = false;
 		string successTrigger = "";
@@ -234,6 +250,9 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Surface:
+					AboveSurface();
+					RenderCamera.get.GetComponent<PositionLink>().SetActive(false);
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.05f;
 					DirectionMarker.get._directionArrow.SetActive(false);
 					successTrigger = "Surface";	
 				break;
@@ -244,8 +263,8 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.SurfaceSwim:	
+					AboveSurface();
 					DirectionMarker.get._directionArrow.SetActive(true);
-					Diver.get.GetComponent<Water.SurfaceSnap>().SetSnapAngleActive(false);
 					Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);
 					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
 					RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(0);
@@ -254,7 +273,6 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.SurfaceSwimLazyStop:
-					
 					successTrigger = "SurfaceLazy";
 				break;
 
@@ -330,8 +348,6 @@ public class Diver : BaseManager<Diver> {
 				
 				break;
 			case state.Surface:
-				
-				
 				if ( TwistTest() ){
 					TryState(state.SurfaceTwist);
 					break;

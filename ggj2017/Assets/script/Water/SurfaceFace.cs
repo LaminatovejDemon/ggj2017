@@ -21,7 +21,7 @@ public class SurfaceFace : SurfacePlane {
 		
 		_depth = _depthOverride > 0 ? _depthOverride : _surface._depth;
 		UpdateRelativePosition();
-		_surface.RegisterAnimationListener (this);
+		_surface.RegisterListener (this);
 	}
 
 	protected sealed override int GetSize(){

@@ -19,15 +19,13 @@ public class SurfaceSnap : MonoBehaviour {
 	public float _width = 0;
 	public float _verticalOffset = 0;
 	public float _roughness = 3.0f;
-	public float _rockingAngle = 15.0f;
+	public float _rockingAngle = 0f;
 
 	public float _snapAngleValue = 0;
-	public bool _snapAngleActive = false;
-
 	Vector3 _leftDepth, _rightDepth;
 	Vector3 _targetPosition;
 
-	public bool _active;
+	public bool _active = true;
 
 	public void Reset(){
 		Vector3 bak_ = transform.eulerAngles;
@@ -47,17 +45,12 @@ public class SurfaceSnap : MonoBehaviour {
 		_snapAngleValue = value;
 	}
 
-	public void SetSnapAngleActive(bool active){
-		_snapAngleActive = active;
-	}
-
 	public void SetActive(bool state){
 	//  Debug.Log(this.ToString() + "." + MethodBase.GetCurrentMethod().Name + ":" + state + " in " + Diver.get.GetState() );	
 		_active = state;
 	}
 
 	void SetLineSnap(){
-		Debug.Assert(_snapAngleActive == true, this.ToString() + "." + MethodBase.GetCurrentMethod() + ": snapAngle is not supported." );
 		_targetPosition = transform.position;
 
 		_leftDepth = _surface.GetSurfaceZ (transform.position + Vector3.left * _width * 0.5f);
@@ -80,16 +73,6 @@ public class SurfaceSnap : MonoBehaviour {
 		_leftDepth = _surface.GetSurfaceZ(transform.position);
 		_rightDepth = _leftDepth + Vector3.up * 3.0f;
 		
-		if ( _snapAngleActive ) {
-			Quaternion base_ = transform.rotation;
-			Quaternion counterRotation_ = Quaternion.AngleAxis (Mathf.Sin (Time.time * 0.5f) * _rockingAngle, Vector3.left);
-			transform.rotation = base_ * counterRotation_;
-			
-			Vector3 bak_ = transform.eulerAngles;
-			Interpolate360(ref bak_.z, _snapAngleValue, 160f);
-			transform.eulerAngles = bak_;
-			
-		}
 		_targetPosition.y = _leftDepth.y + _verticalOffset;
 	}
 

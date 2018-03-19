@@ -19,7 +19,7 @@ public class SurfaceSide : SurfacePlane {
 	sealed protected override void Construct (){
 		UpdateRelativePosition();
 		_depth = _heightOverride > 0 ? _heightOverride : _surface._depth;
-		_surface.RegisterAnimationListener (this);
+		_surface.RegisterListener (this);
 	}
 
 	sealed protected override int GetSize(){

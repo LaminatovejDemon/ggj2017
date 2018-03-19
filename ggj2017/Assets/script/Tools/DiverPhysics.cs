@@ -20,11 +20,11 @@ public class DiverPhysics : MonoBehaviour {
 	}
 
 	public void OnTriggerEnter2D(Collider2D source){
-		SnapManager.get.ActivateSnap(source.gameObject.GetComponent<Snap>());
+		SnapManager.get.ActivateSnap(source.gameObject.GetComponent<SnapTrigger>());
 	}
 
 	public void OnTriggerExit2D(Collider2D source){
-		SnapManager.get.DisableSnap(source.gameObject.GetComponent<Snap>());
+		SnapManager.get.DisableSnap(source.gameObject.GetComponent<SnapTrigger>());
 	}
 
 	public bool IsSteepCollision(){
