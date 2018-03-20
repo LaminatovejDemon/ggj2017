@@ -45,7 +45,7 @@ public class GenericState : StateMachineBehaviour {
 		}
 		
 		if ( _surfaceSnapModifier ){
-			Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(_surfaceSnapValue);
+			Diver.get.GetComponent<Env.SurfaceSnap>().SetActive(_surfaceSnapValue);
 		}
 		// if ( _surfaceAngleSnapModifier ){
 			// if ( _surfaceAngleSnapDataModifier ){

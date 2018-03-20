@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class PoolBoundary : MonoBehaviour {
 
-	public Water.Surface _pool;
+	public Env.Surface _pool;
 	public GameObject _bottomPanel;
 	public GameObject  _leftPanel;
 	public GameObject _rightPanel;

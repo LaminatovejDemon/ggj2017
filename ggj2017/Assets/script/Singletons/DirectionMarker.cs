@@ -7,7 +7,7 @@ using System.Reflection;
 public class DirectionMarker : BaseManager<DirectionMarker> {
 
 	public GameObject _directionArrow;
-	public Water.Surface _groundReference;
+	public Env.Surface _groundReference;
 	Vector3 uiVector;
 	Vector3 directionVector;
 	Vector3 tangentVector;

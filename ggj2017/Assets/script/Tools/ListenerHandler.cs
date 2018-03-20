@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Reflection;
 public class ListenerHandler<T> : MonoBehaviour{
 
 	List<T> _listeners;
@@ -9,10 +9,6 @@ public class ListenerHandler<T> : MonoBehaviour{
 	{
 		if ( _listeners == null ){
 			_listeners = new List<T>();
-		}
-
-		if (_listeners == null) {
-			_listeners = new List<T> ();
 		}
 
 		if (_listeners.Contains (source)) {
@@ -23,8 +19,17 @@ public class ListenerHandler<T> : MonoBehaviour{
 		NewListener(source);
 	}
 
+	protected void UpdateListeners(){
+		MethodInfo onUpdate = typeof(T).GetMethod("OnUpdate");
+		OpenDelegate d = (OpenDelegate) System.Delegate.CreateDelegate(typeof(OpenDelegate), null, onUpdate);
+		NotifyListeners(d);
+	}
+
 	protected delegate void OpenDelegate(T explicitThis);
-	protected void NotifyListeners(OpenDelegate openDelegate){
+	void NotifyListeners(OpenDelegate openDelegate){
+		if ( _listeners == null ){
+			return;
+		}
 		
 		for (int i = 0; i < _listeners.Count; ++i) {
 			openDelegate(_listeners[i]);

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Water {
-public abstract class SurfacePlane : MonoBehaviour {
+namespace Env {
+public abstract class SurfacePlane : MonoBehaviour, Listener {
 
 	public Surface _surface = null;
 	public float _relativePosition = 0.0f;
@@ -21,7 +21,7 @@ public abstract class SurfacePlane : MonoBehaviour {
 	protected int _surfaceLength = 0;
 	protected float _borderDistance = 0;
 
-	public abstract void AnimateEdge();
+	public abstract void OnUpdate();
 	protected abstract void SetVertexChunk(int index);
 	protected abstract int GetSize();
 	protected abstract void CalculateUV(int index);
@@ -31,6 +31,7 @@ public abstract class SurfacePlane : MonoBehaviour {
 
  	void Start(){
 		_surface.RegisterListener (this);
+		Initialise();
 	}
 
 	void SetIndiceChunk(int index){
@@ -58,12 +59,14 @@ public abstract class SurfacePlane : MonoBehaviour {
 		if (_vertices != null) {
 			return false;
 		}
-		_animatedBottom = _animatedBottomOverride ? !_surface._animatedBottom : _surface._animatedBottom;	
+
+		Water _water = _surface as Water;
+		_animatedBottom = _water == null ? false : (_animatedBottomOverride ? !_water._animatedBottom : _water._animatedBottom);	
 		
 		Mesh mesh = GetComponent<MeshFilter> ().mesh;
 		mesh.Clear ();
 		_chunkIndiceCount = (_frontSide ? 6 : 0) + (_backSide ? 6 : 0);
-		_borderDistance = (_surface._borderExtentionX + _surface.GetMetresX() * 0.5f);
+		_borderDistance = (_surface._borderExtention.x + _surface.GetMetresX() * 0.5f);
 
 		Construct();
 

@@ -21,7 +21,7 @@ public class SnapPointEditor : BaseEditor<SnapTrigger> {
 			}
 			EditorGUILayout.EndHorizontal();
 			
-			instance._snapPoints[i].snapObject = EditorGUILayout.ObjectField("Snap Object", instance._snapPoints[i].snapObject, typeof(GameObject)) as GameObject;
+			instance._snapPoints[i].snapObject = EditorGUILayout.ObjectField("Snap Object", instance._snapPoints[i].snapObject, typeof(GameObject), true) as GameObject;
 			instance._snapPoints[i].offset = EditorGUILayout.Vector2Field("Relative Offset", instance._snapPoints[i].offset);
 			EditorGUILayout.BeginHorizontal();
 			instance._snapPoints[i].snapX = EditorGUILayout.Toggle("Snap Axis", instance._snapPoints[i].snapX);

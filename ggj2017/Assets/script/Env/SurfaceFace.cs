@@ -11,7 +11,7 @@ using System.Reflection;
 /// <param name="_depth">height of the object</param>
 /// </summary>
 
-namespace Water{
+namespace Env{
 public class SurfaceFace : SurfacePlane {
 
 	public float _depthOverride = 1.0f;
@@ -30,7 +30,7 @@ public class SurfaceFace : SurfacePlane {
 
 	void UpdateRelativePosition(){
 		Vector3 position_ = _surface.transform.position;
-		position_.z += _surface.GetMetresY() * (_relativePosition);
+		position_.z += (_surface.GetMetresY() * _relativePosition) + (_surface._borderExtention.y * _relativePosition);
 		transform.position = position_;
 	}
 
@@ -64,7 +64,7 @@ public class SurfaceFace : SurfacePlane {
 		_uvs [index * 4 + 3] = new Vector2(_vertices [index * 4 + 3].x, _vertices [index * 4 + 3].y * 2);
 	}
 
-	public sealed override void AnimateEdge () {
+	public sealed override void OnUpdate () {
 		Initialise ();
 		int reference_ = (int)(transform.localPosition.z / _surface._resolutionY);
 		int clamp_ = _surface.GetTileCountY() - 1;

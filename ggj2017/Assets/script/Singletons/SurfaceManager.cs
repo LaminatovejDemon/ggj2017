@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Water
+namespace Env
 {
 public class SurfaceManager : BaseManager<SurfaceManager>{
 

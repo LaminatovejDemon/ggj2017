@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PositionLink : MonoBehaviour {
-
+public class PositionLink : ListenerHandler<Env.Listener> {
 	public GameObject _target;
 	public float _hardness = 0.6f;
 	public Vector3 _offset;
 	Vector3 _targetValue;
 	public bool _yAxis = true;
+	public bool _ZAxis = true;
 	public bool _enabled = true;
+	public bool _digital = false;
+	public float _digitalStep = 1.0f;
 
 	public void SetActive(bool state ){
 		_enabled = state;
@@ -34,20 +36,29 @@ public class PositionLink : MonoBehaviour {
 		_targetValue = this.transform.position;
 	}
 
-	// Use this for initialization
 	void Awake () {	
 		_targetValue = this.transform.position;
 		_offset = _target == null ? Vector3.zero : this.transform.position - _target.transform.position;
 	}
 	
-	// Update is called once per frame
 	void Update () {
-		
+
 		if ( _enabled && _target != null ){
 			_targetValue = _target.transform.position + _offset;
 			if (!_yAxis) {
 				_targetValue.y = this.transform.position.y;
 			}
+			if (!_ZAxis) {
+				_targetValue.z = this.transform.position.z;
+			}
+		}
+
+		if ( _digital ){
+			_targetValue = (Vector3)(Vector3Int.FloorToInt((_targetValue) / _digitalStep)) * _digitalStep;
+		}
+
+		if ( this.transform.position == _targetValue ){
+			return;
 		}
 
 		if ( _hardness >= 1 ){
@@ -55,7 +66,7 @@ public class PositionLink : MonoBehaviour {
 		}else{
 			this.transform.position += (_targetValue - this.transform.position) * _hardness;
 		}
-			
 
+		UpdateListeners();
 	}
 }

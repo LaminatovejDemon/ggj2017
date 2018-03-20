@@ -27,7 +27,7 @@ public class DiverEditor : BaseEditor<Diver> {
 		EditorGUILayout.LabelField("Idle " + instance._surfaceIdleSnapAngle.ToString("0.000"));
 		EditorGUILayout.Separator();
 		EditorGUILayout.LabelField("Scene References");
-		instance._surface = EditorGUILayout.ObjectField("Water", instance._surface, typeof(Water.Surface), true) as Water.Surface;
+		instance._surface = EditorGUILayout.ObjectField("Water", instance._surface, typeof(Env.Surface), true) as Env.Surface;
 		instance._physics = EditorGUILayout.ObjectField("Diver Physics", instance._physics, typeof(DiverPhysics), true) as DiverPhysics;
 		instance._bubbles = EditorGUILayout.ObjectField("Bubble Particle", instance._bubbles, typeof(ParticleSystem), true) as ParticleSystem;
 

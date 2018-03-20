@@ -10,7 +10,7 @@ using UnityEngine;
 /// <param name="_depth">height of the object</param>
 /// </summary>
 
-namespace Water{
+namespace Env{
 public class SurfaceSide : SurfacePlane {
 
 	public float _heightOverride = 0f;
@@ -28,11 +28,11 @@ public class SurfaceSide : SurfacePlane {
 
 	void UpdateRelativePosition(){
 		Vector3 position_ = _surface.transform.position + Vector3.forward * _surface.GetMetresY() * 0.5f;
-		position_.x += (_surface.GetMetresX() * 0.5f + _surface._borderExtentionX) * (_relativePosition-0.5f) * 2;
+		position_.x += (_surface.GetMetresX() * 0.5f + _surface._borderExtention.x) * (_relativePosition-0.5f) * 2;
 		transform.position = position_;
 	}
 		
-	public sealed override void AnimateEdge () {
+	public sealed override void OnUpdate () {
 		Initialise ();
 		int referenceX_ = (int)((transform.localPosition.x + _surface.GetMetresX() * 0.5f ) / _surface._resolutionX);
 		int clamp_ = _surface.GetTileCountX() -1;
@@ -80,28 +80,28 @@ public class SurfaceSide : SurfacePlane {
 		float xOffset_ = _surface._resolutionY * _surfaceLength * 0.5f;
 
 		if ( index == _surfaceLength-1 )
-				_vertices [index*4+0] = new Vector3 (0, yBottom_, xOffset_ );
-			else
-				_vertices [index*4+0] = new Vector3 (0, yBottom_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)+1f) * _surface._resolutionY);
+			_vertices [index*4+0] = new Vector3 (0, yBottom_, xOffset_ + _surface._borderExtention.y);
+		else
+			_vertices [index*4+0] = new Vector3 (0, yBottom_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)+1f) * _surface._resolutionY);
 
-			if ( index == 0 )
-				_vertices [index*4+1] = new Vector3 (0, yBottom_, -xOffset_);
-			else
-				_vertices [index*4+1] = new Vector3 (0, yBottom_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)-0f) * _surface._resolutionY);
+		if ( index == 0 )
+			_vertices [index*4+1] = new Vector3 (0, yBottom_, -xOffset_);
+		else
+			_vertices [index*4+1] = new Vector3 (0, yBottom_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)-0f) * _surface._resolutionY);
 
-			if ( index == 0 )
-				_vertices [index*4+2] = new Vector3 (0, yTop_, -xOffset_);
-			else
-				_vertices [index*4+2] = new Vector3 (0, yTop_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)-0f) * _surface._resolutionY);
+		if ( index == 0 )
+			_vertices [index*4+2] = new Vector3 (0, yTop_, -xOffset_);
+		else
+			_vertices [index*4+2] = new Vector3 (0, yTop_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)-0f) * _surface._resolutionY);
 
-			if ( index == _surfaceLength-1 )
-				_vertices [index*4+3] = new Vector3 (0, yTop_, xOffset_);
-			else
-				_vertices [index*4+3] = new Vector3 (0, yTop_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)+1f) * _surface._resolutionY);
+		if ( index == _surfaceLength-1 )
+			_vertices [index*4+3] = new Vector3 (0, yTop_, xOffset_ + _surface._borderExtention.y);
+		else
+			_vertices [index*4+3] = new Vector3 (0, yTop_, ((index%_surfaceLength - (_surfaceLength) * 0.5f)+1f) * _surface._resolutionY);
 
-			GetComponent<MeshFilter>().mesh.RecalculateBounds();
-			GetComponent<MeshFilter>().mesh.RecalculateNormals();
-			GetComponent<MeshFilter>().mesh.RecalculateTangents();
+		GetComponent<MeshFilter>().mesh.RecalculateBounds();
+		GetComponent<MeshFilter>().mesh.RecalculateNormals();
+		GetComponent<MeshFilter>().mesh.RecalculateTangents();
 	}
 }
 }

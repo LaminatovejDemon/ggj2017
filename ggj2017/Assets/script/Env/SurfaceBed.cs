@@ -8,12 +8,13 @@ using System.Reflection;
 /// 
 /// </summary>
 
-namespace Water{
+namespace Env{
 public class SurfaceBed : SurfacePlane {
 
 	float _quadHeight, _quadWidth;
-	int _width = 0;
+	Vector2Int _QuadCount = Vector2Int.zero;
 	bool _simplfiedVersion = false;
+	public bool _mainSurface = false;
 
 	public bool IsAnimated(){
 		Initialise();
@@ -22,10 +23,11 @@ public class SurfaceBed : SurfacePlane {
 
 	protected sealed override void Construct(){
 		_simplfiedVersion = (!_animatedBottom && _relativePosition > 0);	
-		_width = _surface.GetTileCountX();
-		_quadHeight = _simplfiedVersion ? _surface.GetTileCountY() : 1;
-		_quadWidth = _simplfiedVersion ? _surface.GetTileCountX() : 1;
-		UpdateRelativePosition();	
+		_QuadCount.x = _simplfiedVersion ? 1 : _surface.GetTileCountX();
+		_QuadCount.y = _simplfiedVersion ? 1 : _surface.GetTileCountY();
+		_quadHeight = _simplfiedVersion ? _surface._surfaceHeight/_surface._resolutionY : 1;
+		_quadWidth = _simplfiedVersion ? _surface._surfaceWidth : 1;
+		UpdateRelativePosition();
 	}
 
 	protected sealed override int GetSize(){
@@ -55,40 +57,40 @@ public class SurfaceBed : SurfacePlane {
 
 	protected sealed override void SetVertexChunk(int index){
 		
-		float yl_ = index / _width * _surface._resolutionY;
-		float yr_ = (index / _width + _quadHeight) * _surface._resolutionY;
-		float xl_ = (index%_width  - _width * 0.5f) * _surface._resolutionX;
-		float xr_ = (index%_width - _width * 0.5f + _quadWidth) * _surface._resolutionX;
+		float yl_ = index / _QuadCount.x * _surface._resolutionY;
+		float yr_ = (index / _QuadCount.x + _quadHeight) * _surface._resolutionY;
+		float xl_ = (index%_QuadCount.x  - _QuadCount.x * 0.5f) * _surface._resolutionX;
+		float xr_ = (index%_QuadCount.x - _QuadCount.x * 0.5f + _quadWidth) * _surface._resolutionX;
+		
+		int borderY_ = index / _QuadCount.x == _QuadCount.y-1 ? _surface._borderExtention.y : 0;
 
 		for ( int i = 0; i < 4; ++i){
 			_normals[index*4+i] = Vector3.up;
 		}
-		
 
-		if ( index%_width == _width -1 )
+		if ( index%_QuadCount.x == _QuadCount.x -1 )
 			_vertices [index*4+0] = new Vector3 (_borderDistance, 0, yl_);				
 		else
 			_vertices [index*4+0] = new Vector3 (xr_, 0, yl_);				
 
-		if ( index%_width == 0 )
+		if ( index%_QuadCount.x == 0 )
 			_vertices [index*4+1] = new Vector3 (-_borderDistance, 0, yl_);
 		else 
 			_vertices [index*4+1] = new Vector3 (xl_, 0, yl_);
 
-		if (index%_width == 0 )
-			_vertices [index*4+2] = new Vector3 (-_borderDistance, 0, yr_);			
+		if (index%_QuadCount.x == 0 )
+			_vertices [index*4+2] = new Vector3 (-_borderDistance, 0, yr_ + borderY_);			
 		else
-			_vertices [index*4+2] = new Vector3 (xl_, 0, yr_);
+			_vertices [index*4+2] = new Vector3 (xl_, 0, yr_ + borderY_);
 
-		if ( index%_width == _width-1 )
-			_vertices [index*4+3] = new Vector3 (_borderDistance, 0, yr_) ;
+		if ( index%_QuadCount.x == _QuadCount.x-1 )
+			_vertices [index*4+3] = new Vector3 (_borderDistance, 0, yr_ + borderY_) ;
 		else
-			_vertices [index*4+3] = new Vector3 (xr_, 0, yr_);
+			_vertices [index*4+3] = new Vector3 (xr_, 0, yr_ + borderY_);
 
 		
 
 	}
-
 	protected sealed override void CalculateUV(int index){
 
 		float xShift_ = 0;
@@ -100,8 +102,8 @@ public class SurfaceBed : SurfacePlane {
 
 	}
 
-	void AnimateWaves(int x, int y){
-		int index_ = (y * (int)_width + x) * 4;
+	void UpdateGeometry(int x, int y){
+		int index_ = (y * (int)_QuadCount.x + x) * 4;
 		Vector3 bak_;
 
 		bak_ = _vertices [index_];
@@ -121,25 +123,25 @@ public class SurfaceBed : SurfacePlane {
 		_vertices[index_+3] = bak_;
 	}
 
-	public sealed override void AnimateEdge () {
+	public sealed override void OnUpdate () {
 		Initialise();
 
 		if ( !_animatedBottom && _relativePosition != 0 ){
 			return;
 		}
 
-		for ( int i = 0; i < _width; ++i ){
+		for ( int i = 0; i < _QuadCount.x; ++i ){
 			for ( int j = 0; j < _surface.GetTileCountY(); ++j ){
 				
 				// CalculateUV(j * (int)_width + i);
-				AnimateWaves(i,j);				
+				UpdateGeometry(i,j);				
 			}
 		}
 		GetComponent<MeshFilter> ().mesh.uv = _uvs;
 		GetComponent<MeshFilter> ().mesh.vertices = _vertices;
-		// GetComponent<MeshFilter> ().mesh.RecalculateNormals();
+		GetComponent<MeshFilter> ().mesh.RecalculateBounds();
+		GetComponent<MeshFilter> ().mesh.RecalculateNormals();
 		// GetComponent<MeshFilter> ().mesh.RecalculateTangents();
-
 	}
 }
 }

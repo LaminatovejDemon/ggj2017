@@ -34,7 +34,7 @@ public class Diver : BaseManager<Diver> {
 	[SerializeField]
 	public List<float> _angles;
 
-	public Water.Surface _surface;
+	public Env.Surface _surface;
 	public DiverPhysics _physics;
 	public ParticleSystem _bubbles;
 	public float _surfaceIdleSnapAngle = 270f;
@@ -76,7 +76,7 @@ public class Diver : BaseManager<Diver> {
 		GetComponent<Animator> ().Rebind();
 		ApplyDefaultPosition();
 		MainCamera.get.gameObject.SetActive(true);
-		GetComponent<Water.SurfaceSnap>().Reset();
+		GetComponent<Env.SurfaceSnap>().Reset();
 		NotifyManager (TaskManager.action.idle);
 		DirectionMarker.get.Reset();
 		_directionAngleInterpolated = 0.5f;
@@ -140,7 +140,7 @@ public class Diver : BaseManager<Diver> {
 
 	Vector3 GetBuyoancy(){
 		float diff_ = (_surface.GetSurfaceZ(transform.position).y - transform.position.y);
-		float zero_ = Mathf.Max(0, diff_ + GetComponent<Water.SurfaceSnap>()._verticalOffset);
+		float zero_ = Mathf.Max(0, diff_ + GetComponent<Env.SurfaceSnap>()._verticalOffset);
 		float lift_ = (_zeroDepth_ - diff_) * zero_;
 		lift_ *= (lift_ < 0 ? 0.3f : 0.2f);
 		float downDot_ = Mathf.Max(0, Vector3.Dot(transform.rotation * Vector3.left, Vector3.down)) * 1.1f;
@@ -213,7 +213,7 @@ public class Diver : BaseManager<Diver> {
 		Diver.get.ApplyDefaultPosition();
 		RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(3.9f, true);
 		RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
-		RenderCamera.get.GetComponent<PositionLink>()._yAxis = false;			
+		RenderCamera.get.GetComponent<PositionLink>()._yAxis = true;			
 	}
 
 	public void TryState(state target){
@@ -264,7 +264,7 @@ public class Diver : BaseManager<Diver> {
 				case state.SurfaceSwim:	
 					AboveSurface();
 					DirectionMarker.get._directionArrow.SetActive(true);
-					Diver.get.GetComponent<Water.SurfaceSnap>().SetActive(true);
+					Diver.get.GetComponent<Env.SurfaceSnap>().SetActive(true);
 					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
 					successTrigger = "SurfaceSwim";
 				break;
@@ -443,7 +443,7 @@ public class Diver : BaseManager<Diver> {
 
 		} else {
 			float tangentDot_ = (DirectionMarker.get.GetTangentUIDot() + 1) * 0.5f;
-			Water.SurfaceSnap.Interpolate360(ref _directionAngleInterpolated, tangentDot_, 3f);
+			Env.SurfaceSnap.Interpolate360(ref _directionAngleInterpolated, tangentDot_, 3f);
 			GetComponent<Animator> ().SetFloat ("SwimDirection", _directionAngleInterpolated );
 
 			_maxDepth = Mathf.Max (_maxDepth, -transform.position.y);
