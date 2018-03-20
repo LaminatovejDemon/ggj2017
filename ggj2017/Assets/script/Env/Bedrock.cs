@@ -12,6 +12,8 @@ public class Bedrock : Surface, Listener {
 	public AnimationCurve _roughness;
 	public float _shapeLength = 200;
 
+	float previousOffsetX_ = 0;
+
 	void Start(){
 		GetComponent<PositionLink>().RegisterListener(this);
 	}
@@ -23,10 +25,14 @@ public class Bedrock : Surface, Listener {
 	}
 
 	public void OnUpdate(){
+		int delta_ = (int)(transform.position.x - previousOffsetX_);
 		
-		InitiateSurface ();	
-		UpdateSurface ();
+		InitializeSurface ();	
+
+		ShiftSurface(-delta_);
+		UpdateSurface(delta_);
 		UpdateListeners ();
+		previousOffsetX_ = transform.position.x;
 	}
 
 	protected override float CalculateGridZ(int x, int y){
@@ -41,8 +47,7 @@ public class Bedrock : Surface, Listener {
 
 		float base_ = -_depth + _shape.Evaluate(X_) * _depth;
 		float lateral_ = _lateralShape.Evaluate(refY_ / (float)_surfaceHeight) * 20;
-		return Mathf.Min(2,base_ + lateral_ + random1_ + random2_);
-		
+		return Mathf.Min(2,base_ + lateral_ + random1_ + random2_);	
 	}
 }
 }

@@ -52,7 +52,37 @@ public class Surface : ListenerHandler<Listener> {
 		StoreMainSurface(source as SurfaceBed);
 	}
 
-	protected void InitiateSurface(){
+	protected void ShiftSurface(int offset){
+		int w_ = GetTileCountX();
+		int h_ = GetTileCountY();
+		int indexFrom_, indexTo_;
+
+		if ( offset > 0 ){
+			for ( int x = w_-offset-1; x > 0; --x ){
+				for ( int y = 0; y < h_; ++y ){
+					indexFrom_ = (y * w_ + x) * 4;
+					indexTo_ = (y * w_ + x+offset) * 4;
+					_heights[indexTo_] = _heights[indexFrom_];  
+					_heights[indexTo_+1] = _heights[indexFrom_+1];
+					_heights[indexTo_+2] = _heights[indexFrom_+2];
+					_heights[indexTo_+3] = _heights[indexFrom_+3];
+				}
+			}
+		} else {
+			for ( int x = -offset; x < w_; ++x ){
+				for ( int y = 0; y < h_; ++y ){
+					indexFrom_ = (y * w_ + x) * 4;
+					indexTo_ = (y * w_ + x+offset) * 4;
+					_heights[indexTo_] = _heights[indexFrom_];  
+					_heights[indexTo_+1] = _heights[indexFrom_+1];
+					_heights[indexTo_+2] = _heights[indexFrom_+2];
+					_heights[indexTo_+3] = _heights[indexFrom_+3];
+				}
+			}
+		}
+	}
+
+	protected void InitializeSurface(){
 		if (_heights != null) {
 			return;
 		}
@@ -61,20 +91,29 @@ public class Surface : ListenerHandler<Listener> {
 		UpdateSurface();
 	}
 
-	protected void UpdateSurface(){
+	protected void UpdateSurface(int length){
+		if ( length > 0 ){
+			UpdateSurface(GetTileCountX()-length, 0);
+		} else {
+			UpdateSurface(0, GetTileCountX()+length-1);
+		}
+	}
+
+	protected void UpdateSurface(int trimLeft = 0, int trimRight = 0){
  
 		int index_ = 0;
 
-		int w_ = GetTileCountX ();
+		int w_ = GetTileCountX();
+		int h_ = GetTileCountY();
 
-		for ( int i = 0; i < w_; ++i ){
-			for ( int j = 0; j < GetTileCountY(); ++j ){
-				index_ = (j * w_ + i) * 4;
+		for ( int x = trimLeft; x < w_-trimRight; ++x ){
+			for ( int y = 0; y < h_; ++y ){
+				index_ = (y * w_ + x) * 4;
 
-				_heights[index_] = GetGridZ(i, j-1);
-				_heights[index_+1] = GetGridZ(i-1, j-1);
-				_heights[index_+2] = GetGridZ(i-1, j);
-				_heights[index_+3] = CalculateGridZ (i, j);
+				_heights[index_] = GetGridZ(x, y-1);
+				_heights[index_+1] = GetGridZ(x-1, y-1);
+				_heights[index_+2] = GetGridZ(x-1, y);
+				_heights[index_+3] = CalculateGridZ (x, y);
 			}
 		}
 	}
@@ -96,7 +135,7 @@ public class Surface : ListenerHandler<Listener> {
 	}
 
 	public Vector3 GetSurfaceZ(Vector3 position){
-		InitiateSurface ();
+		InitializeSurface ();
 
 		Vector3 _alteredVector = position + Vector3.right * ((GetTileCountX() * 0.5f) * _resolutionX); 
 

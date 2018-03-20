@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Env{
 public class Collision : MonoBehaviour, Listener {
 	public Bedrock _surface;
-	List<Vector2> points_;
+	Vector2[] points_;
 
 	float previousOffsetX_ = 0;
 
@@ -15,13 +15,10 @@ public class Collision : MonoBehaviour, Listener {
 		}
 
 		_surface.RegisterListener(this);
-		points_ = new List<Vector2>();
+		points_ = new Vector2[_surface._surfaceWidth];
 		
-		while (points_.Count < _surface._surfaceWidth){
-			points_.Add(Vector2.zero);
-		}
-
 		previousOffsetX_ = transform.position.x;
+		Recalculate(_surface._surfaceWidth);
 	}
 
 	void Update(){
@@ -29,17 +26,45 @@ public class Collision : MonoBehaviour, Listener {
 	}
 
 	void Recalculate(){
-		EdgeCollider2D collider_ = GetComponent<EdgeCollider2D>();
-		
-		float offset_ = _surface._surfaceWidth*0.5f;
+		int delta_ = (int)(transform.position.x - previousOffsetX_);
+		Recalculate(delta_);
+	}
 
-		
+	void Recalculate(int delta_){
+		int length_ = _surface._surfaceWidth;
 
-		for ( int i = 0; i < _surface._surfaceWidth; ++i ){
-			points_[i] = _surface.GetSurfaceZ(Vector3.right * (i-offset_) + transform.position) - transform.position + Vector3.left * 5;
+		Shift(-delta_);
+		if ( delta_ > 0 ){	
+			Calculate (length_-delta_, length_);
+		} else {
+			Calculate(0, -delta_);
 		}
 
-		collider_.points = points_.ToArray();
+		GetComponent<EdgeCollider2D>().points = points_;
+		previousOffsetX_ = transform.position.x;
+	}
+
+	void Shift(int offset){
+		int length_ = _surface._surfaceWidth;
+		if ( offset > 0 ){
+			for ( int i = length_-offset-1; i > 0; --i ){
+				points_[i+offset].y = points_[i].y;
+			}
+		} else {
+			for ( int i = -offset; i < length_; ++i ){
+				points_[i+offset].y = points_[i].y;
+			}
+		}
+	}
+
+	void Calculate(int from, int to){
+		for ( int i = from; i < to; ++i){
+			points_[i] = Calculate(i);
+		}
+	}
+
+	Vector2 Calculate(float posX){
+		return new Vector2(posX-_surface._surfaceWidth*0.5f, _surface.GetGridZ((int)(posX), 5));
 	}
 
 	public void OnUpdate(){

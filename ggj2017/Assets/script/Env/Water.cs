@@ -10,7 +10,7 @@ public class Water : Surface {
 	public float _waveSpeed = 1.0f;
 
 	void Update () {
-		InitiateSurface ();	
+		InitializeSurface ();	
 		UpdateSurface ();
 		UpdateListeners();
 	}
