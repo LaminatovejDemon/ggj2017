@@ -233,7 +233,7 @@ public class Diver : BaseManager<Diver> {
 				break;
 
 				case state.Stand:
-					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.05f;
 					successTrigger = "Stand";
 					break;
 
@@ -245,7 +245,7 @@ public class Diver : BaseManager<Diver> {
 					RenderCamera.get.GetComponent<PositionLink>().SetActive(true);
 					RenderCamera.get.GetComponent<PositionLink>()._yAxis = true;
 					RenderCamera.get.GetComponent<PositionLink>().SetOffsetY(3.9f, true);
-					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.05f;
 					successTrigger = "Sit";
 				break;
 
@@ -265,7 +265,7 @@ public class Diver : BaseManager<Diver> {
 					AboveSurface();
 					DirectionMarker.get._directionArrow.SetActive(true);
 					Diver.get.GetComponent<Env.SurfaceSnap>().SetActive(true);
-					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.5f;
+					RenderCamera.get.GetComponent<PositionLink>()._hardness = 0.05f;
 					successTrigger = "SurfaceSwim";
 				break;
 

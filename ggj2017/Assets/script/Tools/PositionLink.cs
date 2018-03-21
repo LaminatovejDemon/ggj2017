@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PositionLink : ListenerHandler<Env.Listener> {
 	public GameObject _target;
-	public float _hardness = 0.6f;
+	public float _hardness = 0.05f;
 	public Vector3 _offset;
 	Vector3 _targetValue;
 	public bool _yAxis = true;
